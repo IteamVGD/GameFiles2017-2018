@@ -54,6 +54,7 @@ public class GameController : MonoBehaviour {
         playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
         sideScrollMapObj.SetActive(true);
         topDownMapObj.SetActive(false);
+        playerObj.transform.GetChild(0).transform.position = new Vector3(0, 0, 0);
     }
 
     public void changeToTopdown()
@@ -63,5 +64,6 @@ public class GameController : MonoBehaviour {
         playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
         sideScrollMapObj.SetActive(false);
         topDownMapObj.SetActive(true);
+        playerObj.transform.GetChild(0).transform.position = new Vector3(0, 0, 0);
     }
 }
