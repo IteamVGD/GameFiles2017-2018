@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2015
+# Visual Studio 2017
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSA Game 2017-2018", "TSA Game 2017-2018.csproj", "{8C612F6C-EEF3-AAC0-8C7B-F0ABEE297B37}"
 EndProject
 Global
