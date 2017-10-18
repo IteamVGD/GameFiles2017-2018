@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 91aa1caef67f62949825c1a07511725a
+timeCreated: 1507910059
+licenseType: Free
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - PerspectiveTextObj: {fileID: 1820650201722074, guid: 22e5534f1e225454dbe8119e026487b8,
+      type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
