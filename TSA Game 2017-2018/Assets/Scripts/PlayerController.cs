@@ -13,6 +13,8 @@ public class PlayerController : MonoBehaviour {
     public bool canJump;
     public bool movementKeyBeingPressed;
 
+    public List<Sprite> playerSpriteList; //0 = front, 1 = facing right, 2 = facing left, 3 = back NOTE Back is a makeshift sprite made by Gabe for now
+
     private void Awake()
     {
         gameControllerScript = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>();
@@ -21,7 +23,9 @@ public class PlayerController : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        
+
+        //Sets sprite at start to facing forward idle
+        gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[0];
     }
 	
 	// Update is called once per frame
@@ -39,18 +43,22 @@ public class PlayerController : MonoBehaviour {
             if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
+                gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[1];
             }
             if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(-horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
+                gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[2];
             }
             if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, verticalMovementSpeed);
+                gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[3];
             }
             if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, -verticalMovementSpeed);
+                gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[0];
             }
 
             //Let go to stop
@@ -79,10 +87,12 @@ public class PlayerController : MonoBehaviour {
             if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
+                gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[1];
             }
             if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(-horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
+                gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[2];
             }
             if(Input.GetKey(KeyCode.Space))
             {

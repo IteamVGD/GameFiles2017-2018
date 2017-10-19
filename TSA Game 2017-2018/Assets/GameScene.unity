@@ -77,17 +77,15 @@ LightmapSettings:
     m_PVRDirectSampleCount: 32
     m_PVRSampleCount: 500
     m_PVRBounces: 2
-    m_PVRFilterTypeDirect: 0
-    m_PVRFilterTypeIndirect: 0
-    m_PVRFilterTypeAO: 0
+    m_PVRFiltering: 0
     m_PVRFilteringMode: 1
     m_PVRCulling: 1
     m_PVRFilteringGaussRadiusDirect: 1
     m_PVRFilteringGaussRadiusIndirect: 5
     m_PVRFilteringGaussRadiusAO: 2
-    m_PVRFilteringAtrousPositionSigmaDirect: 0.5
-    m_PVRFilteringAtrousPositionSigmaIndirect: 2
-    m_PVRFilteringAtrousPositionSigmaAO: 1
+    m_PVRFilteringAtrousColorSigma: 1
+    m_PVRFilteringAtrousNormalSigma: 1
+    m_PVRFilteringAtrousPositionSigma: 1
   m_LightingDataAsset: {fileID: 0}
   m_UseShadowmask: 1
 --- !u!196 &4
@@ -878,6 +876,11 @@ MonoBehaviour:
   jumpSpeed: 250
   canJump: 0
   movementKeyBeingPressed: 0
+  playerSpriteList:
+  - {fileID: 21300000, guid: 37a74a43933050343abf6a1961d297bf, type: 3}
+  - {fileID: 21300000, guid: b07343ec0b1a52f42ae20d2306cd74a6, type: 3}
+  - {fileID: 21300000, guid: a5be4292dbaef0049ada436d7db6621f, type: 3}
+  - {fileID: 21300000, guid: d8718a303444fad448a96e924aaf1bd8, type: 3}
 --- !u!212 &1841899461
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -910,8 +913,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 8984f9b06ca73e843a5ba75f9a06d51f, type: 3}
-  m_Color: {r: 0.60294116, g: 0.093101226, b: 0.093101226, a: 1}
+  m_Sprite: {fileID: 21300000, guid: b07343ec0b1a52f42ae20d2306cd74a6, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -932,18 +935,18 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: -0.0049096346}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
+    oldSize: {x: 2, y: 2}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 1, y: 1.9917424}
   m_EdgeRadius: 0
 --- !u!50 &1841899463
 Rigidbody2D:

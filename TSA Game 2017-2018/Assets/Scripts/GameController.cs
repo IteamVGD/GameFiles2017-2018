@@ -49,21 +49,23 @@ public class GameController : MonoBehaviour {
 
     public void changeToSidescroll()
     {
-        sidescrollUIControllerScript.enabled = true;
-        playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().gravityScale = 1.0f;
-        playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
-        sideScrollMapObj.SetActive(true);
-        topDownMapObj.SetActive(false);
-        playerObj.transform.GetChild(0).transform.position = new Vector3(0, 0, 0);
+        sidescrollUIControllerScript.enabled = true; //Enables sidescroll ui controller script
+        playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().gravityScale = 1.0f; //Makes player react to gravity
+        playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0); //Stops player
+        sideScrollMapObj.SetActive(true); //Enables sidescroll map
+        topDownMapObj.SetActive(false); //Disables topdown map
+        playerObj.transform.GetChild(0).transform.position = new Vector3(0, 0, 0); //Resets player to middle of screen
+        playerObj.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = playerObj.transform.GetChild(0).GetComponent<PlayerController>().playerSpriteList[0]; //Sets player's sprite to facing forward
     }
 
     public void changeToTopdown()
     {
-        topdownUIControllerScript.enabled = true;
-        playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().gravityScale = 0.0f;
-        playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
-        sideScrollMapObj.SetActive(false);
-        topDownMapObj.SetActive(true);
-        playerObj.transform.GetChild(0).transform.position = new Vector3(0, 0, 0);
+        topdownUIControllerScript.enabled = true; //Enables topdown ui controller script
+        playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().gravityScale = 0.0f; //Stops player from reacting to gravity
+        playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0); //Stops player
+        sideScrollMapObj.SetActive(false); //Disables sidescroll map
+        topDownMapObj.SetActive(true); //Enables topdown map
+        playerObj.transform.GetChild(0).transform.position = new Vector3(0, 0, 0); //Resets player to middle of screen
+        playerObj.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = playerObj.transform.GetChild(0).GetComponent<PlayerController>().playerSpriteList[0]; //Sets player's sprite to facing forward
     }
 }
