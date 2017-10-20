@@ -13,7 +13,11 @@ public class PlayerController : MonoBehaviour {
     public bool canJump;
     public bool movementKeyBeingPressed;
 
-    public List<Sprite> playerSpriteList; //0 = front, 1 = facing right, 2 = facing left, 3 = back NOTE Back is a makeshift sprite made by Gabe for now
+    public float punchTime = 0.8f; //Time a punch stays displayed
+    public bool isPunching;
+
+    public Sprite tempSprite; //Used to keep track of what sprite was in use before attacking;
+    public List<Sprite> playerSpriteList; //0 = front, 1 = facing right, 2 = facing left, 3 = back NOTE Back + Attack are makeshift sprites made by Gabe for now
 
     private void Awake()
     {
@@ -113,6 +117,12 @@ public class PlayerController : MonoBehaviour {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
             }
         }
+
+        //Attack Code
+        if(Input.GetMouseButtonDown(0) && isPunching == false) //Get mouse button not working
+        {
+            StartCoroutine(Punch());
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -121,5 +131,15 @@ public class PlayerController : MonoBehaviour {
         {
             canJump = true;
         }
+    }
+
+    IEnumerator Punch()
+    {
+        isPunching = true;
+        tempSprite = gameObject.transform.GetComponent<SpriteRenderer>().sprite;
+        gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[4];
+        yield return new WaitForSeconds(punchTime);
+        gameObject.transform.GetComponent<SpriteRenderer>().sprite = tempSprite;
+        isPunching = false;
     }
 }

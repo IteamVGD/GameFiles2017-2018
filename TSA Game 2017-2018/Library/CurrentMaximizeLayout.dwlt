@@ -25,7 +25,7 @@ MonoBehaviour:
   m_MinSize: {x: 911, y: 421}
   m_MaxSize: {x: 22006, y: 10021}
   vertical: 0
-  controlID: 5460
+  controlID: 4651
 --- !u!114 &2
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -125,7 +125,7 @@ MonoBehaviour:
   m_MinSize: {x: 202, y: 421}
   m_MaxSize: {x: 4002, y: 8021}
   vertical: 1
-  controlID: 5394
+  controlID: 4618
 --- !u!114 &4
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -243,8 +243,8 @@ MonoBehaviour:
     y: 330
     width: 402
     height: 257
-  m_MinSize: {x: 202, y: 221}
-  m_MaxSize: {x: 4002, y: 4021}
+  m_MinSize: {x: 200, y: 200}
+  m_MaxSize: {x: 4000, y: 4000}
   m_ActualView: {fileID: 2}
   m_Panes:
   - {fileID: 2}
@@ -303,9 +303,9 @@ MonoBehaviour:
     height: 566
   m_TreeViewState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 
+    m_SelectedIDs: 3c260000
     m_LastClickedID: 0
-    m_ExpandedIDs: f6fbffff000000007a2600008a260000
+    m_ExpandedIDs: 1afcffff0000000082260000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -346,8 +346,8 @@ MonoBehaviour:
     y: 0
     width: 282
     height: 587
-  m_MinSize: {x: 230, y: 250}
-  m_MaxSize: {x: 10000, y: 10000}
+  m_MinSize: {x: 234, y: 271}
+  m_MaxSize: {x: 10004, y: 10021}
   m_ActualView: {fileID: 10}
   m_Panes:
   - {fileID: 10}
@@ -391,11 +391,11 @@ MonoBehaviour:
     m_ShowAllHits: 0
     m_SearchArea: 0
     m_Folders:
-    - Assets/Art/Characters/Player
+    - Assets/Art/Characters/Player/Animations
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/Art/Characters/Player
+  - Assets/Art/Characters/Player/Animations
   m_LastFoldersGridSize: -1
   m_LastProjectPath: C:\Users\gabriel.tubiomoncau\Desktop\TSA\Game Making\TSA 2017-2018\Repo\TSA
     Game 2017-2018
@@ -404,7 +404,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 2e260000
     m_LastClickedID: 9774
-    m_ExpandedIDs: 000000001a2600002c26000036260000dc260000ffffff7f
+    m_ExpandedIDs: 00000000122600002c260000302600003a260000e4260000ffffff7f
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -432,7 +432,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 000000001a2600002c26000036260000dc260000ffffff7f
+    m_ExpandedIDs: 00000000122600002c260000302600003a260000e4260000ffffff7f
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -457,9 +457,9 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
   m_ListAreaState:
-    m_SelectedInstanceIDs: 
-    m_LastClickedInstanceID: 0
-    m_HadKeyboardFocusLastEvent: 0
+    m_SelectedInstanceIDs: 3c260000
+    m_LastClickedInstanceID: 9788
+    m_HadKeyboardFocusLastEvent: 1
     m_ExpandedInstanceIDs: ce21000000000000c6270000562e0000282800002a46ffff
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -538,7 +538,7 @@ MonoBehaviour:
     y: 92
     width: 385
     height: 566
-  m_ScrollPosition: {x: 0, y: 0}
+  m_ScrollPosition: {x: 0, y: 21.955078}
   m_InspectorMode: 0
   m_PreviewResizer:
     m_CachedPref: 100
