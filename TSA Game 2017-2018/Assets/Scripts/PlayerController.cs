@@ -19,6 +19,9 @@ public class PlayerController : MonoBehaviour {
     public Sprite tempSprite; //Used to keep track of what sprite was in use before attacking;
     public List<Sprite> playerSpriteList; //0 = front, 1 = facing right, 2 = facing left, 3 = back NOTE Back + Attack are makeshift sprites made by Gabe for now
 
+    //Animator
+    Animator animatorWalk;
+
     private void Awake()
     {
         gameControllerScript = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>();
@@ -30,6 +33,9 @@ public class PlayerController : MonoBehaviour {
 
         //Sets sprite at start to facing forward idle
         gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[0];
+
+        //finds walk controller animator
+        animatorWalk = this.GetComponent<Animator>();
     }
 	
 	// Update is called once per frame
@@ -47,40 +53,56 @@ public class PlayerController : MonoBehaviour {
             if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
-                gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[1];
+                //gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[1];
+                //changes animation
+                animatorWalk.SetInteger("Direction", 3);
             }
             if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(-horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
-                gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[2];
+                //gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[2];
+                //changes animation
+                animatorWalk.SetInteger("Direction", 1);
             }
             if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, verticalMovementSpeed);
-                gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[3];
+                //gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[3];
+                //changes animation
+                animatorWalk.SetInteger("Direction", 2);
             }
             if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, -verticalMovementSpeed);
-                gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[0];
+                //gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[0];
+                //changes animation
+                animatorWalk.SetInteger("Direction", 0);
             }
 
             //Let go to stop
             if(Input.GetKeyUp(KeyCode.D) || Input.GetKeyUp(KeyCode.RightArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
+                //changes animation
+                animatorWalk.SetInteger("Direction", 5);
             }
             if (Input.GetKeyUp(KeyCode.A) || Input.GetKeyUp(KeyCode.LeftArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
+                //changes animation
+                animatorWalk.SetInteger("Direction", 5);
             }
             if (Input.GetKeyUp(KeyCode.W) || Input.GetKeyUp(KeyCode.UpArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, 0);
+                //changes animation
+                animatorWalk.SetInteger("Direction", 5);
             }
             if (Input.GetKeyUp(KeyCode.S) || Input.GetKeyUp(KeyCode.DownArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, 0);
+                //changes animation
+                animatorWalk.SetInteger("Direction", 5);
             }
         }
         if (gameControllerScript.currentView == 2)
