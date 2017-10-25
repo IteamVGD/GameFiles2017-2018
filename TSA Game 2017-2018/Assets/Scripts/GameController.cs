@@ -50,7 +50,7 @@ public class GameController : MonoBehaviour {
     public void changeToSidescroll()
     {
         sidescrollUIControllerScript.enabled = true; //Enables sidescroll ui controller script
-        playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().gravityScale = 1.0f; //Makes player react to gravity
+        playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().gravityScale = 2.5f; //Makes player react to gravity
         playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0); //Stops player
         sideScrollMapObj.SetActive(true); //Enables sidescroll map
         topDownMapObj.SetActive(false); //Disables topdown map
