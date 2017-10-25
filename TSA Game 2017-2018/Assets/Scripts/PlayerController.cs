@@ -40,7 +40,9 @@ public class PlayerController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if(Input.GetKeyDown(KeyCode.Q))
+        animatorWalk.SetInteger("HorizontalSpeedTD", (int) gameObject.transform.GetComponent<Rigidbody2D>().velocity.x); //Velocity based animations
+        animatorWalk.SetInteger("VerticalSpeedTD", (int) gameObject.transform.GetComponent<Rigidbody2D>().velocity.y); //TD = Topdown variables
+        if (Input.GetKeyDown(KeyCode.Q))
         {
             gameControllerScript.ChangeView();
         }
@@ -55,28 +57,24 @@ public class PlayerController : MonoBehaviour {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
                 //gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[1];
                 //changes animation
-                animatorWalk.SetInteger("Direction", 3);
             }
             if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(-horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
                 //gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[2];
                 //changes animation
-                animatorWalk.SetInteger("Direction", 1);
             }
             if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, verticalMovementSpeed);
                 //gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[3];
                 //changes animation
-                animatorWalk.SetInteger("Direction", 2);
             }
             if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, -verticalMovementSpeed);
                 //gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[0];
                 //changes animation
-                animatorWalk.SetInteger("Direction", 0);
             }
 
             //Let go to stop
@@ -84,25 +82,21 @@ public class PlayerController : MonoBehaviour {
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
                 //changes animation
-                animatorWalk.SetInteger("Direction", 5);
             }
             if (Input.GetKeyUp(KeyCode.A) || Input.GetKeyUp(KeyCode.LeftArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
                 //changes animation
-                animatorWalk.SetInteger("Direction", 5);
             }
             if (Input.GetKeyUp(KeyCode.W) || Input.GetKeyUp(KeyCode.UpArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, 0);
                 //changes animation
-                animatorWalk.SetInteger("Direction", 5);
             }
             if (Input.GetKeyUp(KeyCode.S) || Input.GetKeyUp(KeyCode.DownArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, 0);
                 //changes animation
-                animatorWalk.SetInteger("Direction", 5);
             }
         }
         if (gameControllerScript.currentView == 2)
