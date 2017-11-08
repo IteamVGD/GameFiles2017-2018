@@ -7,7 +7,7 @@ public class SidescrollUIController : MonoBehaviour {
 
     public GameController gameControllerScript;
     public TopdownUIController topdownUIControllerScript;
-
+    
     private void Awake()
     {
         gameControllerScript = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>();

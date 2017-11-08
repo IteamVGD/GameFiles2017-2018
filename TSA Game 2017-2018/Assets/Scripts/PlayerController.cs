@@ -28,6 +28,9 @@ public class PlayerController : MonoBehaviour
     public bool goToMinJump; //if true, initiates loop in update to go to min jump height
     public bool letGoOfSpace;
 
+    public static int currentGloveInt; //0 = default glove
+    public static string currentGloveString;
+
     //Animator
     Animator animatorWalk;
 
@@ -40,6 +43,7 @@ public class PlayerController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        currentGloveString = "Default Gloves";
 
         //Sets sprite at start to facing forward idle
         gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[0];
