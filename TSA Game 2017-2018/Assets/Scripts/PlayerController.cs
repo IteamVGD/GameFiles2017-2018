@@ -28,10 +28,16 @@ public class PlayerController : MonoBehaviour
     public bool goToMinJump; //if true, initiates loop in update to go to min jump height
     public bool letGoOfSpace;
 
-    public static int currentGloveInt; //0 = default glove
-    public static string currentGloveString;
-    public static int currentBeltInt; //0 = default belt
-    public static string currentBeltString;
+    public static int currentGloveInt;
+    public static string currentGloveString = "Default Glove";
+    public static int currentBeltInt;
+    public static string currentBeltString = "Default Belt";
+
+    public bool isIdle;
+    public bool isCrouching;
+    public int sideFacing; //1 = up/back, 2 = left, 3 = down/front, 4 = right
+    public bool isUnderSomething; //used to stop player from uncrouching when in small area
+    public bool crouchingButKeyIsUp;
 
     //Animator
     Animator animatorWalk;
@@ -45,8 +51,6 @@ public class PlayerController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        currentGloveString = "Default Gloves";
-        currentBeltString = "Default Belt";
 
         //Sets sprite at start to facing forward idle
         gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[0];
@@ -58,7 +62,11 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if (gameObject.transform.GetComponent<Rigidbody2D>().velocity.x > 0 || gameObject.transform.GetComponent<Rigidbody2D>().velocity.y > 0 || gameObject.transform.GetComponent<Rigidbody2D>().velocity.x < 0 || gameObject.transform.GetComponent<Rigidbody2D>().velocity.y < 0)
+        {
+            isIdle = false;
+        }
+        animatorWalk.SetBool("isIdleBool", isIdle);
         animatorWalk.SetInteger("HorizontalSpeedTD", (int)gameObject.transform.GetComponent<Rigidbody2D>().velocity.x); //Velocity based animations
         animatorWalk.SetInteger("VerticalSpeedTD", (int)gameObject.transform.GetComponent<Rigidbody2D>().velocity.y); //TD = Topdown variables
         if (Input.GetKeyDown(KeyCode.Q))
@@ -74,48 +82,48 @@ public class PlayerController : MonoBehaviour
             if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
-                //gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[1];
-                //changes animation
+                sideFacing = 4;
             }
             if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(-horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
-                //gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[2];
-                //changes animation
+                sideFacing = 2;
             }
             if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, verticalMovementSpeed);
-                //gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[3];
-                //changes animation
+                sideFacing = 1;
             }
             if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, -verticalMovementSpeed);
-                //gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[0];
-                //changes animation
+                sideFacing = 3;
             }
 
             //Let go to stop
             if (Input.GetKeyUp(KeyCode.D) || Input.GetKeyUp(KeyCode.RightArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
-                //changes animation
+                isIdle = true;
+                sideFacing = 3;
             }
             if (Input.GetKeyUp(KeyCode.A) || Input.GetKeyUp(KeyCode.LeftArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
-                //changes animation
+                isIdle = true;
+                sideFacing = 3;
             }
             if (Input.GetKeyUp(KeyCode.W) || Input.GetKeyUp(KeyCode.UpArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, 0);
-                //changes animation
+                isIdle = true;
+                sideFacing = 3;
             }
             if (Input.GetKeyUp(KeyCode.S) || Input.GetKeyUp(KeyCode.DownArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, 0);
-                //changes animation
+                isIdle = true;
+                sideFacing = 3;
             }
         }
         if (gameControllerScript.currentView == 2)
@@ -127,29 +135,22 @@ public class PlayerController : MonoBehaviour
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
                 gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[1];
+                sideFacing = 4;
             }
             if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(-horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
                 gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[2];
+                sideFacing = 2;
             }
-            /*if(Input.GetKey(KeyCode.Space))
-            {
-                if(canJump == true)
-                {
-                    gameObject.transform.GetComponent<Rigidbody2D>().AddForce(new Vector2(0f, jumpSpeed));
-                    canJump = false;
-                }
-            }*/
 
-            if(Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Space) && letGoOfSpace == false)
             {
                 jumpheightTimerInt = 0;
                 goToMinJump = true;
-                letGoOfSpace = false;
             }
 
-            if(goToMinJump == true)
+            if (goToMinJump == true)
             {
                 if (jumpheightTimerInt < minJumpHeight)
                 {
@@ -159,14 +160,14 @@ public class PlayerController : MonoBehaviour
                 else
                 {
                     goToMinJump = false;
-                    if(letGoOfSpace == true)
+                    if (letGoOfSpace == true)
                     {
                         gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, 0);
                     }
                 }
             }
 
-            if (Input.GetKey(KeyCode.Space) && goToMinJump == false)
+            if (Input.GetKey(KeyCode.Space) && goToMinJump == false && letGoOfSpace == false)
             {
                 if (jumpheightTimerInt < maxJumpHeight)
                 {
@@ -175,8 +176,13 @@ public class PlayerController : MonoBehaviour
                 }
             }
 
-            if(Input.GetKeyUp(KeyCode.Space))
+            if (Input.GetKeyUp(KeyCode.Space))
             {
+                if(isCrouching == false)
+                {
+                    isIdle = true;
+                    sideFacing = 3;
+                }
                 letGoOfSpace = true;
                 if (jumpheightTimerInt >= minJumpHeight)
                 {
@@ -184,14 +190,60 @@ public class PlayerController : MonoBehaviour
                 }
             }
 
+            //Press to Crouch / Duck
+            if(Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                isCrouching = true;
+                animatorWalk.SetBool("isCrouching", true);
+                gameObject.transform.GetComponent<BoxCollider2D>().size = new Vector2(1, 1.3f);
+                gameObject.transform.GetComponent<BoxCollider2D>().offset = new Vector2(0, -0.35f);
+            }
+
             //Let go to stop
             if (Input.GetKeyUp(KeyCode.D) || Input.GetKeyUp(KeyCode.RightArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
+                if (isCrouching == false)
+                {
+                    isIdle = true;
+                    sideFacing = 3;
+                }
             }
             if (Input.GetKeyUp(KeyCode.A) || Input.GetKeyUp(KeyCode.LeftArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
+                if (isCrouching == false)
+                {
+                    isIdle = true;
+                    sideFacing = 3;
+                }
+            }
+            if (Input.GetKeyUp(KeyCode.S) || Input.GetKeyUp(KeyCode.DownArrow))
+            {
+                if(isUnderSomething == false)
+                {
+                    isCrouching = false;
+                    animatorWalk.SetBool("isCrouching", false);
+                    isIdle = true;
+                    sideFacing = 3;
+                    gameObject.transform.GetComponent<BoxCollider2D>().size = new Vector2(1, 2);
+                    gameObject.transform.GetComponent<BoxCollider2D>().offset = new Vector2(0, -0);
+                }
+                else
+                {
+                    crouchingButKeyIsUp = true;
+                }
+            }
+
+            if(crouchingButKeyIsUp == true && isUnderSomething == false)
+            {
+                isCrouching = false;
+                animatorWalk.SetBool("isCrouching", false);
+                isIdle = true;
+                sideFacing = 3;
+                gameObject.transform.GetComponent<BoxCollider2D>().size = new Vector2(1, 2);
+                gameObject.transform.GetComponent<BoxCollider2D>().offset = new Vector2(0, -0);
+                crouchingButKeyIsUp = false;
             }
         }
 
@@ -202,22 +254,14 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    /*private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if(collision.gameObject.tag == "Floor")
-        {
-            if (canJump == false || isJumping == true)
-            {
-                canJump = true;
-                isJumping = false;
-            }
-        }
-    }*/
-
     private void OnCollisionStay2D(Collision2D collision)
     {
         if (collision.gameObject.tag == "Floor")
         {
+            if(letGoOfSpace == true)
+            {
+                letGoOfSpace = false;
+            }
             if (canJump == false)
             {
                 canJump = true;
@@ -230,6 +274,22 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.tag == "Floor")
         {
             canJump = false;
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if(isCrouching)
+        {
+            isUnderSomething = true;
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (isCrouching && isUnderSomething == true)
+        {
+            isUnderSomething = false;
         }
     }
 
