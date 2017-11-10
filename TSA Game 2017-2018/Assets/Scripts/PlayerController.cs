@@ -26,7 +26,7 @@ public class PlayerController : MonoBehaviour
     public int minJumpHeight = 5;
     public int jumpSpeedInt = 5; //how fast he jumps
     public bool goToMinJump; //if true, initiates loop in update to go to min jump height
-    public bool letGoOfSpace;
+    public bool letGoOfSpace; //this bool helps stop some jumping glitches
 
     public static int currentGloveInt; //Currently equiped glove's "index" value, starts at 0
     public static string currentGloveString = "Default Glove";
@@ -61,9 +61,6 @@ public class PlayerController : MonoBehaviour
                 break;
             }
         }
-
-        //Sets sprite at start to facing forward idle
-        gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[0];
 
         //finds walk controller animator
         animatorWalk = this.GetComponent<Animator>();
@@ -144,13 +141,11 @@ public class PlayerController : MonoBehaviour
             if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
-                gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[1];
                 sideFacing = 4;
             }
             if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(-horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
-                gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[2];
                 sideFacing = 2;
             }
 
@@ -186,17 +181,20 @@ public class PlayerController : MonoBehaviour
                 }
             }
 
-            if (Input.GetKeyUp(KeyCode.Space))
+            if (Input.GetKeyUp(KeyCode.Space) && letGoOfSpace == false)
             {
-                if(isCrouching == false)
+                if (isIdle == false)
                 {
-                    isIdle = true;
-                    sideFacing = 3;
-                }
-                letGoOfSpace = true;
-                if (jumpheightTimerInt >= minJumpHeight)
-                {
-                    gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, 0);
+                    if (isCrouching == false)
+                    {
+                        isIdle = true;
+                        sideFacing = 3;
+                    }
+                    letGoOfSpace = true;
+                    if (jumpheightTimerInt >= minJumpHeight)
+                    {
+                        gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, 0);
+                    }
                 }
             }
 
@@ -276,9 +274,13 @@ public class PlayerController : MonoBehaviour
             {
                 letGoOfSpace = false;
             }
-            if (canJump == false)
+            if(isIdle == false)
             {
-                canJump = true;
+                isIdle = true;
+            }
+            if(canJump == false)
+            {
+                isIdle = true;
             }
         }
     }
@@ -307,13 +309,13 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    IEnumerator Punch()
+    IEnumerator Punch() //commented out sprite renderer changes since we are using the animator to do this instead
     {
         isPunching = true;
-        tempSprite = gameObject.transform.GetComponent<SpriteRenderer>().sprite;
-        gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[4];
+        //tempSprite = gameObject.transform.GetComponent<SpriteRenderer>().sprite;
+        //gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[4];
         yield return new WaitForSeconds(punchTime);
-        gameObject.transform.GetComponent<SpriteRenderer>().sprite = tempSprite;
+        //gameObject.transform.GetComponent<SpriteRenderer>().sprite = tempSprite;
         isPunching = false;
     }
 }

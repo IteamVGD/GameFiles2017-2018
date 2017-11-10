@@ -23,11 +23,12 @@ public class GameController : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        currentView = 1;    
-	}
-	 
-	// Update is called once per frame
-	void Update () {
+        currentView = 1;
+        playerObj.transform.GetChild(0).GetComponent<Animator>().SetInteger("currentViewInt", 1); //sets int in player's animator to currentView, letting the animations be topdown/sidescroll dependent
+    }
+
+    // Update is called once per frame
+    void Update () {
 		
 	}
 
@@ -56,6 +57,7 @@ public class GameController : MonoBehaviour {
         topDownMapObj.SetActive(false); //Disables topdown map
         playerObj.transform.GetChild(0).transform.position = new Vector3(0, 0, 0); //Resets player to middle of screen
         playerObj.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = playerObj.transform.GetChild(0).GetComponent<PlayerController>().playerSpriteList[0]; //Sets player's sprite to facing forward
+        playerObj.transform.GetChild(0).GetComponent<Animator>().SetInteger("currentViewInt", currentView); //sets int in player's animator to currentView, letting the animations be topdown/sidescroll dependent
     }
 
     public void changeToTopdown()
@@ -67,5 +69,6 @@ public class GameController : MonoBehaviour {
         topDownMapObj.SetActive(true); //Enables topdown map
         playerObj.transform.GetChild(0).transform.position = new Vector3(0, 0, 0); //Resets player to middle of screen
         playerObj.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = playerObj.transform.GetChild(0).GetComponent<PlayerController>().playerSpriteList[0]; //Sets player's sprite to facing forward
+        playerObj.transform.GetChild(0).GetComponent<Animator>().SetInteger("currentViewInt", currentView); //sets int in player's animator to currentView, letting the animations be topdown/sidescroll dependent
     }
 }
