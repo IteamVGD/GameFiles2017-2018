@@ -1923,6 +1923,7 @@ MonoBehaviour:
   isCrouching: 0
   sideFacing: 0
   isUnderSomething: 0
+  triggerCollider: {fileID: 0}
   crouchingButKeyIsUp: 0
 --- !u!212 &1841899461
 SpriteRenderer:

@@ -28,15 +28,16 @@ public class PlayerController : MonoBehaviour
     public bool goToMinJump; //if true, initiates loop in update to go to min jump height
     public bool letGoOfSpace;
 
-    public static int currentGloveInt;
+    public static int currentGloveInt; //Currently equiped glove's "index" value, starts at 0
     public static string currentGloveString = "Default Glove";
-    public static int currentBeltInt;
+    public static int currentBeltInt; //Currently equiped belt's "index" value, starts at 0
     public static string currentBeltString = "Default Belt";
 
     public bool isIdle;
     public bool isCrouching;
     public int sideFacing; //1 = up/back, 2 = left, 3 = down/front, 4 = right
     public bool isUnderSomething; //used to stop player from uncrouching when in small area
+    public BoxCollider2D triggerCollider;
     public bool crouchingButKeyIsUp;
 
     //Animator
@@ -51,6 +52,15 @@ public class PlayerController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        foreach (BoxCollider2D collider in gameObject.transform.GetComponents<BoxCollider2D>())
+        {
+            if (collider.isTrigger == true)
+            {
+                triggerCollider = collider;
+                triggerCollider.enabled = false;
+                break;
+            }
+        }
 
         //Sets sprite at start to facing forward idle
         gameObject.transform.GetComponent<SpriteRenderer>().sprite = playerSpriteList[0];
@@ -195,6 +205,8 @@ public class PlayerController : MonoBehaviour
             {
                 isCrouching = true;
                 animatorWalk.SetBool("isCrouching", true);
+                triggerCollider.enabled = true;
+                gameObject.transform.GetComponent<BoxCollider2D>().
                 gameObject.transform.GetComponent<BoxCollider2D>().size = new Vector2(1, 1.3f);
                 gameObject.transform.GetComponent<BoxCollider2D>().offset = new Vector2(0, -0.35f);
             }
@@ -223,10 +235,11 @@ public class PlayerController : MonoBehaviour
                 if(isUnderSomething == false)
                 {
                     isCrouching = false;
-                    animatorWalk.SetBool("isCrouching", false);
+                    triggerCollider.enabled = false; //disables trigger collider to avoid "OnTriggerStay" running continuously and causing lag
+                    animatorWalk.SetBool("isCrouching", false); //sets animator isCrouching bool to false
                     isIdle = true;
-                    sideFacing = 3;
-                    gameObject.transform.GetComponent<BoxCollider2D>().size = new Vector2(1, 2);
+                    sideFacing = 3; //side facing = forward/toward camera
+                    gameObject.transform.GetComponent<BoxCollider2D>().size = new Vector2(1, 2); //resets main boxcollider's size and offset to match character forward model
                     gameObject.transform.GetComponent<BoxCollider2D>().offset = new Vector2(0, -0);
                 }
                 else
@@ -238,10 +251,11 @@ public class PlayerController : MonoBehaviour
             if(crouchingButKeyIsUp == true && isUnderSomething == false)
             {
                 isCrouching = false;
-                animatorWalk.SetBool("isCrouching", false);
+                triggerCollider.enabled = false; //disables trigger collider to avoid "OnTriggerStay" running continuously and causing lag
+                animatorWalk.SetBool("isCrouching", false); //sets animator isCrouching bool to false
                 isIdle = true;
-                sideFacing = 3;
-                gameObject.transform.GetComponent<BoxCollider2D>().size = new Vector2(1, 2);
+                sideFacing = 3; //side facing = forward/toward camera
+                gameObject.transform.GetComponent<BoxCollider2D>().size = new Vector2(1, 2); //resets main boxcollider's size and offset to match character forward model
                 gameObject.transform.GetComponent<BoxCollider2D>().offset = new Vector2(0, -0);
                 crouchingButKeyIsUp = false;
             }
@@ -277,7 +291,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerStay2D(Collider2D collision)
     {
         if(isCrouching)
         {

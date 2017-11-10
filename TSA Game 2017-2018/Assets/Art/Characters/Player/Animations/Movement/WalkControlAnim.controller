@@ -1246,11 +1246,11 @@ AnimatorState:
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
+  - {fileID: 1101301175833866272}
+  - {fileID: 1101355559140212612}
   - {fileID: 1101894682527860322}
   - {fileID: 1101585019794474908}
   - {fileID: 1101308240847825550}
-  - {fileID: 1101301175833866272}
-  - {fileID: 1101355559140212612}
   m_StateMachineBehaviours: []
   m_Position: {x: 50, y: 50, z: 0}
   m_IKOnFeet: 0
