@@ -268,7 +268,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionStay2D(Collision2D collision)
     {
-        if (collision.gameObject.tag == "Floor")
+        if (collision.gameObject.layer == 8) //8 == "Floor" layer
         {
             if(letGoOfSpace == true)
             {
@@ -287,7 +287,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionExit2D(Collision2D collision)
     {
-        if (collision.gameObject.tag == "Floor")
+        if (collision.gameObject.layer == 8) //8 == "Floor" layer
         {
             canJump = false;
         }

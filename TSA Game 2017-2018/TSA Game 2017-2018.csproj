@@ -80,6 +80,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\GameController.cs" />
     <Compile Include="Assets\Scripts\PlayerController.cs" />
+    <Compile Include="Assets\Scripts\RollingBagController.cs" />
     <Compile Include="Assets\Scripts\UIControllers\ItemBoxController.cs" />
     <Compile Include="Assets\Scripts\UIControllers\MasterUIController.cs" />
     <Compile Include="Assets\Scripts\UIControllers\SidescrollUIController.cs" />
