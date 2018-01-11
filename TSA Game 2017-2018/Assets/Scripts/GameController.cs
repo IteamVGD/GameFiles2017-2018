@@ -55,7 +55,7 @@ public class GameController : MonoBehaviour {
         playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0); //Stops player
         sideScrollMapObj.SetActive(true); //Enables sidescroll map
         topDownMapObj.SetActive(false); //Disables topdown map
-        playerObj.transform.GetChild(0).transform.position = new Vector3(0, 0, 0); //Resets player to middle of screen
+        playerObj.transform.GetChild(0).transform.position = new Vector3(-5, -3, 0); //Resets player to middle of screen
         playerObj.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = playerObj.transform.GetChild(0).GetComponent<PlayerController>().playerSpriteList[0]; //Sets player's sprite to facing forward
         playerObj.transform.GetChild(0).GetComponent<Animator>().SetInteger("currentViewInt", currentView); //sets int in player's animator to currentView, letting the animations be topdown/sidescroll dependent
     }
