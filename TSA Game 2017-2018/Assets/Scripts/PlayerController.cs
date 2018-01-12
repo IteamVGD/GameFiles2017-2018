@@ -40,6 +40,9 @@ public class PlayerController : MonoBehaviour
     public BoxCollider2D triggerCollider;
     public bool crouchingButKeyIsUp;
 
+    public Vector2 colliderOriginalSize;
+    public Vector2 colliderOriginalOffset;
+
     //Animator
     Animator animatorWalk;
 
@@ -52,6 +55,8 @@ public class PlayerController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        colliderOriginalSize = gameObject.transform.GetComponent<BoxCollider2D>().size;
+        colliderOriginalOffset = gameObject.transform.GetComponent<BoxCollider2D>().offset;
         foreach (BoxCollider2D collider in gameObject.transform.GetComponents<BoxCollider2D>())
         {
             if (collider.isTrigger == true)
@@ -237,8 +242,8 @@ public class PlayerController : MonoBehaviour
                     animatorWalk.SetBool("isCrouching", false); //sets animator isCrouching bool to false
                     isIdle = true;
                     sideFacing = 3; //side facing = forward/toward camera
-                    gameObject.transform.GetComponent<BoxCollider2D>().size = new Vector2(1, 2); //resets main boxcollider's size and offset to match character forward model
-                    gameObject.transform.GetComponent<BoxCollider2D>().offset = new Vector2(0, -0);
+                    gameObject.transform.GetComponent<BoxCollider2D>().size = colliderOriginalSize; //resets main boxcollider's size and offset to match character forward model
+                    gameObject.transform.GetComponent<BoxCollider2D>().offset = colliderOriginalOffset;
                 }
                 else
                 {
@@ -253,8 +258,8 @@ public class PlayerController : MonoBehaviour
                 animatorWalk.SetBool("isCrouching", false); //sets animator isCrouching bool to false
                 isIdle = true;
                 sideFacing = 3; //side facing = forward/toward camera
-                gameObject.transform.GetComponent<BoxCollider2D>().size = new Vector2(1, 2); //resets main boxcollider's size and offset to match character forward model
-                gameObject.transform.GetComponent<BoxCollider2D>().offset = new Vector2(0, -0);
+                gameObject.transform.GetComponent<BoxCollider2D>().size = colliderOriginalSize; //resets main boxcollider's size and offset to match character forward model
+                gameObject.transform.GetComponent<BoxCollider2D>().offset = colliderOriginalOffset;
                 crouchingButKeyIsUp = false;
             }
         }
@@ -268,7 +273,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionStay2D(Collision2D collision)
     {
-        if (collision.gameObject.layer == 8) //8 == "Floor" layer
+        if (collision.gameObject.layer == 8 && collision.collider == collision.transform.GetComponent<ObjectCollisionController>().canJumpCollider) //8 == "Floor" layer
         {
             if(letGoOfSpace == true)
             {
@@ -287,7 +292,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionExit2D(Collision2D collision)
     {
-        if (collision.gameObject.layer == 8) //8 == "Floor" layer
+        if (collision.gameObject.layer == 8 && collision.collider == collision.transform.GetComponent<ObjectCollisionController>().canJumpCollider) //8 == "Floor" layer
         {
             canJump = false;
         }

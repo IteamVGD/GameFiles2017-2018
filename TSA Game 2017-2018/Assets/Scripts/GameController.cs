@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour {
 
+    public GameObject mainCameraObj;
     public GameObject playerObj;
+    public static GameObject playerObjStatic;
 
     public GameObject PerspectiveTextObj;
     public int currentView; //1 = topdown, 2 = sidecroll, effect movement
@@ -25,6 +27,8 @@ public class GameController : MonoBehaviour {
     void Start () {
         currentView = 1;
         playerObj.transform.GetChild(0).GetComponent<Animator>().SetInteger("currentViewInt", 1); //sets int in player's animator to currentView, letting the animations be topdown/sidescroll dependent
+        playerObjStatic = playerObj;
+        Application.targetFrameRate = 60;
     }
 
     // Update is called once per frame
@@ -55,9 +59,11 @@ public class GameController : MonoBehaviour {
         playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0); //Stops player
         sideScrollMapObj.SetActive(true); //Enables sidescroll map
         topDownMapObj.SetActive(false); //Disables topdown map
-        playerObj.transform.GetChild(0).transform.position = new Vector3(-5, -3, 0); //Resets player to middle of screen
+        playerObj.transform.GetChild(0).transform.position = new Vector3(-7.6f, -3.6f, 0); //Resets player to middle of screen
         playerObj.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = playerObj.transform.GetChild(0).GetComponent<PlayerController>().playerSpriteList[0]; //Sets player's sprite to facing forward
         playerObj.transform.GetChild(0).GetComponent<Animator>().SetInteger("currentViewInt", currentView); //sets int in player's animator to currentView, letting the animations be topdown/sidescroll dependent
+        playerObj.transform.GetChild(0).GetComponent<Animator>().SetLayerWeight(1, 0);
+        mainCameraObj.transform.position = new Vector3(-1.6716f, 0, -10);
     }
 
     public void changeToTopdown()
@@ -70,5 +76,7 @@ public class GameController : MonoBehaviour {
         playerObj.transform.GetChild(0).transform.position = new Vector3(0, 0, 0); //Resets player to middle of screen
         playerObj.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = playerObj.transform.GetChild(0).GetComponent<PlayerController>().playerSpriteList[0]; //Sets player's sprite to facing forward
         playerObj.transform.GetChild(0).GetComponent<Animator>().SetInteger("currentViewInt", currentView); //sets int in player's animator to currentView, letting the animations be topdown/sidescroll dependent
+        playerObj.transform.GetChild(0).GetComponent<Animator>().SetLayerWeight(1, 1);
+        mainCameraObj.transform.position = new Vector3(0, 0, -10);
     }
 }
