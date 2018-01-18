@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: a0505022bed39144399557d9702f2125
+timeCreated: 1515892062
+licenseType: Free
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - playerObj: {fileID: 1692928277383538, guid: f3352095639219846ae8dee0eb2bc3f6,
+      type: 2}
+  - glovesTextObj: {instanceID: 0}
+  - beltTextObj: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

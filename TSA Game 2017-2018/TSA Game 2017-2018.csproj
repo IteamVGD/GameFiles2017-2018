@@ -282,15 +282,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\CameraController.cs" />
-    <Compile Include="Assets\Scripts\GameController.cs" />
-    <Compile Include="Assets\Scripts\ObjectControllers\ObjectCollisionController.cs" />
-    <Compile Include="Assets\Scripts\ObjectControllers\RollingBagController.cs" />
-    <Compile Include="Assets\Scripts\PlayerController.cs" />
-    <Compile Include="Assets\Scripts\UIControllers\ItemBoxController.cs" />
-    <Compile Include="Assets\Scripts\UIControllers\MasterUIController.cs" />
-    <Compile Include="Assets\Scripts\UIControllers\SidescrollUIController.cs" />
-    <Compile Include="Assets\Scripts\UIControllers\TopdownUIController.cs" />
+    <Compile Include="Assets\Scripts\CoreCtrls\CameraController.cs" />
+    <Compile Include="Assets\Scripts\CoreCtrls\GameController.cs" />
+    <Compile Include="Assets\Scripts\EntityCtrls\EnemyController.cs" />
+    <Compile Include="Assets\Scripts\EntityCtrls\PlayerController.cs" />
+    <Compile Include="Assets\Scripts\ObjectCtrls\DoorController.cs" />
+    <Compile Include="Assets\Scripts\ObjectCtrls\ObjectCollisionController.cs" />
+    <Compile Include="Assets\Scripts\ObjectCtrls\RollingBagController.cs" />
+    <Compile Include="Assets\Scripts\UICtrls\ItemBoxController.cs" />
+    <Compile Include="Assets\Scripts\UICtrls\MasterUIController.cs" />
+    <Compile Include="Assets\Scripts\UICtrls\SidescrollUIController.cs" />
+    <Compile Include="Assets\Scripts\UICtrls\TopdownUIController.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 2
   tags:
   - Object
+  - Background
+  - Enemy
   layers:
   - Default
   - TransparentFX
@@ -15,7 +17,7 @@ TagManager:
   - 
   - 
   - Floor
-  - 
+  - Entity
   - 
   - 
   - 
@@ -42,8 +44,20 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Backgrounds
+    uniqueID: 2328097269
+    locked: 0
+  - name: Bottom Objects
+    uniqueID: 2938366323
+    locked: 0
   - name: Player
     uniqueID: 3699396015
+    locked: 0
+  - name: Enemies
+    uniqueID: 227643245
+    locked: 0
+  - name: Top Objects
+    uniqueID: 72836417
     locked: 0
   - name: UI
     uniqueID: 588082735
