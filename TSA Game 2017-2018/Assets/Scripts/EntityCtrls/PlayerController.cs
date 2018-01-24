@@ -158,6 +158,13 @@ public class PlayerController : MonoBehaviour
                 goToMinJump = true;
             }
 
+            if (Input.GetKeyDown(KeyCode.K) && letGoOfSpace == false)
+            {
+                animatorWalk.SetBool("canJumpBool", false);
+                jumpheightTimerInt = 0;
+                goToMinJump = true;
+            }
+
             if (goToMinJump == true)
             {
                 if (jumpheightTimerInt < minJumpHeight)
@@ -184,6 +191,15 @@ public class PlayerController : MonoBehaviour
                 }
             }
 
+            if (Input.GetKey(KeyCode.K) && goToMinJump == false && letGoOfSpace == false)
+            {
+                if (jumpheightTimerInt < maxJumpHeight)
+                {
+                    jumpheightTimerInt += 1;
+                    gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, jumpSpeedInt);
+                }
+            }
+
             if (Input.GetKeyUp(KeyCode.Space) && letGoOfSpace == false)
             {
                 if (isIdle == false)
@@ -201,8 +217,26 @@ public class PlayerController : MonoBehaviour
                 }
             }
 
+            if (Input.GetKeyUp(KeyCode.K) && letGoOfSpace == false)
+            {
+                if (isIdle == false)
+                {
+                    if (isCrouching == false)
+                    {
+                        isIdle = true;
+                        sideFacing = 3;
+                    }
+                    letGoOfSpace = true;
+                    if (jumpheightTimerInt >= minJumpHeight)
+                    {
+                        gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, 0);
+                    }
+                }
+            }
+
+
             //Press to Crouch / Duck
-            if(Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+            if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
             {
                 isCrouching = true;
                 animatorWalk.SetBool("isCrouching", true);
@@ -263,7 +297,7 @@ public class PlayerController : MonoBehaviour
         }
 
         //Attack Code
-        if (Input.GetMouseButtonDown(0) && isPunching == false) //Get mouse button not working
+        if (Input.GetKeyDown(KeyCode.J) && isPunching == false) //Get mouse button not working
         {
             StartCoroutine(Punch());
         }
