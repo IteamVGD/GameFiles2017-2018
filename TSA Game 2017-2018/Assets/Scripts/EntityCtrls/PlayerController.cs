@@ -43,6 +43,8 @@ public class PlayerController : MonoBehaviour
     public Vector2 colliderOriginalSize;
     public Vector2 colliderOriginalOffset;
 
+    public int spamPunchTimerInt; //Used to keep animation from changing off punch if spamming
+
     //Animator
     Animator animatorWalk;
 
@@ -297,6 +299,15 @@ public class PlayerController : MonoBehaviour
         }
 
         //Attack Code
+        if (Input.GetKeyDown(KeyCode.J) && isPunching == true) //Get mouse button not working
+        {
+            spamPunchTimerInt = 20;
+            animatorWalk.SetBool("canStopPunching", false);
+        }
+        if (Input.GetButton("Fire1") && isPunching == false) //Get mouse button not working
+        {
+            StartCoroutine(Punch());
+        }
         if (Input.GetKeyDown(KeyCode.J) && isPunching == false) //Get mouse button not working
         {
             StartCoroutine(Punch());
@@ -348,12 +359,24 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    IEnumerator Punch() //commented out sprite renderer changes since we are using the animator to do this instead
+    IEnumerator Punch() 
     {
         isPunching = true;
         animatorWalk.SetBool("isPunching", true);
         yield return new WaitForSeconds(punchTime); //Adds punch collider for as long as this is active
         animatorWalk.SetBool("isPunching", false);
         isPunching = false;
+    }
+
+    public void FixedUpdate()
+    {
+        if(spamPunchTimerInt > 0)
+        {
+            spamPunchTimerInt -= 1;
+        }
+        else
+        {
+            animatorWalk.SetBool("canStopPunching", true);
+        }
     }
 }

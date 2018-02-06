@@ -1415,7 +1415,7 @@ MonoBehaviour:
   canJump: 0
   isJumping: 0
   movementKeyBeingPressed: 0
-  punchTime: 0.8
+  punchTime: 0.7
   isPunching: 0
   tempSprite: {fileID: 0}
   playerSpriteList:
@@ -1442,6 +1442,7 @@ MonoBehaviour:
   crouchingButKeyIsUp: 0
   colliderOriginalSize: {x: 0, y: 0}
   colliderOriginalOffset: {x: 0, y: 0}
+  spamPunchTimerInt: 0
 --- !u!212 &367178708
 SpriteRenderer:
   m_ObjectHideFlags: 0

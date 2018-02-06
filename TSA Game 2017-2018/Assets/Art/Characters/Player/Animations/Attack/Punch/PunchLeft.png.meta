@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: e810a6777bc4a8a4197553f907801691
-timeCreated: 1515959608
+timeCreated: 1517883345
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -12,6 +12,7 @@ TextureImporter:
     21300010: PunchLeft_5
     21300012: PunchLeft_6
     21300014: PunchLeft_7
+    21300016: PunchLeft_8
   externalObjects: {}
   serializedVersion: 4
   mipmaps:
@@ -94,7 +95,7 @@ TextureImporter:
         x: 30
         y: 218
         width: 43
-        height: 58
+        height: 62
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -105,10 +106,10 @@ TextureImporter:
       name: PunchLeft_1
       rect:
         serializedVersion: 2
-        x: 132
+        x: 133
         y: 218
-        width: 50
-        height: 61
+        width: 49
+        height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -122,7 +123,7 @@ TextureImporter:
         x: 234
         y: 218
         width: 59
-        height: 68
+        height: 71
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -136,7 +137,7 @@ TextureImporter:
         x: 35
         y: 118
         width: 60
-        height: 70
+        height: 73
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -147,10 +148,10 @@ TextureImporter:
       name: PunchLeft_4
       rect:
         serializedVersion: 2
-        x: 114
-        y: 118
-        width: 73
-        height: 59
+        x: 113
+        y: 115
+        width: 87
+        height: 68
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -161,10 +162,10 @@ TextureImporter:
       name: PunchLeft_5
       rect:
         serializedVersion: 2
-        x: 206
-        y: 118
-        width: 85
-        height: 57
+        x: 208
+        y: 117
+        width: 92
+        height: 61
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -175,10 +176,10 @@ TextureImporter:
       name: PunchLeft_6
       rect:
         serializedVersion: 2
-        x: 14
-        y: 18
-        width: 73
-        height: 59
+        x: 290
+        y: 123
+        width: 8
+        height: 8
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -189,10 +190,24 @@ TextureImporter:
       name: PunchLeft_7
       rect:
         serializedVersion: 2
-        x: 114
+        x: 13
         y: 18
-        width: 73
-        height: 59
+        width: 81
+        height: 63
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: PunchLeft_8
+      rect:
+        serializedVersion: 2
+        x: 113
+        y: 18
+        width: 74
+        height: 63
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
