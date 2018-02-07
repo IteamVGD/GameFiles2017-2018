@@ -36,6 +36,7 @@ public class PlayerController : MonoBehaviour
     public bool isIdle;
     public bool isCrouching;
     public int sideFacing; //1 = up/back, 2 = left, 3 = down/front, 4 = right; Sidescroller: 4-> right, 2-> left, 3-> idle
+    public int previousSideFacing; //For sidescroller, keeps 4 or 2 to know to face right or left when going idle
     public bool isUnderSomething; //used to stop player from uncrouching when in small area
     public BoxCollider2D triggerCollider;
     public bool crouchingButKeyIsUp;
@@ -77,11 +78,12 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         animatorWalk.SetInteger("sideFacingInt", sideFacing);
+        animatorWalk.SetInteger("previousSideFacing", previousSideFacing);
         if (gameObject.transform.GetComponent<Rigidbody2D>().velocity.x > 0 || gameObject.transform.GetComponent<Rigidbody2D>().velocity.y > 0 || gameObject.transform.GetComponent<Rigidbody2D>().velocity.x < 0 || gameObject.transform.GetComponent<Rigidbody2D>().velocity.y < 0)
         {
             isIdle = false;
+            transform.GetComponent<SpriteRenderer>().flipX = false;
         }
-        animatorWalk.SetBool("isIdleBool", isIdle);
         animatorWalk.SetInteger("HorizontalSpeedTD", (int)gameObject.transform.GetComponent<Rigidbody2D>().velocity.x); //Velocity based animations
         animatorWalk.SetInteger("VerticalSpeedTD", (int)gameObject.transform.GetComponent<Rigidbody2D>().velocity.y); //TD = Topdown variables
 
@@ -146,10 +148,12 @@ public class PlayerController : MonoBehaviour
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
                 sideFacing = 4;
+                previousSideFacing = 4;
             }
             if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(-horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
+                previousSideFacing = 2;
                 sideFacing = 2;
             }
 
@@ -237,16 +241,15 @@ public class PlayerController : MonoBehaviour
             }
 
 
-            //Press to Crouch / Duck
-            if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+            //Press to Crouch / Duck, needs "re-implementing"/"re-thinking" without movement while crouching
+            /*if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
             {
                 isCrouching = true;
                 animatorWalk.SetBool("isCrouching", true);
                 triggerCollider.enabled = true;
-                gameObject.transform.GetComponent<BoxCollider2D>().
                 gameObject.transform.GetComponent<BoxCollider2D>().size = new Vector2(1, 1.3f);
                 gameObject.transform.GetComponent<BoxCollider2D>().offset = new Vector2(0, -0.35f);
-            }
+            }*/
 
             //Let go to stop
             if (Input.GetKeyUp(KeyCode.D) || Input.GetKeyUp(KeyCode.RightArrow))
