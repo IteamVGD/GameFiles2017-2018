@@ -1415,7 +1415,7 @@ MonoBehaviour:
   canJump: 0
   isJumping: 0
   movementKeyBeingPressed: 0
-  punchTime: 0.7
+  punchTime: 0.3
   isPunching: 0
   tempSprite: {fileID: 0}
   playerSpriteList:

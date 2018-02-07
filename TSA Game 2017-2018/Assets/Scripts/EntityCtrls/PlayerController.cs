@@ -49,6 +49,8 @@ public class PlayerController : MonoBehaviour
     //Animator
     Animator animatorWalk;
 
+    public List<string> sList;
+
     private void Awake()
     {
         gameControllerScript = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>();
@@ -58,6 +60,11 @@ public class PlayerController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        foreach(string s in Input.GetJoystickNames())
+        {
+            sList.Add(s);
+        }
+
         colliderOriginalSize = gameObject.transform.GetComponent<BoxCollider2D>().size;
         colliderOriginalOffset = gameObject.transform.GetComponent<BoxCollider2D>().offset;
         foreach (BoxCollider2D collider in gameObject.transform.GetComponents<BoxCollider2D>())
@@ -77,6 +84,7 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
         animatorWalk.SetInteger("sideFacingInt", sideFacing);
         animatorWalk.SetInteger("previousSideFacing", previousSideFacing);
         if (gameObject.transform.GetComponent<Rigidbody2D>().velocity.x > 0 || gameObject.transform.GetComponent<Rigidbody2D>().velocity.y > 0 || gameObject.transform.GetComponent<Rigidbody2D>().velocity.x < 0 || gameObject.transform.GetComponent<Rigidbody2D>().velocity.y < 0)
@@ -144,7 +152,7 @@ public class PlayerController : MonoBehaviour
             //Sidescroll Movement
 
             //Press to move
-            if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+            if(Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
                 sideFacing = 4;
@@ -157,12 +165,6 @@ public class PlayerController : MonoBehaviour
                 sideFacing = 2;
             }
 
-            if (Input.GetKeyDown(KeyCode.Space) && letGoOfSpace == false)
-            {
-                animatorWalk.SetBool("canJumpBool", false);
-                jumpheightTimerInt = 0;
-                goToMinJump = true;
-            }
 
             if (Input.GetKeyDown(KeyCode.K) && letGoOfSpace == false)
             {
@@ -365,9 +367,11 @@ public class PlayerController : MonoBehaviour
     IEnumerator Punch() 
     {
         isPunching = true;
+        horizontalMovementSpeed = 2;
         animatorWalk.SetBool("isPunching", true);
         yield return new WaitForSeconds(punchTime); //Adds punch collider for as long as this is active
         animatorWalk.SetBool("isPunching", false);
+        horizontalMovementSpeed = 4;
         isPunching = false;
     }
 
