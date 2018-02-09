@@ -1444,6 +1444,12 @@ MonoBehaviour:
   colliderOriginalSize: {x: 0, y: 0}
   colliderOriginalOffset: {x: 0, y: 0}
   spamPunchTimerInt: 0
+  xAxisFloat: 0
+  leftPressed: 0
+  rightPressed: 0
+  yAxisFloat: 0
+  upPressed: 0
+  downPressed: 0
 --- !u!212 &367178708
 SpriteRenderer:
   m_ObjectHideFlags: 0

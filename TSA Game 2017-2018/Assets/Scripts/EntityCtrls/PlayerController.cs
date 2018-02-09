@@ -49,7 +49,14 @@ public class PlayerController : MonoBehaviour
     //Animator
     Animator animatorWalk;
 
-    public List<string> sList;
+    //CONTROLLER DOCUMENTATION: 0 = A, 1 = B, 6 = start, 7 = start, 
+
+    public float xAxisFloat; //if -1, dpad left, if 1 dpad right, 0 = idle
+    public bool leftPressed; //true if xAxis -1
+    public bool rightPressed; //true if xAxis 1
+    public float yAxisFloat; //if -1, dpad down, if 1 dpad up, 0 = idle
+    public bool upPressed; //true if yAxis 1
+    public bool downPressed; //true if yAxis -1
 
     private void Awake()
     {
@@ -60,11 +67,6 @@ public class PlayerController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        foreach(string s in Input.GetJoystickNames())
-        {
-            sList.Add(s);
-        }
-
         colliderOriginalSize = gameObject.transform.GetComponent<BoxCollider2D>().size;
         colliderOriginalOffset = gameObject.transform.GetComponent<BoxCollider2D>().offset;
         foreach (BoxCollider2D collider in gameObject.transform.GetComponents<BoxCollider2D>())
@@ -84,7 +86,35 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        xAxisFloat = Input.GetAxis("Horizontal");
+        yAxisFloat = Input.GetAxis("Vertical");
+        if(xAxisFloat == 1)
+        {
+            leftPressed = false;
+            rightPressed = true;
+        }
+        else
+        {
+            if(xAxisFloat == -1)
+            {
+                leftPressed = true;
+                rightPressed = false;
+            }
+        }
+        if(yAxisFloat == 1)
+        {
+            upPressed = true;
+            downPressed = false;
+        }
+        else
+        {
+            if (yAxisFloat == -1)
+            {
+                upPressed = false;
+                downPressed = true;
+            }
+        }
+     
         animatorWalk.SetInteger("sideFacingInt", sideFacing);
         animatorWalk.SetInteger("previousSideFacing", previousSideFacing);
         if (gameObject.transform.GetComponent<Rigidbody2D>().velocity.x > 0 || gameObject.transform.GetComponent<Rigidbody2D>().velocity.y > 0 || gameObject.transform.GetComponent<Rigidbody2D>().velocity.x < 0 || gameObject.transform.GetComponent<Rigidbody2D>().velocity.y < 0)
@@ -152,13 +182,13 @@ public class PlayerController : MonoBehaviour
             //Sidescroll Movement
 
             //Press to move
-            if(Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+            if(Input.GetKey(KeyCode.D) || (rightPressed == true && xAxisFloat == 1))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
                 sideFacing = 4;
                 previousSideFacing = 4;
             }
-            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
+            if (Input.GetKey(KeyCode.A) || (leftPressed == true && xAxisFloat == -1))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(-horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
                 previousSideFacing = 2;
@@ -167,6 +197,12 @@ public class PlayerController : MonoBehaviour
 
 
             if (Input.GetKeyDown(KeyCode.K) && letGoOfSpace == false)
+            {
+                animatorWalk.SetBool("canJumpBool", false);
+                jumpheightTimerInt = 0;
+                goToMinJump = true;
+            }
+            if (Input.GetButtonDown("Fire1") && letGoOfSpace == false)
             {
                 animatorWalk.SetBool("canJumpBool", false);
                 jumpheightTimerInt = 0;
@@ -190,7 +226,7 @@ public class PlayerController : MonoBehaviour
                 }
             }
 
-            if (Input.GetKey(KeyCode.Space) && goToMinJump == false && letGoOfSpace == false)
+            if (Input.GetButton("Fire1") && goToMinJump == false && letGoOfSpace == false)
             {
                 if (jumpheightTimerInt < maxJumpHeight)
                 {
@@ -208,7 +244,7 @@ public class PlayerController : MonoBehaviour
                 }
             }
 
-            if (Input.GetKeyUp(KeyCode.Space) && letGoOfSpace == false)
+            if (Input.GetButtonUp("Fire1") && letGoOfSpace == false)
             {
                 if (isIdle == false)
                 {
@@ -254,22 +290,24 @@ public class PlayerController : MonoBehaviour
             }*/
 
             //Let go to stop
-            if (Input.GetKeyUp(KeyCode.D) || Input.GetKeyUp(KeyCode.RightArrow))
+            if (Input.GetKeyUp(KeyCode.D) || (rightPressed == true && xAxisFloat != 1))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
                 if (isCrouching == false)
                 {
                     isIdle = true;
                     sideFacing = 3;
+                    rightPressed = false;
                 }
             }
-            if (Input.GetKeyUp(KeyCode.A) || Input.GetKeyUp(KeyCode.LeftArrow))
+            if (Input.GetKeyUp(KeyCode.A) || (leftPressed == true && xAxisFloat != -1))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
                 if (isCrouching == false)
                 {
                     isIdle = true;
                     sideFacing = 3;
+                    leftPressed = false;
                 }
             }
             if (Input.GetKeyUp(KeyCode.S) || Input.GetKeyUp(KeyCode.DownArrow))
@@ -304,12 +342,17 @@ public class PlayerController : MonoBehaviour
         }
 
         //Attack Code
+        if (Input.GetButton("Fire2") && isPunching == true) //Get mouse button not working
+        {
+            spamPunchTimerInt = 20;
+            animatorWalk.SetBool("canStopPunching", false);
+        }
         if (Input.GetKeyDown(KeyCode.J) && isPunching == true) //Get mouse button not working
         {
             spamPunchTimerInt = 20;
             animatorWalk.SetBool("canStopPunching", false);
         }
-        if (Input.GetButton("Fire1") && isPunching == false) //Get mouse button not working
+        if (Input.GetButton("Fire2") && isPunching == false) //Get mouse button not working
         {
             StartCoroutine(Punch());
         }
