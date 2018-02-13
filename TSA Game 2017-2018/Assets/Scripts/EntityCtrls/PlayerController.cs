@@ -7,6 +7,10 @@ public class PlayerController : MonoBehaviour
 
     public GameController gameControllerScript;
 
+    //Stats
+    public int health = 30; //Preety self explanatory. Take hit -> take damage. Go to 0 -> "KO" countdown
+    public int blockMeter; //From 0 - 100, decreases rapidly when blocking, if hits 0 block drops
+
     //Movement Variables    
     public float horizontalMovementSpeed;
     public float verticalMovementSpeed;
@@ -35,7 +39,7 @@ public class PlayerController : MonoBehaviour
 
     public bool isIdle;
     public bool isCrouching;
-    public int sideFacing; //1 = up/back, 2 = left, 3 = down/front, 4 = right; Sidescroller: 4-> right, 2-> left, 3-> idle
+    public int sideFacing; //Topdown: 1 = up/back, 2 = left, 3 = down/front, 4 = right; Sidescroller: 4-> right, 2-> left, 3-> idle
     public int previousSideFacing; //For sidescroller, keeps 4 or 2 to know to face right or left when going idle
     public bool isUnderSomething; //used to stop player from uncrouching when in small area
     public BoxCollider2D triggerCollider;
@@ -44,7 +48,15 @@ public class PlayerController : MonoBehaviour
     public Vector2 colliderOriginalSize;
     public Vector2 colliderOriginalOffset;
 
+    //Attack Variables
+    public int punchDamage; //Changes according to how long you hold it. Default is 10
+    public int punchDamageCap = 20; //Used for variable charge damage system
+
     public int spamPunchTimerInt; //Used to keep animation from changing off punch if spamming
+    public bool punchIsPressed;
+    public float initialAnimSpeed;
+    
+    //NOTE: Most actual punch detection is done in PunchCollideController on the punch child obj
 
     //Animator
     Animator animatorWalk;
@@ -86,6 +98,10 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (isPunching == false && gameObject.transform.GetComponent<Animator>().speed != 1)
+        {
+            gameObject.transform.GetComponent<Animator>().speed = 1;
+        }
         xAxisFloat = Input.GetAxis("Horizontal");
         yAxisFloat = Input.GetAxis("Vertical");
         if(xAxisFloat == 1)
@@ -342,23 +358,49 @@ public class PlayerController : MonoBehaviour
         }
 
         //Attack Code
-        if (Input.GetButton("Fire2") && isPunching == true) //Get mouse button not working
+        if (Input.GetButtonDown("Fire2") && isPunching == false)
+        {
+            StartCoroutine(Punch());
+        }
+        if (Input.GetKeyDown(KeyCode.J) && isPunching == false)
+        {
+            StartCoroutine(Punch());
+        }
+        if (Input.GetButton("Fire2") && isPunching == true) 
         {
             spamPunchTimerInt = 20;
             animatorWalk.SetBool("canStopPunching", false);
         }
-        if (Input.GetKeyDown(KeyCode.J) && isPunching == true) //Get mouse button not working
+        if (Input.GetKey(KeyCode.J) && isPunching == true) 
         {
             spamPunchTimerInt = 20;
             animatorWalk.SetBool("canStopPunching", false);
         }
-        if (Input.GetButton("Fire2") && isPunching == false) //Get mouse button not working
+
+        if(Input.GetKeyUp(KeyCode.J) && spamPunchTimerInt < 20)
         {
-            StartCoroutine(Punch());
+            StopAllCoroutines(); //Breaks out of punch / charge punch
+            animatorWalk.SetBool("isPunching", false);
+            horizontalMovementSpeed = 4;
+            isPunching = false;
+            gameObject.transform.GetComponent<Animator>().speed = initialAnimSpeed;
         }
-        if (Input.GetKeyDown(KeyCode.J) && isPunching == false) //Get mouse button not working
+        if (Input.GetButtonUp("Fire2") && spamPunchTimerInt < 20)
         {
-            StartCoroutine(Punch());
+            StopAllCoroutines(); //Breaks out of punch / charge punch
+            animatorWalk.SetBool("isPunching", false);
+            horizontalMovementSpeed = 4;
+            isPunching = false;
+            gameObject.transform.GetComponent<Animator>().speed = initialAnimSpeed;
+        }
+
+        if(Input.GetKeyDown(KeyCode.J) || Input.GetButtonDown("Fire2"))
+        {
+            punchIsPressed = true;
+        }
+        if (Input.GetKeyUp(KeyCode.J) || Input.GetButtonUp("Fire2"))
+        {
+            punchIsPressed = false;
         }
     }
 
@@ -408,14 +450,34 @@ public class PlayerController : MonoBehaviour
     }
 
     IEnumerator Punch() 
-    {
+    {   
+        punchDamage = 10; //Resets punch damage from previous punch
+        float waitTime = punchTime / 5; //How long it will wait between incrementing damage
+        int damageToAdd = punchDamageCap / 8; //Divided by 8 because base damage is already half of cap (so / 2) and we want 4 increments (so / 4) which is just / 8
+
         isPunching = true;
         horizontalMovementSpeed = 2;
         animatorWalk.SetBool("isPunching", true);
-        yield return new WaitForSeconds(punchTime); //Adds punch collider for as long as this is active
+        initialAnimSpeed = 1;
+
+        //Variable Damage System
+        yield return new WaitForSeconds(0.06f); //First wait, doesnt add to punch increment so standard punch is differenciated from charge punch
+        yield return new WaitForSeconds(waitTime); //Second wait + slows punch to show that it is a charge punch
+        gameObject.transform.GetComponent<Animator>().speed -= punchTime * 0.9f; //Slows current animation, 0.375 is a constant b/c the default punchTime value was 0.3 when the anim speed was 0.8
+        punchDamage += damageToAdd;
+        horizontalMovementSpeed = 1;
+        yield return new WaitForSeconds(waitTime); //Third wait
+        gameObject.transform.GetComponent<Animator>().speed -= punchTime * 0.5f; //Slows current animation, 0.375 is a constant b/c the default punchTime value was 0.3 when the anim speed was 0.8
+        punchDamage += damageToAdd;
+        yield return new WaitForSeconds(waitTime); //Fourth wait
+        punchDamage += damageToAdd;
+        yield return new WaitForSeconds(waitTime); //Fifth wait. punchTime / 5 = 5 waits = 5 increments (technically 4 since the first wait doesnt lead to an increment)
+        punchDamage += damageToAdd;
+
         animatorWalk.SetBool("isPunching", false);
         horizontalMovementSpeed = 4;
         isPunching = false;
+        gameObject.transform.GetComponent<Animator>().speed = initialAnimSpeed;
     }
 
     public void FixedUpdate()

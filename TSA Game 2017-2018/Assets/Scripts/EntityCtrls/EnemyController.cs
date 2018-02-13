@@ -4,7 +4,10 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour {
 
-    public GameObject playerObj;
+    public GameObject playerObj; //The player
+
+    //Stats
+    public int health;
 
 	// Use this for initialization
 	void Start () {
