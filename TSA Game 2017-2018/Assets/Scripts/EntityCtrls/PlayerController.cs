@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -8,18 +9,33 @@ public class PlayerController : MonoBehaviour
     public GameController gameControllerScript;
 
     //Stats
-    public int health = 30; //Preety self explanatory. Take hit -> take damage. Go to 0 -> "KO" countdown
-    public int blockMeter; //From 0 - 100, decreases rapidly when blocking, if hits 0 block drops
+    public int minHealth = 0; //The health in which the player should be KO'd
+    public int maxHealth = 30; //The maximum health the player can have
+    public int health; //The player's health
+
+    public float blockMeter; //Decreases rapidly when blocking, if hits 0 block drops
+    public int minBlock; //The minimum the block meter can be at (when hit, block drops)
+    public int maxBlock; //The maximum the block meter can be at
+    public float blockRemoveAmt; //How much to remove from the block meter every frame that the player is blocking
+    public float blockAddAmt; //How much to add to the block meter every frame that the player is not blocking
+
+    public int knockbackStrength; //How much to knockback an enemy upon punching them
+
+    public float downPunchTime; //How long the player has when pressing punch to down punch (higher -> easier to land down punch)
+
+    public float invincibiltiyFrameTime; //How long the player should stay invincible for after taking damage (ex. 0.75 = 3/4ths of a second; preferably make them divisible by 5)
+    public float reviveInvincibilityFrameTimer; //How long the player is invincible for after coming back from being KOd
 
     //Movement Variables    
     public float horizontalMovementSpeed;
     public float verticalMovementSpeed;
     public float jumpSpeed;
     public bool canJump;
-    public bool isJumping;
     public bool movementKeyBeingPressed;
 
-    public float punchTime = 0.8f; //Time a punch stays displayed
+    public float punchTime = 0.8f; //Time a punch stays displayed; DONT MESS WITH! Complex punch system to allow charge punching to work
+    public float crouchPunchTime = 0.5f; //Time a crouch punch stays displayed
+    
     public bool isPunching;
 
     public Sprite tempSprite; //Used to keep track of what sprite was in use before attacking;
@@ -39,29 +55,38 @@ public class PlayerController : MonoBehaviour
 
     public bool isIdle;
     public bool isCrouching;
-    public int sideFacing; //Topdown: 1 = up/back, 2 = left, 3 = down/front, 4 = right; Sidescroller: 4-> right, 2-> left, 3-> idle
-    public int previousSideFacing; //For sidescroller, keeps 4 or 2 to know to face right or left when going idle
-    public bool isUnderSomething; //used to stop player from uncrouching when in small area
-    public BoxCollider2D triggerCollider;
-    public bool crouchingButKeyIsUp;
+    public int sideFacing = 3; //Topdown: 1 = up/back, 2 = left, 3 = down/front, 4 = right; Sidescroller: 4-> right, 2-> left, 3-> idle
+    public int previousSideFacing = 4; //Same as side facing but without 3 for idle; used in many animation transitions to know which side was being faced before going idle
 
     public Vector2 colliderOriginalSize;
     public Vector2 colliderOriginalOffset;
 
+    public bool isDownPunching;
+    public bool canDownPunch;
+    public bool effectiveDownPunch; //If false, player can down punch but wont get shot up when they do so
+    public bool downPunchingOnEnemy;
+    public bool enableDownPunch;
+
     //Attack Variables
+    public int standardPunchDamage = 10; //punchDamage is reset to this at the start of every punch
     public int punchDamage; //Changes according to how long you hold it. Default is 10
     public int punchDamageCap = 20; //Used for variable charge damage system
 
     public int spamPunchTimerInt; //Used to keep animation from changing off punch if spamming
     public bool punchIsPressed;
     public float initialAnimSpeed;
+
+    public bool isBlocking;
+    public bool isInInvincibilityFrame;
+
+    public bool canMove;
     
     //NOTE: Most actual punch detection is done in PunchCollideController on the punch child obj
 
     //Animator
     Animator animatorWalk;
 
-    //CONTROLLER DOCUMENTATION: 0 = A, 1 = B, 6 = start, 7 = start, 
+    //CONTROLLER DOCUMENTATION: 0 = A, 1 = B, 2 = X, 3 = Y, 6 = start, 7 = start, 
 
     public float xAxisFloat; //if -1, dpad left, if 1 dpad right, 0 = idle
     public bool leftPressed; //true if xAxis -1
@@ -69,6 +94,17 @@ public class PlayerController : MonoBehaviour
     public float yAxisFloat; //if -1, dpad down, if 1 dpad up, 0 = idle
     public bool upPressed; //true if yAxis 1
     public bool downPressed; //true if yAxis -1
+
+    public bool isAControllerConnected; //ControllerConnected bool from GameController. Runs controller only code
+
+    //KO Amount
+    public bool isBeingKOd;
+    public float koTimer; //How long the player has to mash buttons to get back up; gets lower each time
+    public List<float> koTimerList; //The list with which the koTimer scales
+    public int timesKOd; //How many times the player has been KO'd
+    public int mashAmount; //How much the player needs to mash to get back up; gets higher each time
+    public int maxMashAmount;
+    public List<int> mashAmountList;
 
     private void Awake()
     {
@@ -79,55 +115,111 @@ public class PlayerController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        colliderOriginalSize = gameObject.transform.GetComponent<BoxCollider2D>().size;
-        colliderOriginalOffset = gameObject.transform.GetComponent<BoxCollider2D>().offset;
-        foreach (BoxCollider2D collider in gameObject.transform.GetComponents<BoxCollider2D>())
-        {
-            if (collider.isTrigger == true)
-            {
-                triggerCollider = collider;
-                triggerCollider.enabled = false;
-                break;
-            }
-        }
+        isAControllerConnected = gameControllerScript.controllerConnected; //If no controller is connected, dont run controller only code
+        colliderOriginalSize = gameObject.transform.GetComponent<BoxCollider2D>().size; //Saves original size and offset of box collider to reset to when un-crouching & switching views
+        colliderOriginalOffset = gameObject.transform.GetComponent<BoxCollider2D>().offset; //^^^
+
+        health = maxHealth; //Starts player at full health
+        gameControllerScript.updateHealthSlider(minHealth, maxHealth, health); //Updates health slider at top left
 
         //finds walk controller animator
         animatorWalk = this.GetComponent<Animator>();
+        //Written by Mary!!! ^^^
+
+        sideFacing = 3;
+        previousSideFacing = 4;
+
+        punchDamage = standardPunchDamage;
+
+        //KO Variables Setup
+        mashAmountList.Add(80);
+        mashAmountList.Add(120);
+        mashAmountList.Add(200);
+        mashAmountList.Add(250); //Preety sure thats impossible
+        koTimerList.Add(25);
+        koTimerList.Add(20);
+        koTimerList.Add(15);
+        koTimerList.Add(10); //Preety sure thats impossible
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (isPunching == false && gameObject.transform.GetComponent<Animator>().speed != 1)
+        if(Input.GetKeyDown(KeyCode.L) || Input.GetButtonDown("Fire3"))
         {
-            gameObject.transform.GetComponent<Animator>().speed = 1;
-        }
-        xAxisFloat = Input.GetAxis("Horizontal");
-        yAxisFloat = Input.GetAxis("Vertical");
-        if(xAxisFloat == 1)
-        {
-            leftPressed = false;
-            rightPressed = true;
-        }
-        else
-        {
-            if(xAxisFloat == -1)
+            if(blockMeter > (maxBlock / 5))
             {
-                leftPressed = true;
-                rightPressed = false;
+                isBlocking = true;
+                animatorWalk.SetBool("isBlocking", true);
+                horizontalMovementSpeed = 0;
+                gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
             }
         }
-        if(yAxisFloat == 1)
+        if ((Input.GetKeyUp(KeyCode.L) || Input.GetButtonUp("Fire3")) && isBlocking == true)
         {
-            upPressed = true;
-            downPressed = false;
+            isBlocking = false;
+            animatorWalk.SetBool("isBlocking", false);
+        }
+
+        if (isPunching == false && (gameObject.transform.GetComponent<Animator>().speed != 1 || horizontalMovementSpeed != 4))
+        {
+            gameObject.transform.GetComponent<Animator>().speed = 1;
+            horizontalMovementSpeed = 4;
+        }
+
+        if(isBlocking == true)
+        {
+            if(blockMeter > minBlock + blockRemoveAmt)
+            {
+                blockMeter -= blockRemoveAmt; //Degrades block meter
+                if (horizontalMovementSpeed != 0)
+                    horizontalMovementSpeed = 0; //Slows player when blocking
+                gameControllerScript.updateBlockSlider(minBlock, maxBlock, (int)blockMeter); //Updates the block meter at the top left
+            }
+            else
+            {
+                isBlocking = false;
+                animatorWalk.SetBool("isBlocking", false);
+            }
         }
         else
         {
-            if (yAxisFloat == -1)
+            if (blockMeter < maxBlock)
             {
-                upPressed = false;
-                downPressed = true;
+                blockMeter += blockAddAmt; //Regenerates block meter
+                gameControllerScript.updateBlockSlider(minBlock, maxBlock, (int) blockMeter); //Updates the block meter at the top left
+            }
+        }
+
+        if (isAControllerConnected == true)
+        {
+            xAxisFloat = Input.GetAxis("Horizontal");
+            yAxisFloat = Input.GetAxis("Vertical");
+            if (xAxisFloat == 1)
+            {
+                leftPressed = false;
+                rightPressed = true;
+            }
+            else
+            {
+                if (xAxisFloat == -1)
+                {
+                    leftPressed = true;
+                    rightPressed = false;
+                }
+            }
+            if (yAxisFloat == 1)
+            {
+                upPressed = true;
+                downPressed = false;
+            }
+            else
+            {
+                if (yAxisFloat == -1)
+                {
+                    upPressed = false;
+                    downPressed = true;
+                }
             }
         }
      
@@ -141,86 +233,92 @@ public class PlayerController : MonoBehaviour
         animatorWalk.SetInteger("HorizontalSpeedTD", (int)gameObject.transform.GetComponent<Rigidbody2D>().velocity.x); //Velocity based animations
         animatorWalk.SetInteger("VerticalSpeedTD", (int)gameObject.transform.GetComponent<Rigidbody2D>().velocity.y); //TD = Topdown variables
 
+        if (canJump == true && canDownPunch == true)
+            canDownPunch = false;
+
         if (gameControllerScript.currentView == 1)
         {
             //Topdown Movement
 
             //Press down to move
-            if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+            if (Input.GetKey(KeyCode.D) || (rightPressed == true && xAxisFloat == 1))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
                 sideFacing = 4;
             }
-            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
+            if (Input.GetKey(KeyCode.A) || (leftPressed == true && xAxisFloat == -1))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(-horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
                 sideFacing = 2;
             }
-            if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
+            if (Input.GetKey(KeyCode.W) || (upPressed == true && yAxisFloat == 1))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, verticalMovementSpeed);
                 sideFacing = 1;
             }
-            if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
+            if (Input.GetKey(KeyCode.S) || (downPressed == true && yAxisFloat == -1))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, -verticalMovementSpeed);
                 sideFacing = 3;
             }
 
             //Let go to stop
-            if (Input.GetKeyUp(KeyCode.D) || Input.GetKeyUp(KeyCode.RightArrow))
+            if (Input.GetKeyUp(KeyCode.D) || (rightPressed == true && xAxisFloat != 1))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
                 isIdle = true;
                 sideFacing = 3;
+                rightPressed = false;
             }
-            if (Input.GetKeyUp(KeyCode.A) || Input.GetKeyUp(KeyCode.LeftArrow))
+            if (Input.GetKeyUp(KeyCode.A) || (leftPressed == true && xAxisFloat != -1))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
                 isIdle = true;
                 sideFacing = 3;
+                leftPressed = false;
             }
-            if (Input.GetKeyUp(KeyCode.W) || Input.GetKeyUp(KeyCode.UpArrow))
+            if (Input.GetKeyUp(KeyCode.W) || (upPressed == true && yAxisFloat != 1))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, 0);
                 isIdle = true;
                 sideFacing = 3;
+                upPressed = false;
             }
-            if (Input.GetKeyUp(KeyCode.S) || Input.GetKeyUp(KeyCode.DownArrow))
+            if (Input.GetKeyUp(KeyCode.S) || (downPressed == true && yAxisFloat != -1))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, 0);
                 isIdle = true;
                 sideFacing = 3;
+                downPressed = false;
             }
         }
-        if (gameControllerScript.currentView == 2)
+        if (gameControllerScript.currentView == 2 && !isBeingKOd)
         {
             //Sidescroll Movement
 
             //Press to move
-            if(Input.GetKey(KeyCode.D) || (rightPressed == true && xAxisFloat == 1))
+            if(Input.GetKeyDown(KeyCode.D) || (rightPressed == true && xAxisFloat == 1) && canMove)
             {
-                gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
+                GetComponent<Rigidbody2D>().AddForce(transform.right * horizontalMovementSpeed * 50);
                 sideFacing = 4;
                 previousSideFacing = 4;
+                if(GetComponent<Rigidbody2D>().velocity.x <= 0.1)
+                canMove = false;
             }
-            if (Input.GetKey(KeyCode.A) || (leftPressed == true && xAxisFloat == -1))
+            if (Input.GetKeyDown(KeyCode.A) || (leftPressed == true && xAxisFloat == -1) && canMove)
             {
-                gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(-horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
+                GetComponent<Rigidbody2D>().AddForce(-transform.right * horizontalMovementSpeed * 50);
                 previousSideFacing = 2;
                 sideFacing = 2;
+                canMove = false;
             }
 
-
-            if (Input.GetKeyDown(KeyCode.K) && letGoOfSpace == false)
+            if ((Input.GetKeyDown(KeyCode.K) || Input.GetButtonDown("Fire1")) && letGoOfSpace == false)
             {
+                animatorWalk.SetBool("isDownPunching", false);
+                enableDownPunch = true;
                 animatorWalk.SetBool("canJumpBool", false);
-                jumpheightTimerInt = 0;
-                goToMinJump = true;
-            }
-            if (Input.GetButtonDown("Fire1") && letGoOfSpace == false)
-            {
-                animatorWalk.SetBool("canJumpBool", false);
+                animatorWalk.SetBool("isBlocking", false);
                 jumpheightTimerInt = 0;
                 goToMinJump = true;
             }
@@ -242,21 +340,12 @@ public class PlayerController : MonoBehaviour
                 }
             }
 
-            if (Input.GetButton("Fire1") && goToMinJump == false && letGoOfSpace == false)
+            if ((Input.GetKey(KeyCode.K) || (Input.GetButton("Fire1")) && goToMinJump == false && letGoOfSpace == false))
             {
                 if (jumpheightTimerInt < maxJumpHeight)
                 {
                     jumpheightTimerInt += 1;
-                    gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, jumpSpeedInt);
-                }
-            }
-
-            if (Input.GetKey(KeyCode.K) && goToMinJump == false && letGoOfSpace == false)
-            {
-                if (jumpheightTimerInt < maxJumpHeight)
-                {
-                    jumpheightTimerInt += 1;
-                    gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, jumpSpeedInt);
+                    gameObject.transform.GetComponent<Rigidbody2D>().AddForce(transform.up * jumpSpeedInt);
                 }
             }
 
@@ -294,16 +383,29 @@ public class PlayerController : MonoBehaviour
                 }
             }
 
+            //Fast Fall
+            if((Input.GetKey(KeyCode.S) || (downPressed == true && yAxisFloat == -1)) && !canJump)
+            {
+                GetComponent<Rigidbody2D>().velocity = new Vector2(GetComponent<Rigidbody2D>().velocity.x, -jumpSpeedInt * 1.5f);
+            }
 
-            //Press to Crouch / Duck, needs "re-implementing"/"re-thinking" without movement while crouching
-            /*if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+            if(isDownPunching && canJump == false && effectiveDownPunch) //If down punching and grounded, stop down punching
+            {
+                GetComponent<Rigidbody2D>().velocity = new Vector2(GetComponent<Rigidbody2D>().velocity.x, jumpSpeedInt * 1.7f);
+                StartCoroutine(CanDownPunch(0.3f));
+                effectiveDownPunch = false;
+                downPunchingOnEnemy = false;
+            }
+
+
+            //Crouch
+            if ((Input.GetKeyDown(KeyCode.S) || (downPressed == true && yAxisFloat == -1)) && canJump == true) //If press down on dpad && is grounded
             {
                 isCrouching = true;
                 animatorWalk.SetBool("isCrouching", true);
-                triggerCollider.enabled = true;
-                gameObject.transform.GetComponent<BoxCollider2D>().size = new Vector2(1, 1.3f);
-                gameObject.transform.GetComponent<BoxCollider2D>().offset = new Vector2(0, -0.35f);
-            }*/
+                gameObject.transform.GetComponent<BoxCollider2D>().size = new Vector2(1.3f, 2.2f);
+                gameObject.transform.GetComponent<BoxCollider2D>().offset = new Vector2(0, -0.15f);
+            }
 
             //Let go to stop
             if (Input.GetKeyUp(KeyCode.D) || (rightPressed == true && xAxisFloat != 1))
@@ -315,6 +417,7 @@ public class PlayerController : MonoBehaviour
                     sideFacing = 3;
                     rightPressed = false;
                 }
+                canMove = true;
             }
             if (Input.GetKeyUp(KeyCode.A) || (leftPressed == true && xAxisFloat != -1))
             {
@@ -325,76 +428,69 @@ public class PlayerController : MonoBehaviour
                     sideFacing = 3;
                     leftPressed = false;
                 }
+                canMove = true;
             }
-            if (Input.GetKeyUp(KeyCode.S) || Input.GetKeyUp(KeyCode.DownArrow))
-            {
-                if(isUnderSomething == false)
-                {
-                    isCrouching = false;
-                    triggerCollider.enabled = false; //disables trigger collider to avoid "OnTriggerStay" running continuously and causing lag
-                    animatorWalk.SetBool("isCrouching", false); //sets animator isCrouching bool to false
-                    isIdle = true;
-                    sideFacing = 3; //side facing = forward/toward camera
-                    gameObject.transform.GetComponent<BoxCollider2D>().size = colliderOriginalSize; //resets main boxcollider's size and offset to match character forward model
-                    gameObject.transform.GetComponent<BoxCollider2D>().offset = colliderOriginalOffset;
-                }
-                else
-                {
-                    crouchingButKeyIsUp = true;
-                }
-            }
-
-            if(crouchingButKeyIsUp == true && isUnderSomething == false)
+            if (isCrouching == true && (Input.GetKeyUp(KeyCode.S) || (downPressed == true && yAxisFloat != -1) || sideFacing != 3)) //Breaks out of crouch if S is let go or dpad down is let go or is moving
             {
                 isCrouching = false;
-                triggerCollider.enabled = false; //disables trigger collider to avoid "OnTriggerStay" running continuously and causing lag
-                animatorWalk.SetBool("isCrouching", false); //sets animator isCrouching bool to false
+                animatorWalk.SetBool("isCrouching", false); //Sets animator isCrouching bool to false
+                animatorWalk.SetBool("isPunching", false);
                 isIdle = true;
-                sideFacing = 3; //side facing = forward/toward camera
-                gameObject.transform.GetComponent<BoxCollider2D>().size = colliderOriginalSize; //resets main boxcollider's size and offset to match character forward model
+                sideFacing = 3; //Side facing = forward/toward camera
+                gameObject.transform.GetComponent<BoxCollider2D>().size = colliderOriginalSize; //Resets main boxcollider's size and offset to match character forward model
                 gameObject.transform.GetComponent<BoxCollider2D>().offset = colliderOriginalOffset;
-                crouchingButKeyIsUp = false;
+                downPressed = false;
             }
         }
 
         //Attack Code
-        if (Input.GetButtonDown("Fire2") && isPunching == false)
+        if ((Input.GetKeyDown(KeyCode.J) || Input.GetButtonDown("Fire2")) && isPunching == false)
         {
-            StartCoroutine(Punch());
+            if(canJump) //If is grounded, do regular punch
+            {
+                if (isCrouching == false)
+                {
+                    StartCoroutine(Punch()); //Initiates punch/charge punch coroutine
+                }
+                else //If is crouching when punch is activated, do crouch punch instead of regular punch/charge punch
+                {
+                    StartCoroutine(CrouchPunch());
+                }
+            }
+            else //If mid jump, do down punch (if allowed by canDownPunch)
+            {
+                if(canDownPunch)
+                {
+                    isDownPunching = true;
+                    canDownPunch = false;
+                    StartCoroutine(downPunchTimer());
+                    animatorWalk.SetBool("isDownPunching", true);
+                }
+            }
         }
-        if (Input.GetKeyDown(KeyCode.J) && isPunching == false)
-        {
-            StartCoroutine(Punch());
-        }
-        if (Input.GetButton("Fire2") && isPunching == true) 
-        {
-            spamPunchTimerInt = 20;
-            animatorWalk.SetBool("canStopPunching", false);
-        }
-        if (Input.GetKey(KeyCode.J) && isPunching == true) 
+        if ((Input.GetButton("Fire2") || (Input.GetKey(KeyCode.J)) && isPunching == true)) //Spam punch code
         {
             spamPunchTimerInt = 20;
             animatorWalk.SetBool("canStopPunching", false);
         }
 
-        if(Input.GetKeyUp(KeyCode.J) && spamPunchTimerInt < 20)
+        if((Input.GetKeyUp(KeyCode.J) || Input.GetButtonUp("Fire2")) && spamPunchTimerInt < 20 && isCrouching == false && isPunching == true)
         {
             StopAllCoroutines(); //Breaks out of punch / charge punch
+            Color tempColor = gameObject.transform.GetComponent<SpriteRenderer>().color;
+            tempColor.a = 255;
+            gameObject.transform.GetComponent<SpriteRenderer>().color = tempColor;
             animatorWalk.SetBool("isPunching", false);
             horizontalMovementSpeed = 4;
             isPunching = false;
             gameObject.transform.GetComponent<Animator>().speed = initialAnimSpeed;
         }
-        if (Input.GetButtonUp("Fire2") && spamPunchTimerInt < 20)
+        if ((Input.GetKeyUp(KeyCode.J) || Input.GetButtonUp("Fire2")) && isDownPunching)
         {
-            StopAllCoroutines(); //Breaks out of punch / charge punch
-            animatorWalk.SetBool("isPunching", false);
-            horizontalMovementSpeed = 4;
-            isPunching = false;
-            gameObject.transform.GetComponent<Animator>().speed = initialAnimSpeed;
+            isDownPunching = false;
         }
 
-        if(Input.GetKeyDown(KeyCode.J) || Input.GetButtonDown("Fire2"))
+        if (Input.GetKeyDown(KeyCode.J) || Input.GetButtonDown("Fire2"))
         {
             punchIsPressed = true;
         }
@@ -402,13 +498,32 @@ public class PlayerController : MonoBehaviour
         {
             punchIsPressed = false;
         }
+
+        if((Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown("Fire1")) && isBeingKOd)
+        {
+            mashAmount++;
+        }
+
+        if(GetComponent<SpriteRenderer>().color.a <= 0 && !isInInvincibilityFrame)
+        {
+            Color tempColor = GetComponent<SpriteRenderer>().color;
+            tempColor.a = 255;
+            GetComponent<SpriteRenderer>().color = tempColor;
+        }
+
+        //Leave this code at the bottom of update so it is the last thing that runs in the frame
+        if (enableDownPunch || !canJump)
+        {
+            canDownPunch = true;
+            enableDownPunch = false;
+        }
     }
 
     private void OnCollisionStay2D(Collision2D collision)
     {
-        if (collision.gameObject.layer == 8 && collision.collider == collision.transform.GetComponent<ObjectCollisionController>().canJumpCollider) //8 == "Floor" layer
+        if (collision.gameObject.layer == 8 && collision.transform.GetComponent<ObjectCollisionController>() != null && collision.collider == collision.transform.GetComponent<ObjectCollisionController>().canJumpCollider) //8 == "Floor" layer
         {
-            if(letGoOfSpace == true)
+            if (letGoOfSpace == true)
             {
                 letGoOfSpace = false;
             }
@@ -422,52 +537,74 @@ public class PlayerController : MonoBehaviour
                 animatorWalk.SetBool("canJumpBool", true);
             }
         }
+
+        if (canDownPunch && canJump)
+        {
+            animatorWalk.SetBool("isDownPunching", false);
+            isDownPunching = false;
+            canDownPunch = false;
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.transform.tag == "DownPunchable")
+            effectiveDownPunch = true;
+        else
+        {
+            if (downPunchingOnEnemy == false)
+            {
+                animatorWalk.SetBool("isDownPunching", false);
+                effectiveDownPunch = false;
+                isDownPunching = false;
+            }
+        }
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
-        if (collision.gameObject.layer == 8 && collision.collider == collision.transform.GetComponent<ObjectCollisionController>().canJumpCollider) //8 == "Floor" layer
+        if (collision.gameObject.layer == 8 && collision.transform.GetComponent<ObjectCollisionController>() != null && collision.collider == collision.transform.GetComponent<ObjectCollisionController>().canJumpCollider) //8 == "Floor" layer
         {
             canJump = false;
             animatorWalk.SetBool("canJumpBool", false);
-        }
-    }
-
-    private void OnTriggerStay2D(Collider2D collision)
-    {
-        if(isCrouching)
-        {
-            isUnderSomething = true;
-        }
-    }
-
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if (isCrouching && isUnderSomething == true)
-        {
-            isUnderSomething = false;
+            animatorWalk.SetBool("isBlocking", false);
         }
     }
 
     IEnumerator Punch() 
-    {   
-        punchDamage = 10; //Resets punch damage from previous punch
+    {
+        punchDamage = standardPunchDamage; //Resets punch damage from previous punch
         float waitTime = punchTime / 5; //How long it will wait between incrementing damage
         int damageToAdd = punchDamageCap / 8; //Divided by 8 because base damage is already half of cap (so / 2) and we want 4 increments (so / 4) which is just / 8
 
         isPunching = true;
         horizontalMovementSpeed = 2;
         animatorWalk.SetBool("isPunching", true);
+        animatorWalk.SetBool("isBlocking", false);
         initialAnimSpeed = 1;
 
         //Variable Damage System
-        yield return new WaitForSeconds(0.06f); //First wait, doesnt add to punch increment so standard punch is differenciated from charge punch
+        yield return new WaitForSeconds(0.05f); //First wait, doesnt add to punch increment so standard punch is differenciated from charge punch
+        gameObject.transform.GetComponent<Animator>().speed -= punchTime * 0.2f; //Slows current animation
         yield return new WaitForSeconds(waitTime); //Second wait + slows punch to show that it is a charge punch
-        gameObject.transform.GetComponent<Animator>().speed -= punchTime * 0.9f; //Slows current animation, 0.375 is a constant b/c the default punchTime value was 0.3 when the anim speed was 0.8
+
+        if(punchIsPressed == false)
+        {
+            StopAllCoroutines(); //Breaks out of punch / charge punch
+            Color tempColor = gameObject.transform.GetComponent<SpriteRenderer>().color;
+            tempColor.a = 255;
+            gameObject.transform.GetComponent<SpriteRenderer>().color = tempColor;
+            animatorWalk.SetBool("isPunching", false);
+            horizontalMovementSpeed = 4;
+            isPunching = false;
+            gameObject.transform.GetComponent<Animator>().speed = initialAnimSpeed;
+        }
+
+        gameObject.transform.GetComponent<Animator>().speed -= punchTime * 1f; //Slows current animation
         punchDamage += damageToAdd;
         horizontalMovementSpeed = 1;
         yield return new WaitForSeconds(waitTime); //Third wait
-        gameObject.transform.GetComponent<Animator>().speed -= punchTime * 0.5f; //Slows current animation, 0.375 is a constant b/c the default punchTime value was 0.3 when the anim speed was 0.8
+        gameObject.transform.GetComponent<Animator>().speed -= punchTime * 0.4f; //Slows current animation
         punchDamage += damageToAdd;
         yield return new WaitForSeconds(waitTime); //Fourth wait
         punchDamage += damageToAdd;
@@ -480,15 +617,158 @@ public class PlayerController : MonoBehaviour
         gameObject.transform.GetComponent<Animator>().speed = initialAnimSpeed;
     }
 
+    IEnumerator CrouchPunch()
+    {
+        isPunching = true; 
+        animatorWalk.SetBool("isPunching", true); //Tells animator to start punching anim
+        animatorWalk.SetBool("isBlocking", false);
+        punchDamage = standardPunchDamage; //Resets punch damage from previous punch
+
+        yield return new WaitForSeconds(crouchPunchTime); //Waits crouchPunchTime
+
+        animatorWalk.SetBool("isPunching", false); //Tells animator to stop punching anim
+        isPunching = false;
+    }
+
     public void FixedUpdate()
     {
         if(spamPunchTimerInt > 0)
-        {
             spamPunchTimerInt -= 1;
+        else
+            animatorWalk.SetBool("canStopPunching", true);
+
+        if (isBeingKOd)
+            KoTimer();
+    }
+
+    public void TakeDamage(int dmgToTake) //Subtracts dmgToTake from health, triggers KO system if needed
+    {
+        if(!isBlocking && !isInInvincibilityFrame && !isBeingKOd) //If is not blocking
+        {
+            health -= dmgToTake;
+            gameControllerScript.updateHealthSlider(minHealth, maxHealth, health); //Updates health slider at top left
+            if (health <= minHealth) //If player's health is below minimum health (default is 0), start KO system
+                SetupKO();
+            StopAllCoroutines();
+            StartCoroutine(InvincibilityFramesTimer());
+        }
+    }
+
+    public void SetupKO()
+    {
+        animatorWalk.SetBool("isDowned", true);
+        isBeingKOd = true;
+        health = minHealth;
+        gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
+        gameControllerScript.koSlider.transform.parent.gameObject.SetActive(true);
+        timesKOd++;
+        mashAmount = 0;
+        if(timesKOd != koTimerList.Count)
+        {
+            koTimer = koTimerList[timesKOd - 1];
+            maxMashAmount = mashAmountList[timesKOd - 1];
+        }
+        gameControllerScript.koSlider.GetComponent<Slider>().maxValue = maxMashAmount;
+    }
+
+    void KoTimer()
+    {
+        if(koTimer > 0 && mashAmount < maxMashAmount)
+        {
+            koTimer -= 0.02f;
+            gameControllerScript.koTimerText.transform.GetComponent<Text>().text = koTimer.ToString("F2");
+            gameControllerScript.koSlider.GetComponent<Slider>().value = mashAmount;
         }
         else
         {
-            animatorWalk.SetBool("canStopPunching", true);
+            if (koTimer <= 0.05)
+            {
+                koTimer = 0;
+                Destroy(gameObject.transform.parent.gameObject); //Death
+            }
+            if (mashAmount >= maxMashAmount)
+            {
+                health = maxHealth;
+                gameControllerScript.updateHealthSlider(minHealth, maxHealth, health);
+                isBeingKOd = false; //Re-enables basic functions (ex. movement)
+                animatorWalk.SetBool("isDowned", false); //Disables KO animation
+                gameControllerScript.koSlider.transform.parent.gameObject.SetActive(false); //Disables the KO slider ui
+                StartCoroutine(ReviveInvincibilityTimer()); //Makes character invincible so he doesnt immediately die again
+            }
         }
+    }
+
+    IEnumerator KoTimerRunner()
+    {
+        if(isBeingKOd)
+        {
+            yield return new WaitForSeconds(0.2f);
+            KoTimer();
+        }
+    }
+
+    public IEnumerator CanDownPunch(float time)
+    {
+        canDownPunch = false;
+        yield return new WaitForSeconds(time);
+        canDownPunch = true;
+    }
+
+    public IEnumerator downPunchTimer()
+    {
+        yield return new WaitForSeconds(downPunchTime);
+        isDownPunching = false;
+    }
+
+    public IEnumerator InvincibilityFramesTimer()
+    {
+        isInInvincibilityFrame = true;
+        float time = invincibiltiyFrameTime / 5;
+        Color backupColor = gameObject.transform.GetComponent<SpriteRenderer>().color;
+        Color tempColor = gameObject.transform.GetComponent<SpriteRenderer>().color;
+        tempColor.a = 0.35f;
+        gameObject.transform.GetComponent<SpriteRenderer>().color = tempColor;
+        yield return new WaitForSeconds(time);
+        gameObject.transform.GetComponent<SpriteRenderer>().color = backupColor;
+        yield return new WaitForSeconds(time);
+        gameObject.transform.GetComponent<SpriteRenderer>().color = tempColor;
+        yield return new WaitForSeconds(time);
+        gameObject.transform.GetComponent<SpriteRenderer>().color = backupColor;
+        yield return new WaitForSeconds(time);
+        gameObject.transform.GetComponent<SpriteRenderer>().color = tempColor;
+        yield return new WaitForSeconds(time);
+        gameObject.transform.GetComponent<SpriteRenderer>().color = backupColor;
+        isInInvincibilityFrame = false;
+    }
+
+    public IEnumerator ReviveInvincibilityTimer() //Used after the player comes back from being KOd
+    {
+        isInInvincibilityFrame = true;
+        float time = reviveInvincibilityFrameTimer / 10;
+        Color backupColor = gameObject.transform.GetComponent<SpriteRenderer>().color;
+        Color tempColor = gameObject.transform.GetComponent<SpriteRenderer>().color;
+        tempColor.a = 0.35f;
+        gameObject.transform.GetComponent<SpriteRenderer>().color = tempColor;
+        yield return new WaitForSeconds(time);
+        gameObject.transform.GetComponent<SpriteRenderer>().color = backupColor;
+        yield return new WaitForSeconds(time);
+        gameObject.transform.GetComponent<SpriteRenderer>().color = tempColor;
+        yield return new WaitForSeconds(time);
+        gameObject.transform.GetComponent<SpriteRenderer>().color = backupColor;
+        yield return new WaitForSeconds(time);
+        gameObject.transform.GetComponent<SpriteRenderer>().color = tempColor;
+        yield return new WaitForSeconds(time);
+        gameObject.transform.GetComponent<SpriteRenderer>().color = tempColor;
+        yield return new WaitForSeconds(time);
+        gameObject.transform.GetComponent<SpriteRenderer>().color = backupColor;
+        yield return new WaitForSeconds(time);
+        gameObject.transform.GetComponent<SpriteRenderer>().color = tempColor;
+        yield return new WaitForSeconds(time);
+        gameObject.transform.GetComponent<SpriteRenderer>().color = backupColor;
+        yield return new WaitForSeconds(time);
+        gameObject.transform.GetComponent<SpriteRenderer>().color = tempColor;
+        yield return new WaitForSeconds(time);
+        gameObject.transform.GetComponent<SpriteRenderer>().color = backupColor;
+        isInInvincibilityFrame = false;
     }
 }

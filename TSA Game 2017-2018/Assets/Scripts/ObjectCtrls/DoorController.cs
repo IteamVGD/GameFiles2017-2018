@@ -12,9 +12,9 @@ public class DoorController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-		if(Input.GetKeyDown(KeyCode.E) && isClose == true)
+		if((Input.GetKeyDown(KeyCode.E) || playerObj.transform.GetChild(0).GetComponent<PlayerController>().upPressed) && isClose) //Opens door if E or UpDpad is pressed
         {
-            StartCoroutine(gameControllerObj.transform.GetComponent<GameController>().ChangeViewFadeOut(0.04f, 0.04f, 0.5f));
+            StartCoroutine(gameControllerObj.transform.GetComponent<GameController>().ChangeViewFadeOut(0.04f, 0.043f, 0.5f));
         }
 
         if(Vector3.Distance(gameObject.transform.position, playerObj.transform.GetChild(0).position) < maxAccessRange)

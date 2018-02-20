@@ -14,19 +14,4 @@ public class SidescrollUIController : MonoBehaviour {
 
         topdownUIControllerScript = gameObject.transform.GetComponent<TopdownUIController>();
     }
-
-    // Use this for initialization
-    void Start () {
-        
-    }
-
-    private void OnEnable()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update () {
-		
-	}
 }

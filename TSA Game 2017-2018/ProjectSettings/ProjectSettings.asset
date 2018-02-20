@@ -15,12 +15,12 @@ PlayerSettings:
   productName: TSA Game 2017-2018
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
-  m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
+  m_SplashScreenBackgroundColor: {r: 0.074935116, g: 0.14429513, b: 0.30882353, a: 1}
   m_ShowUnitySplashScreen: 1
   m_ShowUnitySplashLogo: 1
   m_SplashScreenOverlayOpacity: 1
   m_SplashScreenAnimation: 1
-  m_SplashScreenLogoStyle: 1
+  m_SplashScreenLogoStyle: 0
   m_SplashScreenDrawMode: 0
   m_SplashScreenBackgroundAnimationZoom: 1
   m_SplashScreenLogoAnimationZoom: 1
@@ -38,7 +38,9 @@ PlayerSettings:
     y: 0
     width: 1
     height: 1
-  m_SplashScreenLogos: []
+  m_SplashScreenLogos:
+  - logo: {fileID: 21300000, guid: 504d4fe1d06cde84cafb6de14f6781a3, type: 3}
+    duration: 4
   m_VirtualRealitySplashScreen: {fileID: 0}
   m_HolographicTrackingLossScreen: {fileID: 0}
   defaultScreenWidth: 1920
@@ -254,12 +256,13 @@ PlayerSettings:
     height: 180
     banner: {fileID: 0}
   androidGamepadSupportLevel: 0
-  resolutionDialogBanner: {fileID: 0}
+  resolutionDialogBanner: {fileID: 2800000, guid: f6ff4827e691ff341b6b8c161b10b32d,
+    type: 3}
   m_BuildTargetIcons:
   - m_BuildTarget: Standalone
     m_Icons:
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: 2ad5a7d9f686bca418fb6eeabf3c5e5b, type: 3}
+      m_Icon: {fileID: 2800000, guid: ca4d9ecc33a12ac429b634a79a1b4aa6, type: 3}
       m_Width: 1024
       m_Height: 1024
       m_Kind: 0

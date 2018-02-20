@@ -7,6 +7,8 @@ TagManager:
   - Object
   - Background
   - Enemy
+  - Entity
+  - DownPunchable
   layers:
   - Default
   - TransparentFX
@@ -18,12 +20,12 @@ TagManager:
   - 
   - Floor
   - Entity
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - PlayerPunch
+  - EnemyJump
+  - EntityWalkThrough
+  - Player
+  - EnemyPunch
+  - EnemyDownPunch
   - 
   - 
   - 
@@ -58,6 +60,9 @@ TagManager:
     locked: 0
   - name: Top Objects
     uniqueID: 72836417
+    locked: 0
+  - name: EnemyUI
+    uniqueID: 758159213
     locked: 0
   - name: UI
     uniqueID: 588082735

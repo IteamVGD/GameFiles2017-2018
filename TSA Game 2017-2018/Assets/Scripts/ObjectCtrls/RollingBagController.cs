@@ -4,13 +4,12 @@ using UnityEngine;
 
 public class RollingBagController : MonoBehaviour {
 
-    public float speed;
-    public int newVel;
-    public float rotZ;
+    public float speed; //How fast the bag is spinning
+    public int newVel; //How fast it should spin
+    public int damage; //How much damage to deal on collision
 
     // Use this for initialization
-    void Start () {
-        
+    void Start () {      
         newVel = 2;
         gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(2, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
     }
@@ -26,13 +25,14 @@ public class RollingBagController : MonoBehaviour {
     {
         if (collision.transform.tag == "Object" || collision.transform.tag == "Entity")
         {
-            if (newVel == 2)
+            newVel *= -1; //Inverses spinning direction
+            if(collision.transform.GetComponent<PlayerController>() != null) //Damages the player if he touches the rolling bag
             {
-                newVel = -2;
+                collision.transform.GetComponent<PlayerController>().TakeDamage(damage);
             }
-            else
+            if(collision.transform.GetComponent<EnemyController>() != null) //Damages enemies if they touch the rolling bag
             {
-                newVel = 2;
+                collision.transform.GetComponent<EnemyController>().TakeDamage(damage);
             }
         }
     }
