@@ -146,7 +146,7 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.L) || Input.GetButtonDown("Fire3"))
+        if (Input.GetKeyDown(KeyCode.L) || Input.GetButtonDown("Fire2"))
         {
             if(blockMeter > (maxBlock / 5))
             {
@@ -156,7 +156,7 @@ public class PlayerController : MonoBehaviour
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
             }
         }
-        if ((Input.GetKeyUp(KeyCode.L) || Input.GetButtonUp("Fire3")) && isBlocking == true)
+        if ((Input.GetKeyUp(KeyCode.L) || Input.GetButtonUp("Fire2")) && isBlocking == true)
         {
             isBlocking = false;
             animatorWalk.SetBool("isBlocking", false);
@@ -449,7 +449,7 @@ public class PlayerController : MonoBehaviour
         }
 
         //Attack Code
-        if ((Input.GetKeyDown(KeyCode.J) || Input.GetButtonDown("Fire2")) && isPunching == false)
+        if ((Input.GetKeyDown(KeyCode.J) || Input.GetButtonDown("Fire3")) && isPunching == false)
         {
             if(canJump) //If is grounded, do regular punch
             {
@@ -473,19 +473,21 @@ public class PlayerController : MonoBehaviour
                 if(canDownPunch)
                 {
                     isDownPunching = true;
+                    if(effectiveDownPunch)
+                        StartCoroutine(gameControllerScript.SpawnPow(gameObject.transform.position));
                     canDownPunch = false;
                     StartCoroutine(downPunchTimer());
                     animatorWalk.SetBool("isDownPunching", true);
                 }
             }
         }
-        if ((Input.GetButtonDown("Fire2") || (Input.GetKeyDown(KeyCode.J)) && isPunching == true)) //Spam punch code
+        if ((Input.GetButtonDown("Fire3") || (Input.GetKeyDown(KeyCode.J)) && isPunching == true)) //Spam punch code
         {
             spamPunchTimerInt = 20;
             animatorWalk.SetBool("canStopPunching", false);
         }
 
-        if((Input.GetKeyUp(KeyCode.J) || Input.GetButtonUp("Fire2")) && spamPunchTimerInt < 20 && isCrouching == false && isPunching == true)
+        if((Input.GetKeyUp(KeyCode.J) || Input.GetButtonUp("Fire3")) && spamPunchTimerInt < 20 && isCrouching == false && isPunching == true)
         {
             StopAllCoroutines(); //Breaks out of punch / charge punch
             Color tempColor = gameObject.transform.GetComponent<SpriteRenderer>().color;
@@ -496,16 +498,16 @@ public class PlayerController : MonoBehaviour
             isPunching = false;
             gameObject.transform.GetComponent<Animator>().speed = initialAnimSpeed;
         }
-        if ((Input.GetKeyUp(KeyCode.J) || Input.GetButtonUp("Fire2")) && isDownPunching)
+        if ((Input.GetKeyUp(KeyCode.J) || Input.GetButtonUp("Fire3")) && isDownPunching)
         {
             isDownPunching = false;
         }
 
-        if (Input.GetKeyDown(KeyCode.J) || Input.GetButtonDown("Fire2"))
+        if (Input.GetKeyDown(KeyCode.J) || Input.GetButtonDown("Fire3"))
         {
             punchIsPressed = true;
         }
-        if (Input.GetKeyUp(KeyCode.J) || Input.GetButtonUp("Fire2"))
+        if (Input.GetKeyUp(KeyCode.J) || Input.GetButtonUp("Fire3"))
         {
             punchIsPressed = false;
         }

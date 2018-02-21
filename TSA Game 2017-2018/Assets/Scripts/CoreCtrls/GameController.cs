@@ -74,17 +74,6 @@ public class GameController : MonoBehaviour { //18
                     enemyList.Remove(enemy);
                     return;
                 }
-                if (enemy.activeSelf == true && Vector3.Distance(playerObj.transform.GetChild(0).position, enemy.transform.position) > entityUnloadRange) //Unloads enemies farther than the unloadRange from the player
-                {
-                    enemy.SetActive(false);
-                }
-                else
-                {
-                    if (enemy.activeSelf == false && Vector3.Distance(playerObj.transform.GetChild(0).position, enemy.transform.position) < entityLoadRange) //Loads enemies closer than the loadRange from the player
-                    {
-                        enemy.SetActive(true);
-                    }
-                }
             }
 
             foreach(GameObject light in lightList)
@@ -152,6 +141,7 @@ public class GameController : MonoBehaviour { //18
             foreach (GameObject enemy in GameObject.FindGameObjectsWithTag("Enemy"))
             {
                 enemyList.Add(enemy);
+                enemy.SetActive(false);
             }
 
             foreach (GameObject light in lightList)
