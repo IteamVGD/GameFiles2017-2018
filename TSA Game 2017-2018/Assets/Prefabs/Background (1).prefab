@@ -211,11 +211,11 @@ GameObject:
   - component: {fileID: 4916824887235354}
   m_Layer: 0
   m_Name: Lights
-  m_TagString: Untagged
+  m_TagString: Light
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967295
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1985938806838950
 GameObject:
   m_ObjectHideFlags: 1

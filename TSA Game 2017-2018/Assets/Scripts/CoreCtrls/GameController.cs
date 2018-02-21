@@ -44,8 +44,11 @@ public class GameController : MonoBehaviour { //18
     public int chunkLoadRange; //How far away a "chunk" needs to be from the player to be "loaded" (enabled)
     public int entityUnloadRange; //How far away an entity needs to be from the player to be "unloaded" (disabled)
     public int entityLoadRange; //How far away an entity needs to be from the player to be "loaded" (enabled)
+    public int lightLoadRange; //How far away a light needs to be from the player to be "loaded" (enabled)
+    public int lightUnloadRange;//How far away a light needs to be from the player to be "unloaded" (disabled)
 
     public List<GameObject> enemyList; //A list of all enemies in the level
+    public List<GameObject> lightList; //A list of all lights in the level
 
     public bool controllerConnected; //if true, run controller only code
 
@@ -61,7 +64,7 @@ public class GameController : MonoBehaviour { //18
 
     // Update is called once per frame
     void Update () {
-        if(currentView == 2) //Only runs "chunk manager" when in sidescroll mode
+        if(currentView == 2 && playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().velocity.x > 0) //Only runs "chunk manager" when in sidescroll mode & when player is moving
         {
             //Loads/unloads enemies
             foreach (GameObject enemy in enemyList)
@@ -69,18 +72,33 @@ public class GameController : MonoBehaviour { //18
                 if(enemy == null)
                 {
                     enemyList.Remove(enemy);
-                    break;
+                    return;
                 }
-                if (Vector3.Distance(playerObj.transform.GetChild(0).position, enemy.transform.position) > entityUnloadRange) //Unloads enemies farther than the unloadRange from the player
+                if (enemy.activeSelf == true && Vector3.Distance(playerObj.transform.GetChild(0).position, enemy.transform.position) > entityUnloadRange) //Unloads enemies farther than the unloadRange from the player
                 {
                     enemy.SetActive(false);
                 }
-            }
-            foreach (GameObject enemy in enemyList)
-            {
-                if (Vector3.Distance(playerObj.transform.GetChild(0).position, enemy.transform.position) < entityLoadRange) //Loads enemies closer than the loadRange from the player
+                else
                 {
-                    enemy.SetActive(true);
+                    if (enemy.activeSelf == false && Vector3.Distance(playerObj.transform.GetChild(0).position, enemy.transform.position) < entityLoadRange) //Loads enemies closer than the loadRange from the player
+                    {
+                        enemy.SetActive(true);
+                    }
+                }
+            }
+
+            foreach(GameObject light in lightList)
+            {
+                if(light.activeSelf == true && Vector3.Distance(playerObj.transform.GetChild(0).position, light.transform.position) > lightUnloadRange)
+                {
+                    light.SetActive(false);
+                }
+                else
+                {
+                    if (light.activeSelf == false && Vector3.Distance(playerObj.transform.GetChild(0).position, light.transform.position) < lightLoadRange)
+                    {
+                        light.SetActive(true);
+                    }
                 }
             }
             //Loas/unloads chunks
@@ -89,12 +107,13 @@ public class GameController : MonoBehaviour { //18
                 if (chunk.activeSelf == true && Vector3.Distance(playerObj.transform.GetChild(0).position, chunk.transform.position) > chunkUnloadRange) //Unloads chunks farther than the unloadRange from the player
                 {
                     chunk.SetActive(false);
-                    return;
                 }
-                if (chunk.activeSelf == false && Vector3.Distance(playerObj.transform.GetChild(0).position, chunk.transform.position) < chunkLoadRange) //Loads chunks closer than the loadRange from the player
+                else
                 {
-                    chunk.SetActive(true);
-                    return;
+                    if (chunk.activeSelf == false && Vector3.Distance(playerObj.transform.GetChild(0).position, chunk.transform.position) < chunkLoadRange) //Loads chunks closer than the loadRange from the player
+                    {
+                        chunk.SetActive(true);
+                    }
                 }
             }
         }
@@ -125,12 +144,45 @@ public class GameController : MonoBehaviour { //18
             foreach (GameObject background in GameObject.FindGameObjectsWithTag("Background"))
             {
                 backgroundObjs.Add(background);
+                for(int k=0;k<background.transform.GetChild(0).transform.childCount;k++)
+                {
+                    lightList.Add(background.transform.GetChild(0).transform.GetChild(k).gameObject);
+                }
             }
             foreach (GameObject enemy in GameObject.FindGameObjectsWithTag("Enemy"))
             {
                 enemyList.Add(enemy);
             }
-            return;
+
+            foreach (GameObject light in lightList)
+            {
+                if (light.activeSelf == true && Vector3.Distance(playerObj.transform.GetChild(0).position, light.transform.position) > lightUnloadRange)
+                {
+                    light.SetActive(false);
+                }
+                else
+                {
+                    if (light.activeSelf == false && Vector3.Distance(playerObj.transform.GetChild(0).position, light.transform.position) < lightLoadRange)
+                    {
+                        light.SetActive(true);
+                    }
+                }
+            }
+            //Loas/unloads chunks
+            foreach (GameObject chunk in backgroundObjs)
+            {
+                if (chunk.activeSelf == true && Vector3.Distance(playerObj.transform.GetChild(0).position, chunk.transform.position) > chunkUnloadRange) //Unloads chunks farther than the unloadRange from the player
+                {
+                    chunk.SetActive(false);
+                }
+                else
+                {
+                    if (chunk.activeSelf == false && Vector3.Distance(playerObj.transform.GetChild(0).position, chunk.transform.position) < chunkLoadRange) //Loads chunks closer than the loadRange from the player
+                    {
+                        chunk.SetActive(true);
+                    }
+                }
+            }
         }
     }
 

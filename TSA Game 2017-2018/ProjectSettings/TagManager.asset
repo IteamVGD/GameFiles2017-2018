@@ -9,6 +9,7 @@ TagManager:
   - Enemy
   - Entity
   - DownPunchable
+  - Light
   layers:
   - Default
   - TransparentFX
