@@ -49,15 +49,14 @@ public class GameController : MonoBehaviour { //18
 
     public bool controllerConnected; //if true, run controller only code
 
+    public GameObject powEffectPrefab; //The effect that appears when an enemy punches the player or the other way around
+
     // Use this for initialization
     void Start () {
-        currentView = 0; //0 = main menu, 1= topdown, 2 = sidescroll
         playerObjStatic = playerObj;
         Application.targetFrameRate = 60;
         if(Input.GetJoystickNames().Length > 0)
-        {
             controllerConnected = true;
-        }
     }
 
     // Update is called once per frame
@@ -146,6 +145,7 @@ public class GameController : MonoBehaviour { //18
         playerObj.transform.GetChild(0).transform.position = new Vector3(0, 0, 0); //Resets player to middle of screen
         playerObj.transform.GetChild(0).GetComponent<Animator>().SetLayerWeight(1, 1);
         mainCameraObj.transform.position = new Vector3(0, 0, -10);
+        mainCameraObj.transform.GetComponent<CameraController>().followY = true;
     }
 
     public void changeToSidescroll()
@@ -159,6 +159,8 @@ public class GameController : MonoBehaviour { //18
         playerObj.transform.GetChild(0).transform.position = new Vector3(-7.6f, -3.55f, 0); //Resets player to start
         playerObj.transform.GetChild(0).GetComponent<Animator>().SetLayerWeight(1, 0);
         mainCameraObj.transform.position = new Vector3(-1.6716f, 0, -10);
+        mainCameraObj.transform.GetComponent<CameraController>().followY = false;
+
     }
 
     public void startNewGame()
@@ -237,5 +239,13 @@ public class GameController : MonoBehaviour { //18
             blockSlider.transform.GetChild(1).transform.GetChild(0).gameObject.SetActive(false); //Sets fill object on block slider to inactive to prevent small amount of blue "block" at the very left
         if (val > minVal) //If above minimum health
             blockSlider.transform.GetChild(1).transform.GetChild(0).gameObject.SetActive(true); //Sets fill object on block slider to active
+    }
+
+    public IEnumerator SpawnPow(Vector3 collPosition) //Spawns a POW damage effect at the position of the collision
+    {
+        Quaternion powRotation = new Quaternion(Random.Range(-50, 50), Random.Range(-50, 50), Random.Range(-180, 180), Random.Range(-180, 180)); //Randomises the pow's rotation
+        GameObject powObj = Instantiate(powEffectPrefab, collPosition, powRotation); //Instatiates the pow effect obh
+        yield return new WaitForSeconds(0.4f); //Waits for (almost) half a second
+        Destroy(powObj); //Destroys the pow effect
     }
 }

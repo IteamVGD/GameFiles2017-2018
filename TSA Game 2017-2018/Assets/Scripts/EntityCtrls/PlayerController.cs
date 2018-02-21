@@ -19,7 +19,8 @@ public class PlayerController : MonoBehaviour
     public float blockRemoveAmt; //How much to remove from the block meter every frame that the player is blocking
     public float blockAddAmt; //How much to add to the block meter every frame that the player is not blocking
 
-    public int knockbackStrength; //How much to knockback an enemy upon punching them
+    public int horizontalKnockbackStrength; //How much to knockback an enemy upon punching them on the x axis
+    public int verticalKnockbackStrength; //How much to knockback an enemy upon punching them on the y axis
 
     public float downPunchTime; //How long the player has when pressing punch to down punch (higher -> easier to land down punch)
 
@@ -145,7 +146,7 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.L) || Input.GetButtonDown("Fire3"))
+        if (Input.GetKeyDown(KeyCode.L) || Input.GetButtonDown("Fire3"))
         {
             if(blockMeter > (maxBlock / 5))
             {
@@ -195,27 +196,27 @@ public class PlayerController : MonoBehaviour
         {
             xAxisFloat = Input.GetAxis("Horizontal");
             yAxisFloat = Input.GetAxis("Vertical");
-            if (xAxisFloat == 1)
+            if (xAxisFloat > 0.8)
             {
                 leftPressed = false;
                 rightPressed = true;
             }
             else
             {
-                if (xAxisFloat == -1)
+                if (xAxisFloat < -0.8)
                 {
                     leftPressed = true;
                     rightPressed = false;
                 }
             }
-            if (yAxisFloat == 1)
+            if (yAxisFloat > 0.8)
             {
                 upPressed = true;
                 downPressed = false;
             }
             else
             {
-                if (yAxisFloat == -1)
+                if (yAxisFloat < -0.8)
                 {
                     upPressed = false;
                     downPressed = true;
@@ -241,50 +242,50 @@ public class PlayerController : MonoBehaviour
             //Topdown Movement
 
             //Press down to move
-            if (Input.GetKey(KeyCode.D) || (rightPressed == true && xAxisFloat == 1))
+            if (Input.GetKey(KeyCode.D) || (rightPressed == true && xAxisFloat > 0.8))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
                 sideFacing = 4;
             }
-            if (Input.GetKey(KeyCode.A) || (leftPressed == true && xAxisFloat == -1))
+            if (Input.GetKey(KeyCode.A) || (leftPressed == true && xAxisFloat < -0.8))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(-horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
                 sideFacing = 2;
             }
-            if (Input.GetKey(KeyCode.W) || (upPressed == true && yAxisFloat == 1))
+            if (Input.GetKey(KeyCode.W) || (upPressed == true && yAxisFloat > 0.8))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, verticalMovementSpeed);
                 sideFacing = 1;
             }
-            if (Input.GetKey(KeyCode.S) || (downPressed == true && yAxisFloat == -1))
+            if (Input.GetKey(KeyCode.S) || (downPressed == true && yAxisFloat < -0.8))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, -verticalMovementSpeed);
                 sideFacing = 3;
             }
 
             //Let go to stop
-            if (Input.GetKeyUp(KeyCode.D) || (rightPressed == true && xAxisFloat != 1))
+            if (Input.GetKeyUp(KeyCode.D) || (rightPressed == true && xAxisFloat < 0.8))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
                 isIdle = true;
                 sideFacing = 3;
                 rightPressed = false;
             }
-            if (Input.GetKeyUp(KeyCode.A) || (leftPressed == true && xAxisFloat != -1))
+            if (Input.GetKeyUp(KeyCode.A) || (leftPressed == true && xAxisFloat > -0.8))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
                 isIdle = true;
                 sideFacing = 3;
                 leftPressed = false;
             }
-            if (Input.GetKeyUp(KeyCode.W) || (upPressed == true && yAxisFloat != 1))
+            if (Input.GetKeyUp(KeyCode.W) || (upPressed == true && yAxisFloat < 0.8))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, 0);
                 isIdle = true;
                 sideFacing = 3;
                 upPressed = false;
             }
-            if (Input.GetKeyUp(KeyCode.S) || (downPressed == true && yAxisFloat != -1))
+            if (Input.GetKeyUp(KeyCode.S) || (downPressed == true && yAxisFloat > -0.8))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, 0);
                 isIdle = true;
@@ -297,21 +298,23 @@ public class PlayerController : MonoBehaviour
             //Sidescroll Movement
 
             //Press to move
-            if(Input.GetKeyDown(KeyCode.D) || (rightPressed == true && xAxisFloat == 1) && canMove)
+            if(Input.GetKeyDown(KeyCode.D) || (rightPressed == true && xAxisFloat > 0.8) && GetComponent<Rigidbody2D>().velocity.x == 0 && canMove)
             {
                 GetComponent<Rigidbody2D>().AddForce(transform.right * horizontalMovementSpeed * 50);
                 sideFacing = 4;
                 previousSideFacing = 4;
-                if(GetComponent<Rigidbody2D>().velocity.x <= 0.1)
-                canMove = false;
             }
-            if (Input.GetKeyDown(KeyCode.A) || (leftPressed == true && xAxisFloat == -1) && canMove)
+            if (Input.GetKeyDown(KeyCode.A) || (leftPressed == true && xAxisFloat < -0.8) && GetComponent<Rigidbody2D>().velocity.x == 0 && canMove)
             {
                 GetComponent<Rigidbody2D>().AddForce(-transform.right * horizontalMovementSpeed * 50);
                 previousSideFacing = 2;
                 sideFacing = 2;
-                canMove = false;
             }
+
+            if (GetComponent<Rigidbody2D>().velocity.x == -8)
+                GetComponent<Rigidbody2D>().velocity = new Vector2(-4, GetComponent<Rigidbody2D>().velocity.y);
+            if (GetComponent<Rigidbody2D>().velocity.x == 8)
+                GetComponent<Rigidbody2D>().velocity = new Vector2(4, GetComponent<Rigidbody2D>().velocity.y);
 
             if ((Input.GetKeyDown(KeyCode.K) || Input.GetButtonDown("Fire1")) && letGoOfSpace == false)
             {
@@ -384,14 +387,14 @@ public class PlayerController : MonoBehaviour
             }
 
             //Fast Fall
-            if((Input.GetKey(KeyCode.S) || (downPressed == true && yAxisFloat == -1)) && !canJump)
+            if((Input.GetKey(KeyCode.S) || (downPressed == true && yAxisFloat < -0.8)) && !canJump)
             {
                 GetComponent<Rigidbody2D>().velocity = new Vector2(GetComponent<Rigidbody2D>().velocity.x, -jumpSpeedInt * 1.5f);
             }
 
             if(isDownPunching && canJump == false && effectiveDownPunch) //If down punching and grounded, stop down punching
             {
-                GetComponent<Rigidbody2D>().velocity = new Vector2(GetComponent<Rigidbody2D>().velocity.x, jumpSpeedInt * 1.7f);
+                GetComponent<Rigidbody2D>().velocity = new Vector2(GetComponent<Rigidbody2D>().velocity.x, jumpSpeedInt * 1.5f);
                 StartCoroutine(CanDownPunch(0.3f));
                 effectiveDownPunch = false;
                 downPunchingOnEnemy = false;
@@ -399,16 +402,17 @@ public class PlayerController : MonoBehaviour
 
 
             //Crouch
-            if ((Input.GetKeyDown(KeyCode.S) || (downPressed == true && yAxisFloat == -1)) && canJump == true) //If press down on dpad && is grounded
+            if ((Input.GetKey(KeyCode.S) || (downPressed == true && yAxisFloat < -0.6)) && canJump && !isCrouching && GetComponent<Rigidbody2D>().velocity.x == 0) //If press down on dpad && is grounded && was moving but now is not
             {
                 isCrouching = true;
+                horizontalMovementSpeed = 1;
                 animatorWalk.SetBool("isCrouching", true);
                 gameObject.transform.GetComponent<BoxCollider2D>().size = new Vector2(1.3f, 2.2f);
                 gameObject.transform.GetComponent<BoxCollider2D>().offset = new Vector2(0, -0.15f);
             }
 
             //Let go to stop
-            if (Input.GetKeyUp(KeyCode.D) || (rightPressed == true && xAxisFloat != 1))
+            if (Input.GetKeyUp(KeyCode.D) || (rightPressed == true && xAxisFloat < 0.8))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
                 if (isCrouching == false)
@@ -419,7 +423,7 @@ public class PlayerController : MonoBehaviour
                 }
                 canMove = true;
             }
-            if (Input.GetKeyUp(KeyCode.A) || (leftPressed == true && xAxisFloat != -1))
+            if (Input.GetKeyUp(KeyCode.A) || (leftPressed == true && xAxisFloat > -0.8))
             {
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
                 if (isCrouching == false)
@@ -430,9 +434,10 @@ public class PlayerController : MonoBehaviour
                 }
                 canMove = true;
             }
-            if (isCrouching == true && (Input.GetKeyUp(KeyCode.S) || (downPressed == true && yAxisFloat != -1) || sideFacing != 3)) //Breaks out of crouch if S is let go or dpad down is let go or is moving
+            if (isCrouching && (Input.GetKeyUp(KeyCode.S) || (downPressed == true && yAxisFloat > -0.6))) //Breaks out of crouch if S is let go or dpad down is let go or is moving
             {
                 isCrouching = false;
+                horizontalMovementSpeed = 4;
                 animatorWalk.SetBool("isCrouching", false); //Sets animator isCrouching bool to false
                 animatorWalk.SetBool("isPunching", false);
                 isIdle = true;
@@ -450,7 +455,13 @@ public class PlayerController : MonoBehaviour
             {
                 if (isCrouching == false)
                 {
-                    StartCoroutine(Punch()); //Initiates punch/charge punch coroutine
+                    //StartCoroutine(Punch()); //Initiates punch/charge punch coroutine
+                    isPunching = true;
+                    animatorWalk.SetBool("canStopPunching", false);
+                    horizontalMovementSpeed = 2;
+                    animatorWalk.SetBool("isPunching", true);
+                    animatorWalk.SetBool("isBlocking", false);
+                    initialAnimSpeed = 1;
                 }
                 else //If is crouching when punch is activated, do crouch punch instead of regular punch/charge punch
                 {
@@ -468,7 +479,7 @@ public class PlayerController : MonoBehaviour
                 }
             }
         }
-        if ((Input.GetButton("Fire2") || (Input.GetKey(KeyCode.J)) && isPunching == true)) //Spam punch code
+        if ((Input.GetButtonDown("Fire2") || (Input.GetKeyDown(KeyCode.J)) && isPunching == true)) //Spam punch code
         {
             spamPunchTimerInt = 20;
             animatorWalk.SetBool("canStopPunching", false);
@@ -595,6 +606,7 @@ public class PlayerController : MonoBehaviour
             tempColor.a = 255;
             gameObject.transform.GetComponent<SpriteRenderer>().color = tempColor;
             animatorWalk.SetBool("isPunching", false);
+            animatorWalk.SetBool("canStopPunching", true);
             horizontalMovementSpeed = 4;
             isPunching = false;
             gameObject.transform.GetComponent<Animator>().speed = initialAnimSpeed;
@@ -612,6 +624,7 @@ public class PlayerController : MonoBehaviour
         punchDamage += damageToAdd;
 
         animatorWalk.SetBool("isPunching", false);
+        animatorWalk.SetBool("canStopPunching", true);
         horizontalMovementSpeed = 4;
         isPunching = false;
         gameObject.transform.GetComponent<Animator>().speed = initialAnimSpeed;
@@ -619,7 +632,8 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator CrouchPunch()
     {
-        isPunching = true; 
+        isPunching = true;
+        animatorWalk.SetBool("canStopPunching", false);
         animatorWalk.SetBool("isPunching", true); //Tells animator to start punching anim
         animatorWalk.SetBool("isBlocking", false);
         punchDamage = standardPunchDamage; //Resets punch damage from previous punch
@@ -635,7 +649,10 @@ public class PlayerController : MonoBehaviour
         if(spamPunchTimerInt > 0)
             spamPunchTimerInt -= 1;
         else
+        {
             animatorWalk.SetBool("canStopPunching", true);
+            animatorWalk.SetBool("isPunching", false);
+        }
 
         if (isBeingKOd)
             KoTimer();

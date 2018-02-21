@@ -13,79 +13,79 @@ AnimatorController:
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: VerticalSpeedTD
     m_Type: 3
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: Blend
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: isCrouching
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: isIdleBool
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: canJumpBool
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: isPunching
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: sideFacingInt
     m_Type: 3
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: previousSideFacing
     m_Type: 3
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: canStopPunching
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
-    m_DefaultBool: 1
-    m_Controller: {fileID: 9100000}
+    m_DefaultBool: 0
+    m_Controller: {fileID: 0}
   - m_Name: isBlocking
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: isDownPunching
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   - m_Name: isDowned
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
+    m_Controller: {fileID: 0}
   m_AnimatorLayers:
   - serializedVersion: 5
     m_Name: Sidescroll
@@ -276,6 +276,9 @@ AnimatorStateTransition:
   - m_ConditionMode: 6
     m_ConditionEvent: previousSideFacing
     m_EventTreshold: 2
+  - m_ConditionMode: 6
+    m_ConditionEvent: HorizontalSpeedTD
+    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 1102374098140351506}
   m_Solo: 0
@@ -286,7 +289,7 @@ AnimatorStateTransition:
   m_TransitionOffset: 0
   m_ExitTime: 0.625
   m_HasExitTime: 0
-  m_HasFixedDuration: 0
+  m_HasFixedDuration: 1
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 1
@@ -393,11 +396,11 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.25
+  m_TransitionDuration: 0.1
   m_TransitionOffset: 0
   m_ExitTime: 0
   m_HasExitTime: 0
-  m_HasFixedDuration: 0
+  m_HasFixedDuration: 1
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 1
@@ -904,9 +907,6 @@ AnimatorStateTransition:
     m_ConditionEvent: previousSideFacing
     m_EventTreshold: 4
   - m_ConditionMode: 2
-    m_ConditionEvent: isPunching
-    m_EventTreshold: 0
-  - m_ConditionMode: 2
     m_ConditionEvent: isCrouching
     m_EventTreshold: 0
   - m_ConditionMode: 1
@@ -921,7 +921,7 @@ AnimatorStateTransition:
   m_TransitionDuration: 0.1
   m_TransitionOffset: 0.014141469
   m_ExitTime: 0.0000002772162
-  m_HasExitTime: 0
+  m_HasExitTime: 1
   m_HasFixedDuration: 0
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
@@ -1402,9 +1402,6 @@ AnimatorStateTransition:
     m_ConditionEvent: VerticalSpeedTD
     m_EventTreshold: 0
   - m_ConditionMode: 2
-    m_ConditionEvent: isPunching
-    m_EventTreshold: 0
-  - m_ConditionMode: 2
     m_ConditionEvent: isCrouching
     m_EventTreshold: 0
   - m_ConditionMode: 1
@@ -1422,7 +1419,7 @@ AnimatorStateTransition:
   m_TransitionDuration: 0.25
   m_TransitionOffset: 0
   m_ExitTime: 0.5833333
-  m_HasExitTime: 0
+  m_HasExitTime: 1
   m_HasFixedDuration: 0
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
@@ -2019,11 +2016,11 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.25
+  m_TransitionDuration: 0.1
   m_TransitionOffset: 0
   m_ExitTime: 0
   m_HasExitTime: 0
-  m_HasFixedDuration: 0
+  m_HasFixedDuration: 1
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 1
@@ -2103,8 +2100,8 @@ AnimatorStateTransition:
   - m_ConditionMode: 2
     m_ConditionEvent: isCrouching
     m_EventTreshold: 0
-  - m_ConditionMode: 2
-    m_ConditionEvent: isPunching
+  - m_ConditionMode: 1
+    m_ConditionEvent: canStopPunching
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 1102856688463503574}
@@ -2628,17 +2625,23 @@ AnimatorStateTransition:
   - m_ConditionMode: 2
     m_ConditionEvent: isCrouching
     m_EventTreshold: 0
+  - m_ConditionMode: 6
+    m_ConditionEvent: HorizontalSpeedTD
+    m_EventTreshold: 0
+  - m_ConditionMode: 6
+    m_ConditionEvent: VerticalSpeedTD
+    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 1102830591136424674}
   m_Solo: 0
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.25
-  m_TransitionOffset: 0
-  m_ExitTime: 0.75
+  m_TransitionDuration: 0.1
+  m_TransitionOffset: 0.014140545
+  m_ExitTime: 0.000000001648899
   m_HasExitTime: 0
-  m_HasFixedDuration: 0
+  m_HasFixedDuration: 1
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 1
@@ -3439,9 +3442,6 @@ AnimatorStateTransition:
     m_ConditionEvent: VerticalSpeedTD
     m_EventTreshold: 0
   - m_ConditionMode: 2
-    m_ConditionEvent: isPunching
-    m_EventTreshold: 0
-  - m_ConditionMode: 2
     m_ConditionEvent: isCrouching
     m_EventTreshold: 0
   - m_ConditionMode: 1
@@ -3459,7 +3459,7 @@ AnimatorStateTransition:
   m_TransitionDuration: 0.25
   m_TransitionOffset: 0
   m_ExitTime: 0.5833333
-  m_HasExitTime: 0
+  m_HasExitTime: 1
   m_HasFixedDuration: 0
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
@@ -3900,17 +3900,23 @@ AnimatorStateTransition:
   - m_ConditionMode: 2
     m_ConditionEvent: isCrouching
     m_EventTreshold: 0
+  - m_ConditionMode: 6
+    m_ConditionEvent: HorizontalSpeedTD
+    m_EventTreshold: 0
+  - m_ConditionMode: 6
+    m_ConditionEvent: VerticalSpeedTD
+    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 1102326563147152868}
   m_Solo: 0
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.7379341
+  m_TransitionDuration: 0.1
   m_TransitionOffset: 0.014140545
   m_ExitTime: 0.000000001648899
   m_HasExitTime: 0
-  m_HasFixedDuration: 0
+  m_HasFixedDuration: 1
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 1
@@ -4158,8 +4164,8 @@ AnimatorStateTransition:
   - m_ConditionMode: 2
     m_ConditionEvent: isCrouching
     m_EventTreshold: 0
-  - m_ConditionMode: 2
-    m_ConditionEvent: isPunching
+  - m_ConditionMode: 1
+    m_ConditionEvent: canStopPunching
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 1102467157252285396}
@@ -4171,7 +4177,7 @@ AnimatorStateTransition:
   m_TransitionOffset: 0
   m_ExitTime: 0.42307693
   m_HasExitTime: 1
-  m_HasFixedDuration: 1
+  m_HasFixedDuration: 0
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 1
@@ -4929,17 +4935,23 @@ AnimatorStateTransition:
   - m_ConditionMode: 2
     m_ConditionEvent: isCrouching
     m_EventTreshold: 0
+  - m_ConditionMode: 6
+    m_ConditionEvent: HorizontalSpeedTD
+    m_EventTreshold: 0
+  - m_ConditionMode: 6
+    m_ConditionEvent: VerticalSpeedTD
+    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 1102830591136424674}
   m_Solo: 0
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.25
-  m_TransitionOffset: 0
-  m_ExitTime: 0.75
+  m_TransitionDuration: 0.1
+  m_TransitionOffset: 0.014140545
+  m_ExitTime: 0.000000001648899
   m_HasExitTime: 0
-  m_HasFixedDuration: 0
+  m_HasFixedDuration: 1
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 1
@@ -5409,11 +5421,11 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.25
+  m_TransitionDuration: 0.1
   m_TransitionOffset: 0
   m_ExitTime: 0
   m_HasExitTime: 0
-  m_HasFixedDuration: 0
+  m_HasFixedDuration: 1
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 1
@@ -5430,6 +5442,9 @@ AnimatorStateTransition:
   - m_ConditionMode: 6
     m_ConditionEvent: previousSideFacing
     m_EventTreshold: 4
+  - m_ConditionMode: 6
+    m_ConditionEvent: HorizontalSpeedTD
+    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 1102949274936785184}
   m_Solo: 0
@@ -5440,7 +5455,7 @@ AnimatorStateTransition:
   m_TransitionOffset: 0
   m_ExitTime: 0.625
   m_HasExitTime: 0
-  m_HasFixedDuration: 0
+  m_HasFixedDuration: 1
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 1
@@ -5514,9 +5529,6 @@ AnimatorStateTransition:
   - m_ConditionMode: 6
     m_ConditionEvent: VerticalSpeedTD
     m_EventTreshold: 0
-  - m_ConditionMode: 2
-    m_ConditionEvent: isPunching
-    m_EventTreshold: 0
   - m_ConditionMode: 1
     m_ConditionEvent: canStopPunching
     m_EventTreshold: 0
@@ -5532,7 +5544,7 @@ AnimatorStateTransition:
   m_TransitionDuration: 0.25
   m_TransitionOffset: 0.47831184
   m_ExitTime: 0.5833333
-  m_HasExitTime: 0
+  m_HasExitTime: 1
   m_HasFixedDuration: 0
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
@@ -5575,9 +5587,6 @@ AnimatorStateTransition:
     m_ConditionEvent: VerticalSpeedTD
     m_EventTreshold: 0
   - m_ConditionMode: 2
-    m_ConditionEvent: isPunching
-    m_EventTreshold: 0
-  - m_ConditionMode: 2
     m_ConditionEvent: isCrouching
     m_EventTreshold: 0
   - m_ConditionMode: 1
@@ -5595,7 +5604,7 @@ AnimatorStateTransition:
   m_TransitionDuration: 0.25
   m_TransitionOffset: 0
   m_ExitTime: 0.5833333
-  m_HasExitTime: 0
+  m_HasExitTime: 1
   m_HasFixedDuration: 0
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
@@ -5640,6 +5649,9 @@ AnimatorStateTransition:
   - m_ConditionMode: 6
     m_ConditionEvent: previousSideFacing
     m_EventTreshold: 4
+  - m_ConditionMode: 6
+    m_ConditionEvent: HorizontalSpeedTD
+    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 1102949274936785184}
   m_Solo: 0
@@ -5650,7 +5662,7 @@ AnimatorStateTransition:
   m_TransitionOffset: 0
   m_ExitTime: 0.625
   m_HasExitTime: 0
-  m_HasFixedDuration: 0
+  m_HasFixedDuration: 1
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 1
@@ -5880,17 +5892,23 @@ AnimatorStateTransition:
   - m_ConditionMode: 2
     m_ConditionEvent: isCrouching
     m_EventTreshold: 0
+  - m_ConditionMode: 6
+    m_ConditionEvent: HorizontalSpeedTD
+    m_EventTreshold: 0
+  - m_ConditionMode: 6
+    m_ConditionEvent: VerticalSpeedTD
+    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 1102326563147152868}
   m_Solo: 0
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.7379341
+  m_TransitionDuration: 0.1
   m_TransitionOffset: 0.014140545
   m_ExitTime: 0.000000001648899
   m_HasExitTime: 0
-  m_HasFixedDuration: 0
+  m_HasFixedDuration: 1
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 1
@@ -6168,6 +6186,9 @@ AnimatorStateTransition:
   - m_ConditionMode: 6
     m_ConditionEvent: previousSideFacing
     m_EventTreshold: 2
+  - m_ConditionMode: 6
+    m_ConditionEvent: HorizontalSpeedTD
+    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 1102374098140351506}
   m_Solo: 0
@@ -6178,7 +6199,7 @@ AnimatorStateTransition:
   m_TransitionOffset: 0
   m_ExitTime: 0.625
   m_HasExitTime: 0
-  m_HasFixedDuration: 0
+  m_HasFixedDuration: 1
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 1
@@ -6561,11 +6582,11 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.25
+  m_TransitionDuration: 0.1
   m_TransitionOffset: 0
   m_ExitTime: 0
   m_HasExitTime: 0
-  m_HasFixedDuration: 0
+  m_HasFixedDuration: 1
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 1
@@ -6646,9 +6667,6 @@ AnimatorStateTransition:
     m_ConditionEvent: previousSideFacing
     m_EventTreshold: 2
   - m_ConditionMode: 2
-    m_ConditionEvent: isPunching
-    m_EventTreshold: 0
-  - m_ConditionMode: 2
     m_ConditionEvent: isCrouching
     m_EventTreshold: 0
   - m_ConditionMode: 1
@@ -6663,7 +6681,7 @@ AnimatorStateTransition:
   m_TransitionDuration: 0
   m_TransitionOffset: 0.014140547
   m_ExitTime: 0.000000004522871
-  m_HasExitTime: 0
+  m_HasExitTime: 1
   m_HasFixedDuration: 0
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
@@ -7179,7 +7197,7 @@ AnimatorState:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: IdleAnimLeft
-  m_Speed: 0.5
+  m_Speed: 0.55
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: 1101065661244155042}
@@ -7245,10 +7263,10 @@ AnimatorState:
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
-  - {fileID: 1101854974940861860}
-  - {fileID: 1101727780078478804}
   - {fileID: 1101960513350406000}
   - {fileID: 1101033089923542126}
+  - {fileID: 1101854974940861860}
+  - {fileID: 1101727780078478804}
   - {fileID: 1101152575236198408}
   - {fileID: 1101500899655597464}
   - {fileID: 1101316332951874804}
@@ -7817,7 +7835,7 @@ AnimatorState:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: IdleAnimRight
-  m_Speed: 0.6
+  m_Speed: 0.55
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: 1101354455352191714}
@@ -7920,10 +7938,10 @@ AnimatorState:
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
-  - {fileID: 1101571119740367664}
-  - {fileID: 1101395275991778056}
   - {fileID: 1101305254873862784}
   - {fileID: 1101770119348197552}
+  - {fileID: 1101571119740367664}
+  - {fileID: 1101395275991778056}
   - {fileID: 1101262878074313940}
   - {fileID: 1101677813755416908}
   - {fileID: 1101998452904106552}

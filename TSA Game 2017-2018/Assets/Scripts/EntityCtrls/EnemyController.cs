@@ -67,18 +67,18 @@ public class EnemyController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (playerInRange == false) //If a player is in the range for agro
+        if (!playerInRange) //If a player is in the range for agro
         {
             if(Vector3.Distance(playerObj.transform.position, gameObject.transform.position) <= detectionRange)
                 playerInRange = true;
         }
-        if(playerInRange == true)
+        if(playerInRange)
         {
             if (Vector3.Distance(playerObj.transform.position, gameObject.transform.position) > detectionRange)
                 playerInRange = false;
         }
 
-        if(isBlocking == true)
+        if(isBlocking)
         {
             if(blockTimer > 0)
                 blockTimer--;
@@ -102,7 +102,7 @@ public class EnemyController : MonoBehaviour {
                 {
                     runAgressiveTimer = false; //Stops timer from running until activity is done
                     agressiveTimer = agressiveTimerReset; //Resets timer
-                    StartCoroutine(ChasePlayerTimer(Random.Range(3, 6))); //Starts the coroutine that will stop the enemy from chasing the player if he doesnt catch him within a certain amount of time (int passed, seconds)
+                    StartCoroutine(ChasePlayerTimer(Random.Range(2, 5))); //Starts the coroutine that will stop the enemy from chasing the player if he doesnt catch him within a certain amount of time (int passed, seconds)
                 }
                 if (agressiveRandomiser == 2) //If it picked 2
                 {
@@ -211,7 +211,6 @@ public class EnemyController : MonoBehaviour {
     {
         yield return new WaitForSeconds(time); //Give enemy time to chase player. This coroutine is stopped if he chaches him
         runAgressiveTimer = true; //Rerol
-        body.velocity = new Vector2(0, 0); //Stops enemy movement
         anim.SetInteger("sideMoving", 0);
     }
 
@@ -219,7 +218,6 @@ public class EnemyController : MonoBehaviour {
     {
         yield return new WaitForSeconds(time); //Waits for enemy to fall back for this long
         runAgressiveTimer = true; //Rerol
-        body.velocity = new Vector2(0, 0); //Stops enemy movement
         anim.SetInteger("sideMoving", 0); 
     }
 
@@ -243,13 +241,16 @@ public class EnemyController : MonoBehaviour {
     {
         triedBlocking = false;
         StartCoroutine(GotPunchedMovementCooldown()); //Starts a timer to reset the bool above once the punch/knockback is done
+        runAgressiveTimer = false;
     }
 
     IEnumerator GotPunchedMovementCooldown() //Resets isBeingPunched bool so enemy can move again when he is no longer being punched/knocked back
     {
-        isBeingPunched = true; //Does not allow this script to se0t enemy's movement speed so he can be knocked back by the punch
-        yield return new WaitForSeconds(0.3f); //Waits for knockback to be done
+        isBeingPunched = true; //Does not allow this script to set enemy's movement speed so he can be knocked back by the punch
+        yield return new WaitForSeconds(3f); //Waits for knockback to be done
         isBeingPunched = false; //Resets movement to normal
+        agressiveTimer = 1;
+        runAgressiveTimer = true;
     }
 
     void Block()

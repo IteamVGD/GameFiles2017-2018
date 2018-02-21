@@ -4,21 +4,20 @@ using UnityEngine;
 
 public class EnemyPunchCollider : MonoBehaviour {
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.layer == 13) //Layer 9 = entity
-        {
-            collision.transform.GetComponent<PlayerController>().TakeDamage(GetComponentInParent<EnemyController>().damage); //Decreases player's health by the damage this enemy deals
+        collision.gameObject.transform.GetComponent<PlayerController>().TakeDamage(GetComponentInParent<EnemyController>().damage); //Decreases player's health by the damage this enemy deals
+        ContactPoint2D contact = collision.contacts[0];
+        StartCoroutine(collision.gameObject.transform.GetComponent<PlayerController>().gameControllerScript.SpawnPow(contact.point));
 
-            //Insert knockback code here
-            if (collision.transform.position.x - gameObject.transform.position.x <= 0) //If player is to the right
-            {
-                collision.transform.GetComponent<Rigidbody2D>().AddForce(-transform.right * gameObject.transform.parent.GetComponent<EnemyController>().knockbackStregth);
-            }
-            else
-            {
-                collision.transform.GetComponent<Rigidbody2D>().AddForce(transform.right * gameObject.transform.parent.GetComponent<EnemyController>().knockbackStregth);
-            }
+        //Knockback
+        if (collision.gameObject.transform.position.x - gameObject.transform.position.x <= 0) //If player is to the right
+        {
+            //collision.gameObject.transform.GetComponent<Rigidbody2D>().AddForce(-transform.right * gameObject.transform.parent.GetComponent<EnemyController>().knockbackStregth);
+        }
+        else
+        {
+            //collision.gameObject.transform.GetComponent<Rigidbody2D>().AddForce(transform.right * gameObject.transform.parent.GetComponent<EnemyController>().knockbackStregth);
         }
     }
 

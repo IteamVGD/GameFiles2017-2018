@@ -61,6 +61,9 @@ TagManager:
   - name: Top Objects
     uniqueID: 72836417
     locked: 0
+  - name: CombatEffects
+    uniqueID: 1480272263
+    locked: 0
   - name: EnemyUI
     uniqueID: 758159213
     locked: 0

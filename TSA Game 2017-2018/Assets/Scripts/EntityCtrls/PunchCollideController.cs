@@ -9,8 +9,6 @@ public class PunchCollideController : MonoBehaviour {
     public int timesRun;
     public bool runCode;
 
-    public List<Collider2D> coll;
-
     private void Start()
     {
         runCode = true;
@@ -71,20 +69,25 @@ public class PunchCollideController : MonoBehaviour {
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.layer == 9) //Layer 9 = Entity, includes any "passive" entities or things that arent enemies that could be punched
         {
             if (collision.gameObject.tag == "Enemy") //If is an enemy
             {
-                coll.Add(collision);
-                collision.transform.GetComponent<EnemyController>().TakeDamage(playerObj.transform.GetComponent<PlayerController>().punchDamage); //Decrease enemy's health in EnemyController by the punchDamage of the player parent's PlayerController
-                collision.transform.GetComponent<EnemyController>().isBeingPunched = true;
-                /*if (collision.transform.position.x - playerObj.transform.position.x <= 0) //If enemy is to the right
-                    collision.transform.GetComponent<Rigidbody2D>().AddForce(transform.right * playerObj.transform.GetComponent<PlayerController>().knockbackStrength);
-                else
-                    collision.transform.GetComponent<Rigidbody2D>().AddForce(transform.right * 1 * playerObj.transform.GetComponent<PlayerController>().knockbackStrength);*/ //Knockback system currently disabled
-                collision.transform.GetComponent<EnemyController>().GotPunched(); //Tells the enemy it just got punched
+                collision.gameObject.transform.GetComponent<EnemyController>().TakeDamage(playerObj.transform.GetComponent<PlayerController>().punchDamage); //Decrease enemy's health in EnemyController by the punchDamage of the player parent's PlayerController
+                collision.gameObject.transform.GetComponent<EnemyController>().isBeingPunched = true;
+
+                //Insert knockback here
+                collision.gameObject.GetComponent<Rigidbody2D>().AddForce(transform.up * playerObj.transform.GetComponent<PlayerController>().verticalKnockbackStrength); //Knockback up
+                if (playerObj.transform.GetComponent<PlayerController>().previousSideFacing == 4) //If player is facing right
+                    collision.gameObject.GetComponent<Rigidbody2D>().AddForce(transform.right * playerObj.transform.GetComponent<PlayerController>().horizontalKnockbackStrength); //Knockback right
+                else //If player is facing left
+                    collision.gameObject.GetComponent<Rigidbody2D>().AddForce(-transform.right * playerObj.transform.GetComponent<PlayerController>().horizontalKnockbackStrength); //Knockback left
+                collision.gameObject.transform.GetComponent<EnemyController>().GotPunched(); //Tells the enemy it just got punched
+
+                ContactPoint2D contact = collision.contacts[0];
+                StartCoroutine(playerObj.transform.GetComponent<PlayerController>().gameControllerScript.SpawnPow(contact.point));
             }
         }
     }
