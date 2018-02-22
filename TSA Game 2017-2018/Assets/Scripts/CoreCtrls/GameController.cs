@@ -138,7 +138,32 @@ public class GameController : MonoBehaviour { //18
                     lightList.Add(background.transform.GetChild(0).transform.GetChild(k).gameObject);
                 }
             }
-            foreach (GameObject enemy in GameObject.FindGameObjectsWithTag("Enemy"))
+
+            //Item Hierarchy Sorter
+            foreach(GameObject obj in GameObject.FindGameObjectsWithTag("Object")) 
+            {
+                if(obj.GetComponent<SpriteRenderer>().sprite.name == "Crate") //If needs to go under Crates
+                {
+                    foreach(GameObject background in backgroundObjs)
+                    {
+                        if(background.transform.position.x - 8.8 < obj.transform.position.x && background.transform.position.x + 8.8 > obj.transform.position.x)
+                        {
+                            obj.transform.SetParent(background.transform.GetChild(1));
+                        }
+                    }
+                }
+            }
+            foreach (GameObject obj in GameObject.FindGameObjectsWithTag("DownPunchable"))
+            {
+                foreach (GameObject background in backgroundObjs)
+                {
+                    if (background.transform.position.x - 8.8 < obj.transform.position.x && background.transform.position.x + 8.8 > obj.transform.position.x)
+                    {
+                        obj.transform.SetParent(background.transform.GetChild(2));
+                    }
+                }
+            }
+                foreach (GameObject enemy in GameObject.FindGameObjectsWithTag("Enemy"))
             {
                 enemyList.Add(enemy);
                 enemy.SetActive(false);
