@@ -64,27 +64,33 @@ public class GameController : MonoBehaviour { //18
 
     // Update is called once per frame
     void Update () {
-        if(currentView == 2 && playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().velocity.x > 0) //Only runs "chunk manager" when in sidescroll mode & when player is moving
+        if(currentView == 2 && playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().velocity.x != 0) //Only runs "chunk manager" when in sidescroll mode & when player is moving
         {
             //Loads/unloads enemies
             foreach (GameObject enemy in enemyList)
             {
-                if(enemy == null)
+                if(enemy.activeSelf == true && Vector3.Distance(playerObj.transform.GetChild(0).position, enemy.transform.position) >= entityUnloadRange)
                 {
-                    enemyList.Remove(enemy);
-                    return;
+                    enemy.SetActive(false);
+                }
+                else
+                {
+                    if (enemy.activeSelf == false && Vector3.Distance(playerObj.transform.GetChild(0).position, enemy.transform.position) <= entityLoadRange)
+                    {
+                        enemy.SetActive(true);
+                    }
                 }
             }
 
             foreach(GameObject light in lightList)
             {
-                if(light.activeSelf == true && Vector3.Distance(playerObj.transform.GetChild(0).position, light.transform.position) > lightUnloadRange)
+                if(light.activeSelf == true && Vector3.Distance(playerObj.transform.GetChild(0).position, light.transform.position) >= lightUnloadRange)
                 {
                     light.SetActive(false);
                 }
                 else
                 {
-                    if (light.activeSelf == false && Vector3.Distance(playerObj.transform.GetChild(0).position, light.transform.position) < lightLoadRange)
+                    if (light.activeSelf == false && Vector3.Distance(playerObj.transform.GetChild(0).position, light.transform.position) <= lightLoadRange)
                     {
                         light.SetActive(true);
                     }
@@ -93,13 +99,13 @@ public class GameController : MonoBehaviour { //18
             //Loas/unloads chunks
             foreach (GameObject chunk in backgroundObjs)
             {
-                if (chunk.activeSelf == true && Vector3.Distance(playerObj.transform.GetChild(0).position, chunk.transform.position) > chunkUnloadRange) //Unloads chunks farther than the unloadRange from the player
+                if (chunk.activeSelf == true && Vector3.Distance(playerObj.transform.GetChild(0).position, chunk.transform.position) >= chunkUnloadRange) //Unloads chunks farther than the unloadRange from the player
                 {
                     chunk.SetActive(false);
                 }
                 else
                 {
-                    if (chunk.activeSelf == false && Vector3.Distance(playerObj.transform.GetChild(0).position, chunk.transform.position) < chunkLoadRange) //Loads chunks closer than the loadRange from the player
+                    if (chunk.activeSelf == false && Vector3.Distance(playerObj.transform.GetChild(0).position, chunk.transform.position) <= chunkLoadRange) //Loads chunks closer than the loadRange from the player
                     {
                         chunk.SetActive(true);
                     }
@@ -142,31 +148,44 @@ public class GameController : MonoBehaviour { //18
             //Item Hierarchy Sorter
             foreach(GameObject obj in GameObject.FindGameObjectsWithTag("Object")) 
             {
-                if(obj.GetComponent<SpriteRenderer>().sprite.name == "Crate") //If needs to go under Crates
+                if(obj.GetComponent<SpriteRenderer>().sprite.name == "Crate" || obj.GetComponent<SpriteRenderer>().sprite.name == "SmallCrate") //If needs to go under Crates
                 {
                     foreach(GameObject background in backgroundObjs)
                     {
                         if(background.transform.position.x - 8.8 < obj.transform.position.x && background.transform.position.x + 8.8 > obj.transform.position.x)
                         {
                             obj.transform.SetParent(background.transform.GetChild(1));
+                            break;
                         }
                     }
                 }
             }
-            foreach (GameObject obj in GameObject.FindGameObjectsWithTag("DownPunchable"))
+            foreach (GameObject obj in GameObject.FindGameObjectsWithTag("DownPunchable")) //If needs to go under Bags&Chains
             {
                 foreach (GameObject background in backgroundObjs)
                 {
                     if (background.transform.position.x - 8.8 < obj.transform.position.x && background.transform.position.x + 8.8 > obj.transform.position.x)
                     {
                         obj.transform.SetParent(background.transform.GetChild(2));
+                        break;
                     }
                 }
             }
-                foreach (GameObject enemy in GameObject.FindGameObjectsWithTag("Enemy"))
+            foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Darkness")) //If needs to go under MiscObjects
             {
-                enemyList.Add(enemy);
-                enemy.SetActive(false);
+                foreach (GameObject background in backgroundObjs)
+                {
+                    if (background.transform.position.x - 8.8 < obj.transform.position.x && background.transform.position.x + 8.8 > obj.transform.position.x)
+                    {
+                        obj.transform.SetParent(background.transform.GetChild(4));
+                        break;
+                    }
+                }
+            }
+            foreach (GameObject enemy in GameObject.FindGameObjectsWithTag("Enemy"))
+            {
+                enemyList.Add(enemy.transform.parent.gameObject);
+                enemy.transform.parent.gameObject.SetActive(false);
             }
 
             foreach (GameObject light in lightList)

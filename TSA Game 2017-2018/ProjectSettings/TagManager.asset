@@ -10,6 +10,7 @@ TagManager:
   - Entity
   - DownPunchable
   - Light
+  - Darkness
   layers:
   - Default
   - TransparentFX

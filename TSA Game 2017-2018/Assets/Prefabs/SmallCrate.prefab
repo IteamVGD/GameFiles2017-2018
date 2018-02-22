@@ -21,6 +21,8 @@ GameObject:
   - component: {fileID: 4937178332379724}
   - component: {fileID: 212939979942207900}
   - component: {fileID: 61856964503811980}
+  - component: {fileID: 61124082414759366}
+  - component: {fileID: 114899026325163250}
   m_Layer: 8
   m_Name: SmallCrate
   m_TagString: Object
@@ -41,6 +43,31 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!61 &61124082414759366
+BoxCollider2D:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1981091924369340}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: -0.004078865, y: 0.4699824}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1, y: 1}
+    newSize: {x: 1.28, y: 1.28}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 0.9673748, y: 0.06003523}
+  m_EdgeRadius: 0
 --- !u!61 &61856964503811980
 BoxCollider2D:
   m_ObjectHideFlags: 1
@@ -66,6 +93,20 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &114899026325163250
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1981091924369340}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2252b5b8087b8af409ec793a151cd77b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  canJumpCollider: {fileID: 61124082414759366}
+  shouldReverseRollingBag: 0
+  oppositeBounceBackObject: {fileID: 0}
 --- !u!212 &212939979942207900
 SpriteRenderer:
   m_ObjectHideFlags: 1

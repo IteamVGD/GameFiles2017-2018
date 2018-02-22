@@ -233,6 +233,7 @@ public class EnemyController : MonoBehaviour {
 
         if(tempColor.a <= 0) //If object has reached transparency
         {
+            GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>().enemyList.Remove(gameObject);
             Destroy(gameObject.transform.parent.gameObject); //Destroy enemy object
         }
     }
