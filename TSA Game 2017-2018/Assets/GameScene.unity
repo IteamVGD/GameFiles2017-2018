@@ -646,6 +646,11 @@ Transform:
   m_PrefabParentObject: {fileID: 4301278144103488, guid: 3a15c779be88ac24f812b6dcc2609d0b,
     type: 2}
   m_PrefabInternal: {fileID: 1889200542}
+--- !u!1 &100310322 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 1707745686625112, guid: 3a15c779be88ac24f812b6dcc2609d0b,
+    type: 2}
+  m_PrefabInternal: {fileID: 1132982861}
 --- !u!1 &125938904
 GameObject:
   m_ObjectHideFlags: 0
@@ -2584,6 +2589,16 @@ Prefab:
       propertyPath: m_Name
       value: Crate (7)
       objectReference: {fileID: 0}
+    - target: {fileID: 114116683434613630, guid: 3a15c779be88ac24f812b6dcc2609d0b,
+        type: 2}
+      propertyPath: oppositeBounceBackObject
+      value: 
+      objectReference: {fileID: 100310322}
+    - target: {fileID: 114116683434613630, guid: 3a15c779be88ac24f812b6dcc2609d0b,
+        type: 2}
+      propertyPath: shouldReverseRollingBag
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 3a15c779be88ac24f812b6dcc2609d0b, type: 2}
   m_IsPrefabParent: 0
@@ -3259,6 +3274,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canJumpCollider: {fileID: 617428077}
+  shouldReverseRollingBag: 0
+  oppositeBounceBackObject: {fileID: 0}
 --- !u!212 &617428079
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -3451,7 +3468,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4713994673047700, guid: 503480a84439633468efb97ac3529d73, type: 2}
       propertyPath: m_LocalPosition.y
-      value: 1.56
+      value: 1.65
       objectReference: {fileID: 0}
     - target: {fileID: 4713994673047700, guid: 503480a84439633468efb97ac3529d73, type: 2}
       propertyPath: m_LocalPosition.z
@@ -3489,7 +3506,7 @@ Prefab:
     - target: {fileID: 50098639199147134, guid: 503480a84439633468efb97ac3529d73,
         type: 2}
       propertyPath: m_Constraints
-      value: 3
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 50098639199147134, guid: 503480a84439633468efb97ac3529d73,
         type: 2}
@@ -3499,6 +3516,21 @@ Prefab:
     - target: {fileID: 58697591641478578, guid: 503480a84439633468efb97ac3529d73,
         type: 2}
       propertyPath: m_IsTrigger
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114538186832048252, guid: 503480a84439633468efb97ac3529d73,
+        type: 2}
+      propertyPath: newVel
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114538186832048252, guid: 503480a84439633468efb97ac3529d73,
+        type: 2}
+      propertyPath: startingVelocity
+      value: -2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114538186832048252, guid: 503480a84439633468efb97ac3529d73,
+        type: 2}
+      propertyPath: shouldBounceBackandForth
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -3919,6 +3951,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canJumpCollider: {fileID: 698641180}
+  shouldReverseRollingBag: 0
+  oppositeBounceBackObject: {fileID: 0}
 --- !u!212 &698641182
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -4506,6 +4540,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canJumpCollider: {fileID: 831478729}
+  shouldReverseRollingBag: 0
+  oppositeBounceBackObject: {fileID: 0}
 --- !u!212 &831478731
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -5591,11 +5627,11 @@ Prefab:
     m_Modifications:
     - target: {fileID: 4340493696960638, guid: 4ba9d19550c624542b13ae5d12bfbb9f, type: 2}
       propertyPath: m_LocalPosition.x
-      value: -8.91
+      value: -10.829
       objectReference: {fileID: 0}
     - target: {fileID: 4340493696960638, guid: 4ba9d19550c624542b13ae5d12bfbb9f, type: 2}
       propertyPath: m_LocalPosition.y
-      value: 0.1209
+      value: -0.131
       objectReference: {fileID: 0}
     - target: {fileID: 4340493696960638, guid: 4ba9d19550c624542b13ae5d12bfbb9f, type: 2}
       propertyPath: m_LocalPosition.z
@@ -5624,6 +5660,24 @@ Prefab:
     - target: {fileID: 1436017501054852, guid: 4ba9d19550c624542b13ae5d12bfbb9f, type: 2}
       propertyPath: m_StaticEditorFlags
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4340493696960638, guid: 4ba9d19550c624542b13ae5d12bfbb9f, type: 2}
+      propertyPath: m_LocalScale.x
+      value: 4.146754
+      objectReference: {fileID: 0}
+    - target: {fileID: 61241001374794310, guid: 4ba9d19550c624542b13ae5d12bfbb9f,
+        type: 2}
+      propertyPath: m_Offset.x
+      value: 0.46416664
+      objectReference: {fileID: 0}
+    - target: {fileID: 61241001374794310, guid: 4ba9d19550c624542b13ae5d12bfbb9f,
+        type: 2}
+      propertyPath: m_Size.x
+      value: 0.067362756
+      objectReference: {fileID: 0}
+    - target: {fileID: 4340493696960638, guid: 4ba9d19550c624542b13ae5d12bfbb9f, type: 2}
+      propertyPath: m_LocalScale.y
+      value: 10.34624
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 4ba9d19550c624542b13ae5d12bfbb9f, type: 2}
@@ -6034,7 +6088,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 441589000}
-  - {fileID: 1979866845}
   m_Father: {fileID: 1609189262}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -7163,6 +7216,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canJumpCollider: {fileID: 1306440909}
+  shouldReverseRollingBag: 0
+  oppositeBounceBackObject: {fileID: 0}
 --- !u!212 &1306440911
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -7588,6 +7643,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canJumpCollider: {fileID: 1362502530}
+  shouldReverseRollingBag: 0
+  oppositeBounceBackObject: {fileID: 0}
 --- !u!212 &1362502532
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -8100,6 +8157,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canJumpCollider: {fileID: 1435022542}
+  shouldReverseRollingBag: 0
+  oppositeBounceBackObject: {fileID: 0}
 --- !u!212 &1435022544
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -8383,6 +8442,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canJumpCollider: {fileID: 1480296153}
+  shouldReverseRollingBag: 0
+  oppositeBounceBackObject: {fileID: 0}
 --- !u!212 &1480296155
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -10531,71 +10592,6 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1979788169}
---- !u!1 &1979866844
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 1979866845}
-  - component: {fileID: 1979866846}
-  m_Layer: 0
-  m_Name: Directional light
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &1979866845
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1979866844}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1087025724}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!108 &1979866846
-Light:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1979866844}
-  m_Enabled: 1
-  serializedVersion: 8
-  m_Type: 1
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 0.1
-  m_Range: 10
-  m_SpotAngle: 30
-  m_CookieSize: 10
-  m_Shadows:
-    m_Type: 2
-    m_Resolution: -1
-    m_CustomResolution: -1
-    m_Strength: 1
-    m_Bias: 0.05
-    m_NormalBias: 0.4
-    m_NearPlane: 0.2
-  m_Cookie: {fileID: 0}
-  m_DrawHalo: 0
-  m_Flare: {fileID: 0}
-  m_RenderMode: 0
-  m_CullingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_Lightmapping: 1
-  m_AreaSize: {x: 1, y: 1}
-  m_BounceIntensity: 1
-  m_ColorTemperature: 6570
-  m_UseColorTemperature: 0
-  m_ShadowRadius: 0
-  m_ShadowAngle: 0
 --- !u!1 &1995258821
 GameObject:
   m_ObjectHideFlags: 0
@@ -11186,6 +11182,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canJumpCollider: {fileID: 2039272368}
+  shouldReverseRollingBag: 0
+  oppositeBounceBackObject: {fileID: 0}
 --- !u!212 &2039272370
 SpriteRenderer:
   m_ObjectHideFlags: 0

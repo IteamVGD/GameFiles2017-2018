@@ -4,30 +4,30 @@ using UnityEngine;
 
 public class RollingBagController : MonoBehaviour {
 
-    public float speed; //How fast the bag is spinning
+    public int startingVelocity = -2; //The speed (and direction) that the bag should be rolling in when the game starts; default = left at -2 speed
     public int newVel; //How fast it should spin
     public int damage; //How much damage to deal on collision
     public bool damageAgain;
 
     // Use this for initialization
-    void Start () {      
-        newVel = 2;
-        gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(2, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
+    void Start () {
+        newVel = startingVelocity;
+        gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(startingVelocity, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
     }
 
     // Update is called once per frame
-    void Update () {
-        speed = gameObject.transform.GetComponent<Rigidbody2D>().velocity.x;
-        gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(newVel, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
+    void Update ()
+    {
         transform.Rotate(Vector3.forward * Time.deltaTime * newVel * -90);
 	}
 
-    public void OnTriggerEnter2D(Collider2D collision)
+    public void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.transform.tag == "Object" || collision.transform.tag == "Entity")
+        if ((collision.transform.tag == "Object" && collision.transform.GetComponent<ObjectCollisionController>().shouldReverseRollingBag)|| collision.transform.tag == "Entity")
         {
             newVel *= -1; //Inverses spinning direction
-            if(collision.transform.GetComponent<PlayerController>() != null) //Damages the player if he touches the rolling bag
+            gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(newVel, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y); //Sets new rolling velocity
+            if (collision.transform.GetComponent<PlayerController>() != null) //Damages the player if he touches the rolling bag
             {
                 collision.transform.GetComponent<PlayerController>().TakeDamage(damage);
             }
@@ -39,11 +39,10 @@ public class RollingBagController : MonoBehaviour {
         }
     }
 
-    public void OnTriggerStay2D(Collider2D collision)
+    public void OnCollisionStay2D(Collision2D collision)
     {
         if(damageAgain)
         {
-            newVel *= -1; //Inverses spinning direction
             if (collision.transform.GetComponent<PlayerController>() != null) //Damages the player if he touches the rolling bag
             {
                 collision.transform.GetComponent<PlayerController>().TakeDamage(damage);
@@ -64,5 +63,10 @@ public class RollingBagController : MonoBehaviour {
     {
         yield return new WaitForSeconds(1);
         damageAgain = true;
+    }
+
+    private void OnEnable()
+    {
+        gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(startingVelocity, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
     }
 }
