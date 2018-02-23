@@ -298,13 +298,13 @@ public class PlayerController : MonoBehaviour
             //Sidescroll Movement
 
             //Press to move
-            if(Input.GetKeyDown(KeyCode.D) || (rightPressed == true && xAxisFloat > 0.8) && GetComponent<Rigidbody2D>().velocity.x == 0 && canMove)
+            if((Input.GetKey(KeyCode.D) || (rightPressed == true && xAxisFloat > 0.8)) && GetComponent<Rigidbody2D>().velocity.x < 0.005)
             {
                 GetComponent<Rigidbody2D>().AddForce(transform.right * horizontalMovementSpeed * 50);
                 sideFacing = 4;
                 previousSideFacing = 4;
             }
-            if (Input.GetKeyDown(KeyCode.A) || (leftPressed == true && xAxisFloat < -0.8) && GetComponent<Rigidbody2D>().velocity.x == 0 && canMove)
+            if ((Input.GetKey(KeyCode.A) || (leftPressed == true && xAxisFloat < -0.8)) && GetComponent<Rigidbody2D>().velocity.x > -0.005)
             {
                 GetComponent<Rigidbody2D>().AddForce(-transform.right * horizontalMovementSpeed * 50);
                 previousSideFacing = 2;
@@ -421,7 +421,6 @@ public class PlayerController : MonoBehaviour
                     sideFacing = 3;
                     rightPressed = false;
                 }
-                canMove = true;
             }
             if (Input.GetKeyUp(KeyCode.A) || (leftPressed == true && xAxisFloat > -0.8))
             {
@@ -432,7 +431,6 @@ public class PlayerController : MonoBehaviour
                     sideFacing = 3;
                     leftPressed = false;
                 }
-                canMove = true;
             }
             if (isCrouching && (Input.GetKeyUp(KeyCode.S) || (downPressed == true && yAxisFloat > -0.6))) //Breaks out of crouch if S is let go or dpad down is let go or is moving
             {

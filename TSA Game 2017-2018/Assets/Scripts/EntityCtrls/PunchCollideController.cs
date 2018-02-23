@@ -76,7 +76,7 @@ public class PunchCollideController : MonoBehaviour {
             if (collision.gameObject.tag == "Enemy") //If is an enemy
             {
                 collision.gameObject.transform.GetComponent<EnemyController>().TakeDamage(playerObj.transform.GetComponent<PlayerController>().punchDamage); //Decrease enemy's health in EnemyController by the punchDamage of the player parent's PlayerController
-                collision.gameObject.transform.GetComponent<EnemyController>().isBeingPunched = true;
+                //collision.gameObject.transform.GetComponent<EnemyController>().isBeingPunched = true;
 
                 //Insert knockback here
                 collision.gameObject.GetComponent<Rigidbody2D>().AddForce(transform.up * playerObj.transform.GetComponent<PlayerController>().verticalKnockbackStrength); //Knockback up

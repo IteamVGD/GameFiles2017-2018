@@ -80,6 +80,9 @@ AnimatorStateTransition:
     m_ConditionEvent: sideMoving
     m_EventTreshold: 1
   - m_ConditionMode: 6
+    m_ConditionEvent: punchSide
+    m_EventTreshold: 0
+  - m_ConditionMode: 6
     m_ConditionEvent: isBlocking
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
@@ -320,7 +323,7 @@ AnimatorState:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: PunchRight
-  m_Speed: 0.75
+  m_Speed: 0.8
   m_CycleOffset: 0
   m_Transitions: []
   m_StateMachineBehaviours: []
@@ -420,7 +423,7 @@ AnimatorState:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: PunchLeft
-  m_Speed: 0.75
+  m_Speed: 0.8
   m_CycleOffset: 0
   m_Transitions: []
   m_StateMachineBehaviours: []

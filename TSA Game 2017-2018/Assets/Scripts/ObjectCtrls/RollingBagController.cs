@@ -8,12 +8,7 @@ public class RollingBagController : MonoBehaviour {
     public int newVel; //How fast it should spin
     public int damage; //How much damage to deal on collision
     public bool damageAgain;
-
-    // Use this for initialization
-    void Start () {
-        newVel = startingVelocity;
-        gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(startingVelocity, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
-    }
+    public int enableRange;
 
     // Update is called once per frame
     void Update ()
@@ -23,19 +18,15 @@ public class RollingBagController : MonoBehaviour {
 
     public void OnCollisionEnter2D(Collision2D collision)
     {
-        if ((collision.transform.tag == "Object" && collision.transform.GetComponent<ObjectCollisionController>().shouldReverseRollingBag)|| collision.transform.tag == "Entity")
+        if (((collision.transform.tag == "Object" || collision.transform.tag == "Crate") && collision.transform.GetComponent<ObjectCollisionController>().shouldReverseRollingBag)|| collision.transform.tag == "Entity")
         {
-            newVel *= -1; //Inverses spinning direction
+            newVel *= -1; //Reverses spinning direction
             gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(newVel, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y); //Sets new rolling velocity
             if (collision.transform.GetComponent<PlayerController>() != null) //Damages the player if he touches the rolling bag
-            {
                 collision.transform.GetComponent<PlayerController>().TakeDamage(damage);
-            }
             if(collision.transform.GetComponent<EnemyController>() != null) //Damages enemies if they touch the rolling bag
-            {
                 collision.transform.GetComponent<EnemyController>().TakeDamage(damage);
-            }
-            StartCoroutine(shouldBeDamagedAgain());
+            StartCoroutine(ShouldBeDamagedAgain());
         }
     }
 
@@ -44,13 +35,9 @@ public class RollingBagController : MonoBehaviour {
         if(damageAgain)
         {
             if (collision.transform.GetComponent<PlayerController>() != null) //Damages the player if he touches the rolling bag
-            {
                 collision.transform.GetComponent<PlayerController>().TakeDamage(damage);
-            }
             if (collision.transform.GetComponent<EnemyController>() != null) //Damages enemies if they touch the rolling bag
-            {
                 collision.transform.GetComponent<EnemyController>().TakeDamage(damage);
-            }
         }
     }
 
@@ -59,14 +46,16 @@ public class RollingBagController : MonoBehaviour {
         damageAgain = false;
     }
 
-    IEnumerator shouldBeDamagedAgain()
+    IEnumerator ShouldBeDamagedAgain()
     {
         yield return new WaitForSeconds(1);
         damageAgain = true;
     }
 
-    private void OnEnable()
+    public void StartRoll()
     {
+        newVel = startingVelocity;
         gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(startingVelocity, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
+        gameObject.transform.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.None; //Unfreezes object
     }
 }

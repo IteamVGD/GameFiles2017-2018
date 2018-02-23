@@ -49,6 +49,7 @@ public class GameController : MonoBehaviour { //18
 
     public List<GameObject> enemyList; //A list of all enemies in the level
     public List<GameObject> lightList; //A list of all lights in the level
+    public List<GameObject> rollingBagList; //A list of all rolling bags in the level
 
     public bool controllerConnected; //if true, run controller only code
 
@@ -69,6 +70,11 @@ public class GameController : MonoBehaviour { //18
             //Loads/unloads enemies
             foreach (GameObject enemy in enemyList)
             {
+                if (enemy == null)
+                {
+                    enemyList.Remove(enemy);
+                    break;
+                }
                 if(enemy.activeSelf == true && Vector3.Distance(playerObj.transform.GetChild(0).position, enemy.transform.position) >= entityUnloadRange)
                 {
                     enemy.SetActive(false);
@@ -111,6 +117,20 @@ public class GameController : MonoBehaviour { //18
                     }
                 }
             }
+            
+            //Loads rolling bags
+            if(rollingBagList.Count > 0) //If any rolling bags have yet to be activated (only here so errors arent thrown when all bags have ben activated and the list is empty)
+            {
+                foreach (GameObject bag in rollingBagList)
+                {
+                    if (Vector3.Distance(playerObj.transform.GetChild(0).position, bag.transform.position) <= bag.transform.GetComponent<RollingBagController>().enableRange) //If the player is close enough that the bag should start rolling
+                    {
+                        bag.SetActive(true); //Activate bag
+                        bag.transform.GetComponent<RollingBagController>().StartRoll();
+                        rollingBagList.Remove(bag); //Doesnt need to ever be loaded/unloaded again as it will be done by the background parent obj
+                    }
+                }
+            }
         }
 	}
 
@@ -146,21 +166,18 @@ public class GameController : MonoBehaviour { //18
             }
 
             //Item Hierarchy Sorter
-            foreach(GameObject obj in GameObject.FindGameObjectsWithTag("Object")) 
+            foreach(GameObject obj in GameObject.FindGameObjectsWithTag("Crate")) 
             {
-                if(obj.GetComponent<SpriteRenderer>().sprite.name == "Crate" || obj.GetComponent<SpriteRenderer>().sprite.name == "SmallCrate") //If needs to go under Crates
+                foreach (GameObject background in backgroundObjs)
                 {
-                    foreach(GameObject background in backgroundObjs)
+                    if (background.transform.position.x - 8.8 < obj.transform.position.x && background.transform.position.x + 8.8 > obj.transform.position.x)
                     {
-                        if(background.transform.position.x - 8.8 < obj.transform.position.x && background.transform.position.x + 8.8 > obj.transform.position.x)
-                        {
-                            obj.transform.SetParent(background.transform.GetChild(1));
-                            break;
-                        }
+                        obj.transform.SetParent(background.transform.GetChild(1));
+                        break;
                     }
                 }
             }
-            foreach (GameObject obj in GameObject.FindGameObjectsWithTag("DownPunchable")) //If needs to go under Bags&Chains
+            foreach (GameObject obj in GameObject.FindGameObjectsWithTag("DownPunchable")) //If needs to go under BagsChains&Switches
             {
                 foreach (GameObject background in backgroundObjs)
                 {
@@ -169,6 +186,11 @@ public class GameController : MonoBehaviour { //18
                         obj.transform.SetParent(background.transform.GetChild(2));
                         break;
                     }
+                }
+                if(obj.transform.GetComponent<SpriteRenderer>().sprite.name == "BoxingBagSide") //If this is a rolling bag
+                {
+                    rollingBagList.Add(obj); //Adds to rolling back list
+                    obj.SetActive(false); //Disables so it wont roll until we want it to
                 }
             }
             foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Darkness")) //If needs to go under MiscObjects
@@ -305,10 +327,10 @@ public class GameController : MonoBehaviour { //18
         sliderComponent.value = val; //Sets current value on slider
         currentHealthTxt.transform.GetComponent<Text>().text = "Health: " + val; //Updates current health txt above slider
 
-        if(val <= minVal) //If below or at minimum health
-        {
-            healthSlider.transform.GetChild(1).transform.GetChild(0).gameObject.SetActive(false); //Sets fill object on health slider to inactive to prevent small amount of red "health" at the very left
-        }
+        if (val <= minVal) //If below or at minimum health
+            blockSlider.transform.GetChild(1).transform.GetChild(0).gameObject.SetActive(false); //Sets fill object on block slider to inactive to prevent small amount of blue "block" at the very left
+        if (val > minVal) //If above minimum health
+            blockSlider.transform.GetChild(1).transform.GetChild(0).gameObject.SetActive(true); //Sets fill object on block slider to active
     }
 
     public void updateBlockSlider(int minVal, int maxVal, int val) //minVal = minimum "block" on the slider, maxVal = maximum "block" on the slider, val = current "block" on the slider; also updates max, min, and current block txts left, right, and above the slider
@@ -321,9 +343,9 @@ public class GameController : MonoBehaviour { //18
         sliderComponent.value = val; //Sets current value on slider
         currentBlockTxt.transform.GetComponent<Text>().text = "Block: " + val; //Updates current health txt above slider
 
-        if (val <= minVal) //If below or at minimum health
+        if (val <= minVal) //If below or at minimum block
             blockSlider.transform.GetChild(1).transform.GetChild(0).gameObject.SetActive(false); //Sets fill object on block slider to inactive to prevent small amount of blue "block" at the very left
-        if (val > minVal) //If above minimum health
+        if (val > minVal) //If above minimum block
             blockSlider.transform.GetChild(1).transform.GetChild(0).gameObject.SetActive(true); //Sets fill object on block slider to active
     }
 
@@ -331,7 +353,7 @@ public class GameController : MonoBehaviour { //18
     {
         Quaternion powRotation = new Quaternion(Random.Range(-50, 50), Random.Range(-50, 50), Random.Range(-180, 180), Random.Range(-180, 180)); //Randomises the pow's rotation
         GameObject powObj = Instantiate(powEffectPrefab, collPosition, powRotation); //Instatiates the pow effect obh
-        yield return new WaitForSeconds(0.4f); //Waits for (almost) half a second
+        yield return new WaitForSeconds(0.2f); //Waits for (almost) half a second
         Destroy(powObj); //Destroys the pow effect
     }
 }

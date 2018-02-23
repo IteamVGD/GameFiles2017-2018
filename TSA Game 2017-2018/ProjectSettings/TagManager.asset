@@ -11,6 +11,7 @@ TagManager:
   - DownPunchable
   - Light
   - Darkness
+  - Crate
   layers:
   - Default
   - TransparentFX
@@ -28,7 +29,7 @@ TagManager:
   - Player
   - EnemyPunch
   - EnemyDownPunch
-  - 
+  - Switch
   - 
   - 
   - 

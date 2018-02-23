@@ -108,7 +108,7 @@ public class EnemyController : MonoBehaviour {
                 {
                     runAgressiveTimer = false; //Stops timer from running until activity is done
                     agressiveTimer = agressiveTimerReset; //Resets timer
-                    StartCoroutine(FallBackTimer(Random.Range(0.5f, 2.5f))); //Starts the coroutine that stops the enemy walking back after a certain amount of time (int passed, seconds)
+                    StartCoroutine(FallBackTimer(Random.Range(1, 4))); //Starts the coroutine that stops the enemy walking back after a certain amount of time (int passed, seconds)
 
                     if (playerObj.transform.position.x - gameObject.transform.position.x > 0) //If player is to the left of enemy
                     {
