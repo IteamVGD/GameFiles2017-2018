@@ -3558,7 +3558,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 367178701}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.02, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 2066268885}
@@ -4151,6 +4151,7 @@ Transform:
   m_Children:
   - {fileID: 1889744606}
   - {fileID: 1879414155}
+  - {fileID: 487105025}
   m_Father: {fileID: 1973882571}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -4395,11 +4396,11 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 487105024}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 96.51, y: -3.91, z: 0}
+  m_LocalPosition: {x: -5.489998, y: -3.91, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_Father: {fileID: 445481063}
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &487105026
 MonoBehaviour:
@@ -5126,7 +5127,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 599015826}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7.67, y: -3.3, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 367178702}
@@ -7465,7 +7466,7 @@ Transform:
   - {fileID: 947803796}
   - {fileID: 1143935313}
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &984971915
 GameObject:
@@ -8399,8 +8400,8 @@ MonoBehaviour:
   chunkLoadRange: 30
   entityUnloadRange: 30
   entityLoadRange: 20
-  lightLoadRange: 25
-  lightUnloadRange: 25
+  lightLoadRange: 22
+  lightUnloadRange: 22
   enemyList: []
   lightList: []
   rollingBagList: []
@@ -12338,6 +12339,11 @@ Prefab:
       propertyPath: m_Name
       value: PitDark (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 212609049594764590, guid: 5fda820db02c9a3408657525dc324d1b,
+        type: 2}
+      propertyPath: m_Color.a
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 5fda820db02c9a3408657525dc324d1b, type: 2}
   m_IsPrefabParent: 0
@@ -14499,7 +14505,7 @@ Transform:
   - {fileID: 198081465}
   - {fileID: 848251278}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1961125475
 GameObject:
@@ -15453,6 +15459,7 @@ MonoBehaviour:
   offset: {x: 2, y: 0, z: -10}
   followY: 0
   desiredPostion: {x: 0, y: 0, z: 0}
+  yTrackHeight: 6
 --- !u!81 &2030178129
 AudioListener:
   m_ObjectHideFlags: 0
