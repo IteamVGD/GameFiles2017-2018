@@ -97,19 +97,20 @@ public class EnemyController : MonoBehaviour {
             transform.parent.GetChild(1).position = transform.position; //Makes sure NoPushCollider follows enemy
             if (agressiveTimer <= 0 && runAgressiveTimer == true)
             {
+                StopAllCoroutines();
                 closeEnoughToPunch = false; //Resets bool so if the randomiser picks 1
                 agressiveRandomiser = Random.Range(1, 3); //If 1, charge player, 2 fall back; 1-3 b/c max is exclusive
                 if (agressiveRandomiser == 1) //If it picked 1
                 {
                     runAgressiveTimer = false; //Stops timer from running until activity is done
                     agressiveTimer = agressiveTimerReset; //Resets timer
-                    StartCoroutine(ChasePlayerTimer(Random.Range(2, 5))); //Starts the coroutine that will stop the enemy from chasing the player if he doesnt catch him within a certain amount of time (int passed, seconds)
+                    StartCoroutine(ChasePlayerTimer(Random.Range(1, 4))); //Starts the coroutine that will stop the enemy from chasing the player if he doesnt catch him within a certain amount of time (int passed, seconds)
                 }
                 if (agressiveRandomiser == 2) //If it picked 2
                 {
                     runAgressiveTimer = false; //Stops timer from running until activity is done
                     agressiveTimer = agressiveTimerReset; //Resets timer
-                    StartCoroutine(FallBackTimer(Random.Range(1, 4))); //Starts the coroutine that stops the enemy walking back after a certain amount of time (int passed, seconds)
+                    StartCoroutine(FallBackTimer(Random.Range(2, 5))); //Starts the coroutine that stops the enemy walking back after a certain amount of time (int passed, seconds)
 
                     if (playerObj.transform.position.x - gameObject.transform.position.x > 0) //If player is to the left of enemy
                     {
@@ -158,11 +159,12 @@ public class EnemyController : MonoBehaviour {
                 }
             case 2: //If is boss enemy
                 {
-                    if (isPunching && GetComponent<SpriteRenderer>().sprite.name == "BossPunchLeft") //If is punching and is on the punch sprite where the collider should turn on
+                    if (GetComponent<SpriteRenderer>().sprite.name == "BossPunchLeft") //If is punching and is on the punch sprite where the collider should turn on
                     {
                         punchCollider.enabled = true; //Enables the punch collider when the enemy's punch is on (first frame)
+                        isPunching = true;
                     }
-                    if (isPunching && GetComponent<SpriteRenderer>().sprite.name != "BossPunchLeft") //If is punching and is on the punch sprite where the collider should turn off
+                    if (isPunching == true && GetComponent<SpriteRenderer>().sprite.name != "BossPunchLeft") //If is punching and is on the punch sprite where the collider should turn off
                     {
                         punchCollider.enabled = false; //Disables the punch collider when the enemy is ending his punch (NOTE: Technically 1 frame off as in frame 7 he is still punching, but it resets back to idle after this so its the last time to make this check)
                         anim.SetInteger("punchSide", 0); //Stops punching
@@ -177,12 +179,12 @@ public class EnemyController : MonoBehaviour {
 
 
         //Checks for agro
-        if (agressiveRandomiser == 1 && runAgressiveTimer == false) //If the randomiser picked 1 and its not time to rerol yet
+        if (agressiveRandomiser == 1 && !runAgressiveTimer) //If the randomiser picked 1 and its not time to rerol yet
         {
             //Keeps enemy chasing player even if player switches from being to the left of enemy to being to the right or vice versa
-            if(closeEnoughToPunch == false && isBeingPunched == false)
+            if(!closeEnoughToPunch && !isBeingPunched)
             {
-                if (playerObj.transform.position.x - gameObject.transform.position.x > 0) //If player is to the left of enemy
+                if (playerObj.transform.position.x - gameObject.transform.position.x >= 0) //If player is to the left of enemy
                 {
                     body.velocity = new Vector2(horizontalMovementSpeed, body.velocity.y); //Move left
                     anim.SetInteger("sideMoving", 1); //Sets SideMoving in in animator to 1 (left)
@@ -195,12 +197,12 @@ public class EnemyController : MonoBehaviour {
             }
 
             //Attacks player if close enough
-            if (Vector3.Distance(playerObj.transform.position, gameObject.transform.position) < attackRange && closeEnoughToPunch == false) //If is close enough to punch
+            if (Vector3.Distance(playerObj.transform.position, gameObject.transform.position) <= attackRange && closeEnoughToPunch == false) //If is close enough to punch
             {
                 StopAllCoroutines(); //Stops the ChasePlayerTimer coroutine from running to show that the player has been "caught" 
                 closeEnoughToPunch = true; //Stops chase code from running
                 isPunching = true; //Starts punching player
-                body.velocity = new Vector2(0, 0); //Stops enemy movement
+                //body.velocity = new Vector2(0, 0); //Stops enemy movement
                 //Punch
                 if (playerObj.transform.position.x - gameObject.transform.position.x > 0) //If player is left of enemy
                     anim.SetInteger("punchSide", 1); //Punch left
@@ -209,8 +211,21 @@ public class EnemyController : MonoBehaviour {
             }
         }
 
-        //Death Check
-        if (isDead)
+        if (agressiveRandomiser == 2) //If it picked 2
+        {
+            if (playerObj.transform.position.x - gameObject.transform.position.x > 0) //If player is to the left of enemy
+            {
+                body.velocity = new Vector2(-horizontalMovementSpeed, body.velocity.y); //Move right
+                anim.SetInteger("sideMoving", 2); //Sets SideMoving in in animator to -2 (right inverse)
+            }
+            else //If player is to the right of enemy
+            {
+                body.velocity = new Vector2(horizontalMovementSpeed, body.velocity.y); //Move left
+                anim.SetInteger("sideMoving", -2); //Sets SideMoving in in animator to 2 (left inverse)
+            }
+        }
+            //Death Check
+            if (isDead)
             DeathVoid(deathFadeOutSpeed); //Fade out
     }
 
@@ -285,7 +300,7 @@ public class EnemyController : MonoBehaviour {
     {
         blockTimer = 30;
         isPunching = false;
-        body.velocity = new Vector2(0, 0);
+        //body.velocity = new Vector2(0, 0);
         anim.SetInteger("punchSide", 0);
         anim.SetInteger("sideMoving", 0);
         agressiveRandomiser = 0;
