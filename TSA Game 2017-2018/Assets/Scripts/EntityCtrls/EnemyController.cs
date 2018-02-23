@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class EnemyController : MonoBehaviour {
 
+    public int enemyType; //0 = blonde enemy, 1 = white haired enemy, 2 = boss
     public GameObject playerObj; //The player
 
     //Stats
@@ -135,19 +136,45 @@ public class EnemyController : MonoBehaviour {
                 triedBlocking = true;
             }
         }
-        if (isPunching == true && (GetComponent<SpriteRenderer>().sprite.name == "BlondePunchLeft_4" || GetComponent<SpriteRenderer>().sprite.name == "BlondePunchRight_4")) //If is punching and is on the punch sprite where the collider should turn on
+
+        switch(enemyType) //Punch Controller
         {
-            punchCollider.enabled = true; //Enables the punch collider when the enemy's punch is on (first frame)
+            case 0: //If is blonde boxer
+                {
+                    if (isPunching && (GetComponent<SpriteRenderer>().sprite.name == "BlondePunchLeft_4" || GetComponent<SpriteRenderer>().sprite.name == "BlondePunchRight_4")) //If is punching and is on the punch sprite where the collider should turn on
+                    {
+                        punchCollider.enabled = true; //Enables the punch collider when the enemy's punch is on (first frame)
+                    }
+                    if (isPunching && (GetComponent<SpriteRenderer>().sprite.name == "BlondePunchLeft_7" || GetComponent<SpriteRenderer>().sprite.name == "BlondePunchRight_7")) //If is punching and is on the punch sprite where the collider should turn off
+                    {
+                        punchCollider.enabled = false; //Disables the punch collider when the enemy is ending his punch (NOTE: Technically 1 frame off as in frame 7 he is still punching, but it resets back to idle after this so its the last time to make this check)
+                        anim.SetInteger("punchSide", 0); //Stops punching
+                        isPunching = false; //These 4 lines reset the agressive timer
+                        closeEnoughToPunch = false;
+                        runAgressiveTimer = true;
+                        agressiveTimer = agressiveTimerReset; //^^^
+                    }
+                    break;
+                }
+            case 2: //If is boss enemy
+                {
+                    if (isPunching && GetComponent<SpriteRenderer>().sprite.name == "BossPunchLeft") //If is punching and is on the punch sprite where the collider should turn on
+                    {
+                        punchCollider.enabled = true; //Enables the punch collider when the enemy's punch is on (first frame)
+                    }
+                    if (isPunching && GetComponent<SpriteRenderer>().sprite.name != "BossPunchLeft") //If is punching and is on the punch sprite where the collider should turn off
+                    {
+                        punchCollider.enabled = false; //Disables the punch collider when the enemy is ending his punch (NOTE: Technically 1 frame off as in frame 7 he is still punching, but it resets back to idle after this so its the last time to make this check)
+                        anim.SetInteger("punchSide", 0); //Stops punching
+                        isPunching = false; //These 4 lines reset the agressive timer
+                        closeEnoughToPunch = false;
+                        runAgressiveTimer = true;
+                        agressiveTimer = agressiveTimerReset; //^^^
+                    }
+                    break;
+                }
         }
-        if(isPunching == true && (GetComponent<SpriteRenderer>().sprite.name == "BlondePunchLeft_7" || GetComponent<SpriteRenderer>().sprite.name == "BlondePunchRight_7")) //If is punching and is on the punch sprite where the collider should turn off
-        {
-            punchCollider.enabled = false; //Disables the punch collider when the enemy is ending his punch (NOTE: Technically 1 frame off as in frame 7 he is still punching, but it resets back to idle after this so its the last time to make this check)
-            anim.SetInteger("punchSide", 0); //Stops punching
-            isPunching = false; //These 4 lines reset the agressive timer
-            closeEnoughToPunch = false;
-            runAgressiveTimer = true;
-            agressiveTimer = agressiveTimerReset; //^^^
-        }
+
 
         //Checks for agro
         if (agressiveRandomiser == 1 && runAgressiveTimer == false) //If the randomiser picked 1 and its not time to rerol yet
