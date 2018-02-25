@@ -50,14 +50,20 @@ public class EnemyController : MonoBehaviour {
     public bool isBlocking; //If the enemy is blocking
     public int blockTimer; //Counts down to disable block
 
+    public int downPunchCount; //Controls the size of the down punch collider on the enemy so it gets harder for the player to down punch off him each time (no infinite bounce)
+    public List<Vector2> downPunchSizes; 
+
     //Misc
     public bool isDead; //Controls fading out
     public int randomBlockChance;
     public bool triedBlocking;
 
+    public GameObject levelExitDoor; //Is enabled when the boss dies
+
 
     //Use this for initialization
-    void Start () {
+    void Start ()
+    {
         anim = gameObject.transform.GetComponent<Animator>();
         body = gameObject.transform.GetComponent<Rigidbody2D>();
         health = maxHealth; //Start at max health
@@ -68,6 +74,13 @@ public class EnemyController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        transform.parent.GetChild(1).position = transform.position; //Makes sure NoPushCollider follows enemy
+        transform.parent.GetChild(2).position = transform.position; //Makes sure DownPunchCollider
+        if(downPunchCount > 0 && playerObj.transform.GetComponent<PlayerController>().canJump) //If the downPunchCollider is smaller than default and the player is not down punching
+        {
+            downPunchCount = 0;
+            gameObject.transform.parent.GetChild(2).GetComponent<BoxCollider2D>().size = downPunchSizes[downPunchCount]; //Resets down punch collider's size
+        }
         if (!playerInRange) //If a player is in the range for agro
         {
             if(Vector3.Distance(playerObj.transform.position, gameObject.transform.position) <= detectionRange)
@@ -78,7 +91,12 @@ public class EnemyController : MonoBehaviour {
             if (Vector3.Distance(playerObj.transform.position, gameObject.transform.position) > detectionRange)
                 playerInRange = false;
         }
-
+        if(agressiveRandomiser == 2 && Vector3.Distance(gameObject.transform.position, playerObj.transform.position) + 2 > attackRange) //Stops enemy from running away and passing agro range
+        {
+            runAgressiveTimer = false; //Stops timer from running until activity is done
+            agressiveTimer = agressiveTimerReset; //Resets timer
+            agressiveRandomiser = 1;
+        }
         if(isBlocking)
         {
             if(blockTimer > 0)
@@ -88,13 +106,12 @@ public class EnemyController : MonoBehaviour {
                 isBlocking = false; //Stops blocking checks and anti-damage
                 anim.SetInteger("isBlocking", 0); //Stops blocking animation
                 agressiveTimer = agressiveTimerReset;
-                runAgressiveTimer = true;
+                runAgressiveTimer = true; 
             }
         }
 
         if (playerInRange) //If the player is in range
         {
-            transform.parent.GetChild(1).position = transform.position; //Makes sure NoPushCollider follows enemy
             if (agressiveTimer <= 0 && runAgressiveTimer == true)
             {
                 StopAllCoroutines();
@@ -197,7 +214,7 @@ public class EnemyController : MonoBehaviour {
             }
 
             //Attacks player if close enough
-            if (Vector3.Distance(playerObj.transform.position, gameObject.transform.position) <= attackRange && closeEnoughToPunch == false) //If is close enough to punch
+            if (agressiveRandomiser == 1 && Vector3.Distance(playerObj.transform.position, gameObject.transform.position) <= attackRange && closeEnoughToPunch == false) //If is close enough to punch
             {
                 StopAllCoroutines(); //Stops the ChasePlayerTimer coroutine from running to show that the player has been "caught" 
                 closeEnoughToPunch = true; //Stops chase code from running
@@ -229,9 +246,14 @@ public class EnemyController : MonoBehaviour {
             DeathVoid(deathFadeOutSpeed); //Fade out
     }
 
-    public void TakeDamage(int dmgToTake) //Substracts dmgToTake from health and destroys object if at or below 0
+    public void TakeDamage(int dmgToTake, bool isDownPunch) //Substracts dmgToTake from health and destroys object if at or below 0
     {
-        if(!isBlocking)
+        if (isDownPunch && downPunchCount < downPunchSizes.Count)
+        {
+            downPunchCount++;
+            gameObject.transform.parent.GetChild(2).GetComponent<BoxCollider2D>().size = downPunchSizes[downPunchCount]; //Sets the down punch collider's size to be smaller so it's hearder to down punch off of this enemy
+        }
+        if (!isBlocking)
         {
             health -= dmgToTake;
             if (health <= minHealth)
@@ -245,8 +267,8 @@ public class EnemyController : MonoBehaviour {
 
     public void Jump() //Adds vertical force relative to the vertical movement speed
     {
-        if(body.velocity.y == 0 && body.velocity.x > 0)
-            body.velocity = new Vector2(body.velocity.x, verticalMovementSpeed); //Move left
+        if (body.velocity.y == 0 && body.velocity.x != 0)
+            body.velocity = new Vector2(body.velocity.x, verticalMovementSpeed); //Jump
     }
 
     IEnumerator ChasePlayerTimer(int time) //When the enemy is trying to chase the player (through picking 1 in the agroRandom) this timer will wait for TimeToChasePlayer and if ends will re-roll the agroRandom so the enemy doesnt chace for ever
@@ -276,6 +298,8 @@ public class EnemyController : MonoBehaviour {
         if(tempColor.a <= 0) //If object has reached transparency
         {
             GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>().enemyList.Remove(gameObject);
+            if (enemyType == 2)
+                levelExitDoor.SetActive(true); //Enables exit door
             Destroy(gameObject.transform.parent.gameObject); //Destroy enemy object
         }
     }
@@ -283,8 +307,9 @@ public class EnemyController : MonoBehaviour {
     public void GotPunched() //Runs when this enemy is punched
     {
         triedBlocking = false;
-        StartCoroutine(GotPunchedMovementCooldown()); //Starts a timer to reset the bool above once the punch/knockback is done
-        runAgressiveTimer = false;
+        //StartCoroutine(GotPunchedMovementCooldown()); //Starts a timer to reset the bool above once the punch/knockback is done
+        agressiveTimer = 1;
+        runAgressiveTimer = true;
     }
 
     IEnumerator GotPunchedMovementCooldown() //Resets isBeingPunched bool so enemy can move again when he is no longer being punched/knocked back
@@ -310,5 +335,13 @@ public class EnemyController : MonoBehaviour {
         else //If not
             anim.SetInteger("isBlocking", -1); //Block right
         isBlocking = true;
+    }
+
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.tag == "Object" || collision.gameObject.tag == "Crate") //If collided with an "object" (ex. crates)
+        {
+            Jump();
+        }
     }
 }

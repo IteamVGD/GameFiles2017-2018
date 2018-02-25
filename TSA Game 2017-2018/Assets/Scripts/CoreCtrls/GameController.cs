@@ -5,7 +5,11 @@ using UnityEngine.UI;
 
 public class GameController : MonoBehaviour { //18
 
+    //Camera Stuff
     public GameObject mainCameraObj;
+    public int cameraTopdownSize;
+    public int cameraSidescrollSize;
+
     public GameObject playerObj;
     public static GameObject playerObjStatic;
 
@@ -13,6 +17,13 @@ public class GameController : MonoBehaviour { //18
     public GameObject sideScrollMapObj;
     public GameObject topDownMapObj;
     public GameObject mainMenuObj;
+
+    public GameObject fringeObj;
+    public GameObject contenderObj;
+    public GameObject fringeContenderObj;
+    public GameObject titleScreenBackgroundFadeObj;
+    public bool launchTitle;
+    public bool titleFadeInTimer;
 
     //UI Objects
     public GameObject sideScrollUIObj;
@@ -46,6 +57,8 @@ public class GameController : MonoBehaviour { //18
     public int entityLoadRange; //How far away an entity needs to be from the player to be "loaded" (enabled)
     public int lightLoadRange; //How far away a light needs to be from the player to be "loaded" (enabled)
     public int lightUnloadRange;//How far away a light needs to be from the player to be "unloaded" (disabled)
+    public List<Sprite> backgroundSpriteList; //Will use these lists to randomise backgrounds on runtime
+    public List<Sprite> verticalBackgroundSpriteList; //^^^ same as above, uses this one for vertical backgrounds
 
     public List<GameObject> enemyList; //A list of all enemies in the level
     public List<GameObject> lightList; //A list of all lights in the level
@@ -54,9 +67,28 @@ public class GameController : MonoBehaviour { //18
     public bool controllerConnected; //if true, run controller only code
 
     public GameObject powEffectPrefab; //The effect that appears when an enemy punches the player or the other way around
+    public bool isRemovingPows;
+
+    //City & Level Variables
+    public bool dayOrNight; //Controls wether a city should be in day or night mode; False = night, true = day
+    public int cityID; //Which city the player is in; 0 = first city
+    public bool travellingToCity; //If true, fade out will not switch views, but will stay in topdown and load next city
+    public List<GameObject> cities; //The parent objects that hold all objects in a city
+    public List<GameObject> citySpawnPoints; //Holds all spawnpoints (where the player should be placed) when travelling into a city from another city
+    public List<GameObject> cityLights; //Turned on for night time, off for daytime
+    public float cityDayTimeSunIntensity;
+    public float cityNightTimeSunIntensity;
+
+    public int levelID;
+    public List<GameObject> levels;
+    public List<GameObject> levelSpawnpoints;
+    public List<GameObject> levelParallaxObjs;
+    public float levelDayTimeSunIntensity;
+    public float levelNightTimeSunIntensity;
 
     // Use this for initialization
     void Start () {
+        currentView = 0;
         playerObjStatic = playerObj;
         Application.targetFrameRate = 60;
         if(Input.GetJoystickNames().Length > 0)
@@ -65,7 +97,46 @@ public class GameController : MonoBehaviour { //18
 
     // Update is called once per frame
     void Update () {
-        if(currentView == 2 && playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().velocity.x != 0) //Only runs "chunk manager" when in sidescroll mode & when player is moving
+        if (currentView == 0 && Input.GetButtonDown("Start"))
+        {
+            startNewGame();
+        }
+        if(launchTitle && fringeObj.transform.GetComponent<RectTransform>().position.x < 940)
+        {
+            fringeObj.transform.position = new Vector3(fringeObj.transform.position.x + 70, fringeObj.transform.position.y, fringeObj.transform.position.z);
+        }
+        if (launchTitle && contenderObj.transform.GetComponent<RectTransform>().position.x < 940)
+        {
+            contenderObj.transform.position = new Vector3(contenderObj.transform.position.x + 70, contenderObj.transform.position.y, contenderObj.transform.position.z);
+        }
+        else
+        {
+            launchTitle = false;
+            StartCoroutine(TitleScreenAnimation());
+            fringeContenderObj.SetActive(true);
+            contenderObj.SetActive(false);
+            fringeObj.SetActive(false);
+        }
+        if(titleFadeInTimer && fringeContenderObj.transform.GetComponent<Image>().color.a < 255)
+        {
+            Color tempColor =  fringeContenderObj.transform.GetComponent<Image>().color;
+            tempColor.r += 0.02f;
+            tempColor.g += 0.02f;
+            tempColor.b += 0.02f;
+            fringeContenderObj.transform.GetComponent<Image>().color = tempColor;
+            tempColor = titleScreenBackgroundFadeObj.transform.GetComponent<Image>().color;
+            tempColor.a -= 0.015f;
+            titleScreenBackgroundFadeObj.transform.GetComponent<Image>().color = tempColor;
+        }
+        else
+        {
+            titleFadeInTimer = false;
+        }
+        if (GameObject.FindGameObjectsWithTag("Pow").Length > 0 && !isRemovingPows)
+        {
+            StartCoroutine(RemoveGlitchedPows());
+        }
+        if(currentView == 2) //Only runs "chunk manager" when in sidescroll mode & when player is moving
         {
             //Loads/unloads enemies
             foreach (GameObject enemy in enemyList)
@@ -87,7 +158,8 @@ public class GameController : MonoBehaviour { //18
                     }
                 }
             }
-
+            
+            /* Light chunk loading disabled since we now have night time versions of levels
             foreach(GameObject light in lightList)
             {
                 if(light.activeSelf == true && Vector3.Distance(playerObj.transform.GetChild(0).position, light.transform.position) >= lightUnloadRange)
@@ -101,7 +173,8 @@ public class GameController : MonoBehaviour { //18
                         light.SetActive(true);
                     }
                 }
-            }
+            }*/
+            
             //Loas/unloads chunks
             foreach (GameObject chunk in backgroundObjs)
             {
@@ -136,13 +209,13 @@ public class GameController : MonoBehaviour { //18
 
     public void ChangeView()
     {
-        if(currentView == 1)
+        if(currentView == 1 && !travellingToCity)
         {
             currentView = 2;
             changeToSidescroll();
             return;
         }
-        if(currentView == 2)
+        if(currentView == 2 || travellingToCity)
         {
             currentView = 1;
             changeToTopdown();
@@ -150,8 +223,7 @@ public class GameController : MonoBehaviour { //18
         }
         if (currentView == 0) //Only runs once per boot when main menu is exited through new game button
         {
-            currentView = 2;
-            changeToSidescroll();
+            currentView = 1;
             playerObj.SetActive(true);
             mainMenuObj.SetActive(false);
 
@@ -159,6 +231,19 @@ public class GameController : MonoBehaviour { //18
             foreach (GameObject background in GameObject.FindGameObjectsWithTag("Background"))
             {
                 backgroundObjs.Add(background);
+                if(!background.transform.GetComponent<BackgroundController>().blockSpriteRandomiser) //If the background's sprite should be randomised
+                {
+                    if (background.transform.position.y > 0) //If is a vertical background
+                    {
+                        //int randomSpriteInt = Random.Range(0, verticalBackgroundSpriteList.Count + 1); //Randomises the sprite for this background if is a vertical background. Needs way to detect if is a "middle" or "top" vertical background
+                        //background.transform.GetComponent<SpriteRenderer>().sprite = verticalBackgroundSpriteList[randomSpriteInt];
+                    }
+                    else
+                    {
+                        int randomSpriteInt = Random.Range(0, backgroundSpriteList.Count); //Randomises the sprite for this background
+                        background.transform.GetComponent<SpriteRenderer>().sprite = backgroundSpriteList[randomSpriteInt];
+                    }
+                }
                 for(int k=0;k<background.transform.GetChild(0).transform.childCount;k++)
                 {
                     lightList.Add(background.transform.GetChild(0).transform.GetChild(k).gameObject);
@@ -239,36 +324,100 @@ public class GameController : MonoBehaviour { //18
                     }
                 }
             }
+            changeToTopdown();
         }
     }
 
     public void changeToTopdown()
     {
-        topDownUIObj.SetActive(true); //Enables the parent of the topdown ui, disables the parent of the sidescroll ui
-        sideScrollUIObj.SetActive(false);
-        playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().gravityScale = 0.0f; //Stops player from reacting to gravity
-        playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0); //Stops player
-        sideScrollMapObj.SetActive(false); //Disables sidescroll map
-        topDownMapObj.SetActive(true); //Enables topdown map
-        playerObj.transform.GetChild(0).transform.position = new Vector3(0, 0, 0); //Resets player to middle of screen
-        playerObj.transform.GetChild(0).GetComponent<Animator>().SetLayerWeight(1, 1);
-        mainCameraObj.transform.position = new Vector3(0, 0, -10);
-        mainCameraObj.transform.GetComponent<CameraController>().followY = true;
+        if(!travellingToCity)
+        {
+            topDownUIObj.SetActive(true); //Enables the parent of the topdown ui, disables the parent of the sidescroll ui
+            sideScrollUIObj.SetActive(false);
+            playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().gravityScale = 0.0f; //Stops player from reacting to gravity
+            playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0); //Stops player
+            sideScrollMapObj.SetActive(false); //Disables sidescroll map
+            topDownMapObj.SetActive(true); //Enables topdown map
+            playerObj.transform.GetChild(0).GetComponent<Animator>().SetLayerWeight(1, 1);
+            mainCameraObj.transform.GetComponent<CameraController>().followY = true;
+            playerObj.transform.GetChild(0).transform.GetComponent<BoxCollider2D>().offset = playerObj.transform.GetChild(0).transform.GetComponent<PlayerController>().topDownColliderOffset;
+            playerObj.transform.GetChild(0).transform.GetComponent<BoxCollider2D>().size = playerObj.transform.GetChild(0).transform.GetComponent<PlayerController>().topDownColliderSize;
+            mainCameraObj.transform.GetComponent<CameraController>().offset = mainCameraObj.transform.GetComponent<CameraController>().topDownOffset;
+        }
+        else
+        {
+            foreach(GameObject city in cities)
+            {
+                if(city.activeSelf)
+                {
+                    city.SetActive(false);
+                    break;
+                }
+            }
+            cities[cityID].SetActive(true);
+        }
+        playerObj.transform.GetChild(0).transform.position = citySpawnPoints[cityID].transform.position;
+        mainCameraObj.transform.position = citySpawnPoints[cityID].transform.position;
+        mainCameraObj.transform.GetComponent<CameraController>().canFollow = true;
+        mainCameraObj.transform.GetComponent<Camera>().orthographicSize = cameraTopdownSize;
+        travellingToCity = false;
+
+        //City Stuff
+        cities[cityID].SetActive(true); //Enables the city the player is at
+        dayOrNight = !dayOrNight; //Flips day/night state from previous city
+        if (dayOrNight) //If should be day (dayOrNight true = day, false = night)
+        {
+            gameObject.transform.GetChild(1).transform.GetComponent<Light>().intensity = cityDayTimeSunIntensity; //Day time sun intensity (default 0.7)
+            foreach (GameObject light in cityLights)
+                light.SetActive(false); //Disables all city lights
+        }
+        else
+        {
+            gameObject.transform.GetChild(1).transform.GetComponent<Light>().intensity = cityNightTimeSunIntensity; //Night time sun intensity (default 0)
+            foreach (GameObject light in cityLights)
+                light.SetActive(true); //Enables all city lights
+        }
     }
 
     public void changeToSidescroll()
     {
         sideScrollUIObj.SetActive(true); //Enables the parent of the sidescroll ui, disables the parent of the topdown ui
+        foreach(GameObject level in levels) //Disables previous level
+        {
+            if (level.activeSelf)
+            {
+                level.SetActive(false);
+                break;
+            }
+        }
+        levels[levelID].SetActive(true); //Enables next level
         topDownUIObj.SetActive(false);
         playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().gravityScale = 2.5f; //Makes player react to gravity
         playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0); //Stops player
         sideScrollMapObj.SetActive(true); //Enables sidescroll map
         topDownMapObj.SetActive(false); //Disables topdown map
-        playerObj.transform.GetChild(0).transform.position = new Vector3(-7.6f, -3.55f, 0); //Resets player to start
+        playerObj.transform.GetChild(0).transform.position = levelSpawnpoints[levelID].transform.position;
+        mainCameraObj.transform.position = levelSpawnpoints[levelID].transform.position;
         playerObj.transform.GetChild(0).GetComponent<Animator>().SetLayerWeight(1, 0);
-        mainCameraObj.transform.position = new Vector3(-1.6716f, 0, -10);
         mainCameraObj.transform.GetComponent<CameraController>().followY = false;
-
+        playerObj.transform.GetChild(0).transform.GetComponent<BoxCollider2D>().offset = playerObj.transform.GetChild(0).transform.GetComponent<PlayerController>().sideScrollColliderOffset;
+        playerObj.transform.GetChild(0).transform.GetComponent<BoxCollider2D>().size = playerObj.transform.GetChild(0).transform.GetComponent<PlayerController>().sideScrollColliderSize;
+        mainCameraObj.transform.GetComponent<CameraController>().offset = mainCameraObj.transform.GetComponent<CameraController>().sidescrollOffset;
+        mainCameraObj.transform.GetComponent<Camera>().orthographicSize = cameraSidescrollSize;
+        //City Stuff
+        if (dayOrNight) //If should be day (dayOrNight true = day, false = night)
+        {
+            gameObject.transform.GetChild(1).transform.GetComponent<Light>().intensity = levelDayTimeSunIntensity; //Day time sun intensity (default 0.6)
+            foreach (GameObject light in lightList)
+                light.SetActive(false);
+        }
+        else
+        {
+            gameObject.transform.GetChild(1).transform.GetComponent<Light>().intensity = levelNightTimeSunIntensity; //Night time sun intensity (default 0.2)
+            foreach (GameObject light in lightList)
+                light.SetActive(true);
+        }
+        cities[cityID].gameObject.SetActive(false); //Disables city
     }
 
     public void startNewGame()
@@ -355,5 +504,22 @@ public class GameController : MonoBehaviour { //18
         GameObject powObj = Instantiate(powEffectPrefab, collPosition, powRotation); //Instatiates the pow effect obh
         yield return new WaitForSeconds(0.2f); //Waits for (almost) half a second
         Destroy(powObj); //Destroys the pow effect
+    }
+
+    IEnumerator RemoveGlitchedPows()
+    {
+        isRemovingPows = true;
+        yield return new WaitForSeconds(3);
+        foreach (GameObject pow in GameObject.FindGameObjectsWithTag("Pow"))
+        {
+            Destroy(pow);
+        }
+        isRemovingPows = false;
+    }
+
+    IEnumerator TitleScreenAnimation()
+    {
+        yield return new WaitForSeconds(0.7f);
+        titleFadeInTimer = true;
     }
 }

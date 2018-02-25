@@ -14,18 +14,24 @@ public class RollingBagController : MonoBehaviour {
     void Update ()
     {
         transform.Rotate(Vector3.forward * Time.deltaTime * newVel * -90);
-	}
+        if (gameObject.transform.GetComponent<Rigidbody2D>().velocity.x == 0)
+        {
+            newVel *= -1; //Reverses spinning direction
+        }
+        if (gameObject.transform.GetComponent<Rigidbody2D>().velocity.x != newVel)
+            gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(newVel, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y); //Sets new rolling velocity
+    }
 
     public void OnCollisionEnter2D(Collision2D collision)
     {
-        if (((collision.transform.tag == "Object" || collision.transform.tag == "Crate") && collision.transform.GetComponent<ObjectCollisionController>().shouldReverseRollingBag)|| collision.transform.tag == "Entity")
+        if (((collision.transform.tag == "Object" || collision.transform.tag == "Crate") && collision.transform.GetComponent<ObjectCollisionController>().shouldReverseRollingBag))
         {
             newVel *= -1; //Reverses spinning direction
             gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(newVel, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y); //Sets new rolling velocity
             if (collision.transform.GetComponent<PlayerController>() != null) //Damages the player if he touches the rolling bag
                 collision.transform.GetComponent<PlayerController>().TakeDamage(damage);
             if(collision.transform.GetComponent<EnemyController>() != null) //Damages enemies if they touch the rolling bag
-                collision.transform.GetComponent<EnemyController>().TakeDamage(damage);
+                collision.transform.GetComponent<EnemyController>().TakeDamage(damage, false);
             StartCoroutine(ShouldBeDamagedAgain());
         }
     }
@@ -37,8 +43,13 @@ public class RollingBagController : MonoBehaviour {
             if (collision.transform.GetComponent<PlayerController>() != null) //Damages the player if he touches the rolling bag
                 collision.transform.GetComponent<PlayerController>().TakeDamage(damage);
             if (collision.transform.GetComponent<EnemyController>() != null) //Damages enemies if they touch the rolling bag
-                collision.transform.GetComponent<EnemyController>().TakeDamage(damage);
+                collision.transform.GetComponent<EnemyController>().TakeDamage(damage, false);
         }
+    }
+
+    public void OnCollisionExit2D(Collision2D collision)
+    {
+        gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(newVel, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y); //Sets new rolling velocity
     }
 
     private void OnTriggerExit2D(Collider2D collision)

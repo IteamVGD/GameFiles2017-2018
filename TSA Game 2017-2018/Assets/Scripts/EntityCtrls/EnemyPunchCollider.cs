@@ -10,15 +10,15 @@ public class EnemyPunchCollider : MonoBehaviour {
         ContactPoint2D contact = collision.contacts[0];
         StartCoroutine(collision.gameObject.transform.GetComponent<PlayerController>().gameControllerScript.SpawnPow(contact.point));
 
-        //Knockback
+        /*/Knockback
         if (collision.gameObject.transform.position.x - gameObject.transform.position.x <= 0) //If player is to the right
         {
-            //collision.gameObject.transform.GetComponent<Rigidbody2D>().AddForce(-transform.right * gameObject.transform.parent.GetComponent<EnemyController>().knockbackStregth);
+            collision.gameObject.transform.GetComponent<Rigidbody2D>().AddForce(-transform.right * gameObject.transform.parent.GetComponent<EnemyController>().knockbackStregth);
         }
         else
         {
-            //collision.gameObject.transform.GetComponent<Rigidbody2D>().AddForce(transform.right * gameObject.transform.parent.GetComponent<EnemyController>().knockbackStregth);
-        }
+            collision.gameObject.transform.GetComponent<Rigidbody2D>().AddForce(transform.right * gameObject.transform.parent.GetComponent<EnemyController>().knockbackStregth);
+        }*/
     }
 
     private void Update()

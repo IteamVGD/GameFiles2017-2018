@@ -75,11 +75,12 @@ public class PunchCollideController : MonoBehaviour {
         {
             if (collision.gameObject.tag == "Enemy") //If is an enemy
             {
-                collision.gameObject.transform.GetComponent<EnemyController>().TakeDamage(playerObj.transform.GetComponent<PlayerController>().punchDamage); //Decrease enemy's health in EnemyController by the punchDamage of the player parent's PlayerController
-                //collision.gameObject.transform.GetComponent<EnemyController>().isBeingPunched = true;
-
+                if(playerObj.transform.GetComponent<SpriteRenderer>().sprite.name == "DownPunchRight_1" || playerObj.transform.GetComponent<SpriteRenderer>().sprite.name == "DownPunchLeft_1")
+                    collision.gameObject.transform.GetComponent<EnemyController>().TakeDamage(playerObj.transform.GetComponent<PlayerController>().punchDamage, true); //Decrease enemy's health in EnemyController by the punchDamage of the player parent's PlayerController
+                else
+                    collision.gameObject.transform.GetComponent<EnemyController>().TakeDamage(playerObj.transform.GetComponent<PlayerController>().punchDamage, false); //Decrease enemy's health in EnemyController by the punchDamage of the player parent's PlayerController
                 //Insert knockback here
-                collision.gameObject.GetComponent<Rigidbody2D>().AddForce(transform.up * playerObj.transform.GetComponent<PlayerController>().verticalKnockbackStrength); //Knockback up
+                //collision.gameObject.GetComponent<Rigidbody2D>().AddForce(transform.up * playerObj.transform.GetComponent<PlayerController>().verticalKnockbackStrength); //Knockback up
                 if (playerObj.transform.GetComponent<PlayerController>().previousSideFacing == 4) //If player is facing right
                     collision.gameObject.GetComponent<Rigidbody2D>().AddForce(transform.right * playerObj.transform.GetComponent<PlayerController>().horizontalKnockbackStrength); //Knockback right
                 else //If player is facing left

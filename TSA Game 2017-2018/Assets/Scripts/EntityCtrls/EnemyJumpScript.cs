@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyJumpScript : MonoBehaviour {
+    public bool test;
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.gameObject.tag == "Object" || collision.gameObject.tag == "Crate") //If collided with an "object" (ex. crates)
+        if (collision.gameObject.tag == "Object" || collision.gameObject.tag == "Crate") //If collided with an "object" (ex. crates)
         {
-            transform.parent.GetComponent<EnemyController>().Jump(); //Makes the enemy jump
+            test = true;
+            transform.parent.parent.GetChild(0).GetComponent<EnemyController>().Jump(); //Makes the enemy jump
         }
     }
 }

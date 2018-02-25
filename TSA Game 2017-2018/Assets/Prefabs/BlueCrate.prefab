@@ -40,7 +40,7 @@ GameObject:
   - component: {fileID: 4940470493433786}
   m_Layer: 0
   m_Name: BlueCrate
-  m_TagString: Untagged
+  m_TagString: Crate
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -150,7 +150,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.9747169, y: 0.058577538}
+  m_Size: {x: 2, y: 0.058577538}
   m_EdgeRadius: 0
 --- !u!114 &114766351703155614
 MonoBehaviour:
@@ -165,7 +165,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canJumpCollider: {fileID: 61647606681730800}
   shouldReverseRollingBag: 0
-  oppositeBounceBackObject: {fileID: 0}
 --- !u!212 &212179533737087476
 SpriteRenderer:
   m_ObjectHideFlags: 1

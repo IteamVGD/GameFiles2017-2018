@@ -56,7 +56,7 @@ GameObject:
   - component: {fileID: 4441572529666012}
   m_Layer: 0
   m_Name: RedCrate
-  m_TagString: Untagged
+  m_TagString: Crate
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -150,7 +150,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.9747169, y: 0.058577538}
+  m_Size: {x: 2, y: 0.058577538}
   m_EdgeRadius: 0
 --- !u!114 &114095556944076188
 MonoBehaviour:
@@ -165,7 +165,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canJumpCollider: {fileID: 61652965080229398}
   shouldReverseRollingBag: 0
-  oppositeBounceBackObject: {fileID: 0}
 --- !u!212 &212497015386690776
 SpriteRenderer:
   m_ObjectHideFlags: 1

@@ -12,6 +12,8 @@ TagManager:
   - Light
   - Darkness
   - Crate
+  - Pow
+  - 1
   layers:
   - Default
   - TransparentFX
@@ -30,7 +32,7 @@ TagManager:
   - EnemyPunch
   - EnemyDownPunch
   - Switch
-  - 
+  - Lights
   - 
   - 
   - 
@@ -52,8 +54,14 @@ TagManager:
   - name: Backgrounds
     uniqueID: 2328097269
     locked: 0
+  - name: BottomBottomObjects
+    uniqueID: 878648639
+    locked: 0
   - name: Bottom Objects
     uniqueID: 2938366323
+    locked: 0
+  - name: TopBottonObjects
+    uniqueID: 1855343633
     locked: 0
   - name: Player
     uniqueID: 3699396015
