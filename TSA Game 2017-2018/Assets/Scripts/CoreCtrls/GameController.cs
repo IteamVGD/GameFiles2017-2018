@@ -73,6 +73,7 @@ public class GameController : MonoBehaviour { //18
     public bool dayOrNight; //Controls wether a city should be in day or night mode; False = night, true = day
     public int cityID; //Which city the player is in; 0 = first city
     public bool travellingToCity; //If true, fade out will not switch views, but will stay in topdown and load next city
+    public bool travellingToLevel;
     public List<GameObject> cities; //The parent objects that hold all objects in a city
     public List<GameObject> citySpawnPoints; //Holds all spawnpoints (where the player should be placed) when travelling into a city from another city
     public List<GameObject> cityLights; //Turned on for night time, off for daytime
@@ -209,17 +210,19 @@ public class GameController : MonoBehaviour { //18
 
     public void ChangeView()
     {
-        if(currentView == 1 && !travellingToCity)
+        if(currentView == 1 && travellingToLevel)
         {
             currentView = 2;
             changeToSidescroll();
-            return;
         }
-        if(currentView == 2 || travellingToCity)
+        if(currentView == 2 && travellingToCity)
         {
             currentView = 1;
             changeToTopdown();
-            return;
+        }
+        if (currentView == 1 && travellingToCity)
+        {
+            changeToTopdown();
         }
         if (currentView == 0) //Only runs once per boot when main menu is exited through new game button
         {
@@ -252,6 +255,28 @@ public class GameController : MonoBehaviour { //18
 
             //Item Hierarchy Sorter
             foreach(GameObject obj in GameObject.FindGameObjectsWithTag("Crate")) 
+            {
+                foreach (GameObject background in backgroundObjs)
+                {
+                    if (background.transform.position.x - 8.8 < obj.transform.position.x && background.transform.position.x + 8.8 > obj.transform.position.x)
+                    {
+                        obj.transform.SetParent(background.transform.GetChild(1));
+                        break;
+                    }
+                }
+            }
+            foreach (GameObject obj in GameObject.FindGameObjectsWithTag("BlueBox"))
+            {
+                foreach (GameObject background in backgroundObjs)
+                {
+                    if (background.transform.position.x - 8.8 < obj.transform.position.x && background.transform.position.x + 8.8 > obj.transform.position.x)
+                    {
+                        obj.transform.SetParent(background.transform.GetChild(1));
+                        break;
+                    }
+                }
+            }
+            foreach (GameObject obj in GameObject.FindGameObjectsWithTag("RedBox"))
             {
                 foreach (GameObject background in backgroundObjs)
                 {
@@ -358,9 +383,9 @@ public class GameController : MonoBehaviour { //18
         }
         playerObj.transform.GetChild(0).transform.position = citySpawnPoints[cityID].transform.position;
         mainCameraObj.transform.position = citySpawnPoints[cityID].transform.position;
-        mainCameraObj.transform.GetComponent<CameraController>().canFollow = true;
+        mainCameraObj.transform.GetComponent<CameraController>().canFollowX = true;
+        mainCameraObj.transform.GetComponent<CameraController>().canFollowY = true;
         mainCameraObj.transform.GetComponent<Camera>().orthographicSize = cameraTopdownSize;
-        travellingToCity = false;
 
         //City Stuff
         cities[cityID].SetActive(true); //Enables the city the player is at
@@ -377,6 +402,7 @@ public class GameController : MonoBehaviour { //18
             foreach (GameObject light in cityLights)
                 light.SetActive(true); //Enables all city lights
         }
+        travellingToCity = false;
     }
 
     public void changeToSidescroll()
@@ -418,6 +444,7 @@ public class GameController : MonoBehaviour { //18
                 light.SetActive(true);
         }
         cities[cityID].gameObject.SetActive(false); //Disables city
+        travellingToLevel = false;
     }
 
     public void startNewGame()
@@ -425,7 +452,7 @@ public class GameController : MonoBehaviour { //18
         ChangeView();
     }
 
-    //Fades to black, then switches view, then sends to changeviewfadewait
+    //Fades to black, then switches view, then sends to changeViewFadeWait
     public IEnumerator ChangeViewFadeOut(float fadeWaitTime, float fadeAddAmount, float timeToWaitBetweenFades) //Fade wait time = how long it will wait between each up in fade, fade add amount is how much it will add to the fade each time it runs, timetowaitbetweenfades how long between fading out -> fading in
     {
         yield return new WaitForSeconds(fadeWaitTime);

@@ -13,7 +13,8 @@ TagManager:
   - Darkness
   - Crate
   - Pow
-  - 1
+  - BlueBox
+  - RedBox
   layers:
   - Default
   - TransparentFX
@@ -57,10 +58,10 @@ TagManager:
   - name: BottomBottomObjects
     uniqueID: 878648639
     locked: 0
-  - name: Bottom Objects
+  - name: BottomObjects
     uniqueID: 2938366323
     locked: 0
-  - name: TopBottonObjects
+  - name: TopBottomObjects
     uniqueID: 1855343633
     locked: 0
   - name: Player
@@ -69,7 +70,7 @@ TagManager:
   - name: Enemies
     uniqueID: 227643245
     locked: 0
-  - name: Top Objects
+  - name: TopObjects
     uniqueID: 72836417
     locked: 0
   - name: CombatEffects

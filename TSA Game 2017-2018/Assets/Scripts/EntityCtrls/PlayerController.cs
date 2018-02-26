@@ -140,9 +140,9 @@ public class PlayerController : MonoBehaviour
 
         //KO Variables Setup
         mashAmountList.Add(60);
-        mashAmountList.Add(100);
-        mashAmountList.Add(150);
-        mashAmountList.Add(200); //Preety sure thats impossible
+        mashAmountList.Add(90);
+        mashAmountList.Add(130);
+        mashAmountList.Add(180); //Preety sure thats impossible
         koTimerList.Add(25);
         koTimerList.Add(20);
         koTimerList.Add(15);
@@ -602,14 +602,10 @@ public class PlayerController : MonoBehaviour
             {
                 canJump = true;
                 animatorWalk.SetBool("canJumpBool", true);
+                animatorWalk.SetBool("isDownPunching", false);
+                isDownPunching = false;
+                canDownPunch = true;
             }
-        }
-
-        if (!canDownPunch && canJump)
-        {
-            animatorWalk.SetBool("isDownPunching", false);
-            isDownPunching = false;
-            canDownPunch = true;
         }
     }
 
@@ -626,7 +622,12 @@ public class PlayerController : MonoBehaviour
                 isDownPunching = false;
             }
         }
-        
+    }
+
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        if (collision.transform.tag == "DownPunchable" && !effectiveDownPunch)
+            effectiveDownPunch = true;
     }
 
     private void OnCollisionExit2D(Collision2D collision)
@@ -635,6 +636,7 @@ public class PlayerController : MonoBehaviour
         {
             canJump = false;
             canDownPunch = true;
+            animatorWalk.SetBool("isDownPunching", false);
             animatorWalk.SetBool("canJumpBool", false);
             animatorWalk.SetBool("isBlocking", false);
         }
@@ -761,7 +763,12 @@ public class PlayerController : MonoBehaviour
             if (koTimer <= 0.05)
             {
                 koTimer = 0;
-                Destroy(gameObject.transform.parent.gameObject); //Death
+                health = maxHealth;
+                gameControllerScript.updateHealthSlider(minHealth, maxHealth, health);
+                isBeingKOd = false; //Re-enables basic functions (ex. movement)
+                animatorWalk.SetBool("isDowned", false); //Disables KO animation
+                gameControllerScript.koSlider.transform.parent.gameObject.SetActive(false); //Disables the KO slider ui
+                gameObject.transform.position = gameControllerScript.levelSpawnpoints[gameControllerScript.levelID].transform.position; //Resets player to start of level
             }
             if (mashAmount >= maxMashAmount)
             {

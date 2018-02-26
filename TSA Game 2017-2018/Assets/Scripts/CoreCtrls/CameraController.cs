@@ -5,7 +5,8 @@ using UnityEngine;
 public class CameraController : MonoBehaviour {
 
     public GameObject playerObj;
-    public bool canFollow; //Stops camera from going off map in topdown mode
+    public bool canFollowX;
+    public bool canFollowY;
     public float smoothSpeed;
     public Vector3 offset;
     public bool followY; //If the camera should track the player on the yAxis; If in sidescroll mode, no, topdown yes
@@ -17,26 +18,29 @@ public class CameraController : MonoBehaviour {
 
     private void FixedUpdate()
     {
-        if(playerObj.transform.GetComponent<PlayerController>().gameControllerScript.currentView == 1 && canFollow)
+        if(playerObj.transform.GetComponent<PlayerController>().gameControllerScript.currentView == 1 && (canFollowX || canFollowY))
         {
             int id = playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cityID;
             if (playerObj.transform.position.x >= playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(0).position.x || playerObj.transform.position.x <= playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(1).position.x) //X bounds
-                canFollow = false;
+                canFollowX = false;
             if (playerObj.transform.position.y >= playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(0).position.y || playerObj.transform.position.y <= playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(1).position.y) //X bounds
-                canFollow = false;
+                canFollowY = false;
         }
 
-        if(!canFollow)
+        if(!canFollowX || !canFollowY)
         {
             if (playerObj.transform.GetComponent<PlayerController>().gameControllerScript.currentView != 1)
             {
-                canFollow = true;
+                canFollowX = true;
+                canFollowY = true;
             }
             else
             {
                 int id = playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cityID;
-                if (playerObj.transform.position.x < playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(0).position.x && playerObj.transform.position.x > playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(1).position.x && playerObj.transform.position.y < playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(0).position.y && playerObj.transform.position.y > playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(1).position.y) //X bounds
-                    canFollow = true;
+                if (playerObj.transform.position.x < playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(0).position.x && playerObj.transform.position.x > playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(1).position.x)
+                    canFollowX = true;
+                if (playerObj.transform.position.y < playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(0).position.y && playerObj.transform.position.y > playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(1).position.y)
+                    canFollowY = true;
             }
         }
 
@@ -54,8 +58,10 @@ public class CameraController : MonoBehaviour {
 
         if (followY)
         {
-            if(canFollow)
-                desiredPostion = new Vector3(playerObj.transform.position.x + offset.x, playerObj.transform.position.y + offset.y, -10);
+            if(canFollowX)
+                desiredPostion = new Vector3(playerObj.transform.position.x + offset.x, desiredPostion.y, -10);
+            if(canFollowY)
+                desiredPostion = new Vector3(desiredPostion.x, playerObj.transform.position.y + offset.y, -10);
         }
         else
         {

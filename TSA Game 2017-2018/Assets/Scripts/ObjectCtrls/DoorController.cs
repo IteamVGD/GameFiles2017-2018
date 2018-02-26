@@ -25,9 +25,18 @@ public class DoorController : MonoBehaviour {
                 {
                     StartCoroutine(gameControllerObj.transform.GetComponent<GameController>().ChangeViewFadeOut(0.04f, 0.04f, 0.45f));
                     if (cityToLevel)
+                    {
                         gameControllerObj.transform.GetComponent<GameController>().levelID = nextID;
-                    if (levelToCity)
-                        gameControllerObj.transform.GetComponent<GameController>().cityID = nextID;
+                        gameControllerObj.transform.GetComponent<GameController>().travellingToLevel = true;
+                    }
+                    else
+                    {
+                        if (levelToCity)
+                        {
+                            gameControllerObj.transform.GetComponent<GameController>().cityID = nextID;
+                            gameControllerObj.transform.GetComponent<GameController>().travellingToCity = true;
+                        }                            
+                    }
                     isBeingAccessed = true;
                 }
             }
