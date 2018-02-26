@@ -156,6 +156,7 @@ public class PlayerController : MonoBehaviour
         {
             effectiveDownPunch = false;
         }
+
         if ((Input.GetKeyDown(KeyCode.L) || Input.GetButtonDown("Fire2")) && gameObject.transform.GetComponent<Rigidbody2D>().velocity.y == 0)
         {
             if(blockMeter > (maxBlock / 3))
@@ -286,9 +287,6 @@ public class PlayerController : MonoBehaviour
         animatorWalk.SetInteger("HorizontalSpeedTD", (int)gameObject.transform.GetComponent<Rigidbody2D>().velocity.x); //Velocity based animations
         animatorWalk.SetInteger("VerticalSpeedTD", (int)gameObject.transform.GetComponent<Rigidbody2D>().velocity.y); //TD = Topdown variables
 
-        if (canJump == true && canDownPunch == true)
-            canDownPunch = false;
-
         if (gameControllerScript.currentView == 1)
         {
             //Topdown Movement
@@ -371,7 +369,8 @@ public class PlayerController : MonoBehaviour
             if ((Input.GetKeyDown(KeyCode.K) || Input.GetButtonDown("Fire1")) && letGoOfSpace == false)
             {
                 animatorWalk.SetBool("isDownPunching", false);
-                enableDownPunch = true;
+                //enableDownPunch = true;
+                canDownPunch = true;
                 animatorWalk.SetBool("canJumpBool", false);
                 animatorWalk.SetBool("isBlocking", false);
                 jumpheightTimerInt = 0;
@@ -524,8 +523,13 @@ public class PlayerController : MonoBehaviour
                 {
                     isDownPunching = true;
                     if(effectiveDownPunch)
+                    {
                         StartCoroutine(gameControllerScript.SpawnPow(gameObject.transform.position));
-                    canDownPunch = false;
+                    }
+                    else
+                    {
+                        canDownPunch = false;
+                    }
                     StartCoroutine(downPunchTimer());
                     animatorWalk.SetBool("isDownPunching", true);
                 }
@@ -577,7 +581,7 @@ public class PlayerController : MonoBehaviour
         //Leave this code at the bottom of update so it is the last thing that runs in the frame
         if (enableDownPunch || !canJump)
         {
-            canDownPunch = true;
+            //canDownPunch = true;
             enableDownPunch = false;
         }
     }
@@ -601,11 +605,11 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if (canDownPunch && canJump)
+        if (!canDownPunch && canJump)
         {
             animatorWalk.SetBool("isDownPunching", false);
             isDownPunching = false;
-            canDownPunch = false;
+            canDownPunch = true;
         }
     }
 
@@ -630,6 +634,7 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.layer == 8 && collision.transform.GetComponent<ObjectCollisionController>() != null && collision.collider == collision.transform.GetComponent<ObjectCollisionController>().canJumpCollider) //8 == "Floor" layer
         {
             canJump = false;
+            canDownPunch = true;
             animatorWalk.SetBool("canJumpBool", false);
             animatorWalk.SetBool("isBlocking", false);
         }
@@ -781,9 +786,9 @@ public class PlayerController : MonoBehaviour
 
     public IEnumerator CanDownPunch(float time)
     {
-        canDownPunch = false;
+        //canDownPunch = false;
         yield return new WaitForSeconds(time);
-        canDownPunch = true;
+        //canDownPunch = true;
     }
 
     public IEnumerator downPunchTimer()

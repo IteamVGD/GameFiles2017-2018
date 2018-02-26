@@ -17,7 +17,7 @@ public class PlayerDownPunchCollider : MonoBehaviour
 
     private void OnTriggerStay2D(Collider2D collision)
     {
-        if (gameObject.layer == 15)
+        if (gameObject.layer == 15 || gameObject.layer == 16)
         {
             gameObject.transform.parent.GetChild(0).GetComponent<PlayerController>().effectiveDownPunch = true;
         }
@@ -25,7 +25,7 @@ public class PlayerDownPunchCollider : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (gameObject.layer == 15)
+        if (gameObject.layer == 15 || gameObject.layer == 16)
         {
             gameObject.transform.parent.GetChild(0).GetComponent<PlayerController>().effectiveDownPunch = false;
         }
