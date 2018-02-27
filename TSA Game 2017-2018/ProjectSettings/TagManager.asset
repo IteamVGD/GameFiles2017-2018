@@ -64,6 +64,9 @@ TagManager:
   - name: TopBottomObjects
     uniqueID: 1855343633
     locked: 0
+  - name: NPCs
+    uniqueID: 3754994623
+    locked: 0
   - name: Player
     uniqueID: 3699396015
     locked: 0
@@ -72,6 +75,9 @@ TagManager:
     locked: 0
   - name: TopObjects
     uniqueID: 72836417
+    locked: 0
+  - name: TopTopObjects
+    uniqueID: 3147496763
     locked: 0
   - name: CombatEffects
     uniqueID: 1480272263

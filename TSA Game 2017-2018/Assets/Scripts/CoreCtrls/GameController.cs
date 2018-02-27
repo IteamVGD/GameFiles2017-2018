@@ -160,7 +160,7 @@ public class GameController : MonoBehaviour { //18
                 }
             }
             
-            /* Light chunk loading disabled since we now have night time versions of levels
+            //Light Chunk Loading
             foreach(GameObject light in lightList)
             {
                 if(light.activeSelf == true && Vector3.Distance(playerObj.transform.GetChild(0).position, light.transform.position) >= lightUnloadRange)
@@ -174,7 +174,7 @@ public class GameController : MonoBehaviour { //18
                         light.SetActive(true);
                     }
                 }
-            }*/
+            }    
             
             //Loas/unloads chunks
             foreach (GameObject chunk in backgroundObjs)
@@ -430,8 +430,10 @@ public class GameController : MonoBehaviour { //18
         playerObj.transform.GetChild(0).transform.GetComponent<BoxCollider2D>().size = playerObj.transform.GetChild(0).transform.GetComponent<PlayerController>().sideScrollColliderSize;
         mainCameraObj.transform.GetComponent<CameraController>().offset = mainCameraObj.transform.GetComponent<CameraController>().sidescrollOffset;
         mainCameraObj.transform.GetComponent<Camera>().orthographicSize = cameraSidescrollSize;
-        //City Stuff
-        if (dayOrNight) //If should be day (dayOrNight true = day, false = night)
+        playerObj.transform.GetComponent<PlayerController>().health = playerObj.transform.GetComponent<PlayerController>().maxHealth;
+        updateHealthSlider(playerObj.transform.GetComponent<PlayerController>().minHealth, playerObj.transform.GetComponent<PlayerController>().maxHealth, playerObj.transform.GetComponent<PlayerController>().health);
+
+        if (dayOrNight) /*/If should be day (dayOrNight true = day, false = night)
         {
             gameObject.transform.GetChild(1).transform.GetComponent<Light>().intensity = levelDayTimeSunIntensity; //Day time sun intensity (default 0.6)
             foreach (GameObject light in lightList)
@@ -442,14 +444,15 @@ public class GameController : MonoBehaviour { //18
             gameObject.transform.GetChild(1).transform.GetComponent<Light>().intensity = levelNightTimeSunIntensity; //Night time sun intensity (default 0.2)
             foreach (GameObject light in lightList)
                 light.SetActive(true);
-        }
+        }*/
+        gameObject.transform.GetChild(1).transform.GetComponent<Light>().intensity = levelDayTimeSunIntensity; //Lowers sun intensity
         cities[cityID].gameObject.SetActive(false); //Disables city
         travellingToLevel = false;
     }
 
     public void startNewGame()
     {
-        ChangeView();
+        StartCoroutine(ChangeViewFadeOut(0.02f, 0.04f, 1f));
     }
 
     //Fades to black, then switches view, then sends to changeViewFadeWait

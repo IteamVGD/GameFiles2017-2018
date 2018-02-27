@@ -44,7 +44,7 @@ public class DoorController : MonoBehaviour {
             {
                 if (Vector3.Distance(gameObject.transform.position, playerObj.transform.GetChild(0).position) < maxAccessRange) //If player is close enough to this object (no button press required)
                 {
-                    StartCoroutine(gameControllerObj.transform.GetComponent<GameController>().ChangeViewFadeOut(0.04f, 0.02f, 0.55f));
+                    StartCoroutine(gameControllerObj.transform.GetComponent<GameController>().ChangeViewFadeOut(0.03f, 0.03f, 0.55f));
                     gameControllerObj.transform.GetComponent<GameController>().cityID = nextID;
                     gameControllerObj.transform.GetComponent<GameController>().travellingToCity = true;
                 }
