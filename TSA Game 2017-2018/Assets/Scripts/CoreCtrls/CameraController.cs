@@ -5,9 +5,12 @@ using UnityEngine;
 public class CameraController : MonoBehaviour {
 
     public GameObject playerObj;
+    public GameObject gameControllerObj;
+
     public bool canFollowX;
     public bool canFollowY;
     public float smoothSpeed;
+    public float parallaxSmoothSpeed;
     public Vector3 offset;
     public bool followY; //If the camera should track the player on the yAxis; If in sidescroll mode, no, topdown yes
     public Vector3 desiredPostion;
@@ -69,5 +72,11 @@ public class CameraController : MonoBehaviour {
         }
         Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPostion, smoothSpeed * Time.deltaTime);
         transform.position = smoothedPosition;
+        if(gameControllerObj.GetComponent<GameController>().currentView == 2)
+        {
+            desiredPostion = new Vector3(playerObj.transform.position.x + offset.x, gameControllerObj.GetComponent<GameController>().levelParallaxObjs[gameControllerObj.GetComponent<GameController>().levelID].transform.position.y, -10);
+            smoothedPosition = Vector3.Lerp(gameControllerObj.GetComponent<GameController>().levelParallaxObjs[gameControllerObj.GetComponent<GameController>().levelID].transform.position, desiredPostion, parallaxSmoothSpeed * Time.deltaTime);
+            gameControllerObj.GetComponent<GameController>().levelParallaxObjs[gameControllerObj.GetComponent<GameController>().levelID].transform.position = smoothedPosition;
+        }
     }
 }

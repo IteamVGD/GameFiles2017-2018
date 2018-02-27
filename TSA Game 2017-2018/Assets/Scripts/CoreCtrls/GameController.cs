@@ -49,7 +49,6 @@ public class GameController : MonoBehaviour { //18
 
     //Chunk and world loading variables
 
-    public List<Vector3> startPositions; //A list of the coordinates that the player should be placed at when loading each level. Includes both actual leves and towns. Starts at 0 with the first (tutorial) level, 1 first town, etc.
     public List<GameObject> backgroundObjs; //A list of the parent objects of each background tile, used for "chunk managing"
     public int chunkUnloadRange; //How far away a "chunk" needs to be from the player to be "unloaded" (disabled)
     public int chunkLoadRange; //How far away a "chunk" needs to be from the player to be "loaded" (enabled)
@@ -430,8 +429,8 @@ public class GameController : MonoBehaviour { //18
         playerObj.transform.GetChild(0).transform.GetComponent<BoxCollider2D>().size = playerObj.transform.GetChild(0).transform.GetComponent<PlayerController>().sideScrollColliderSize;
         mainCameraObj.transform.GetComponent<CameraController>().offset = mainCameraObj.transform.GetComponent<CameraController>().sidescrollOffset;
         mainCameraObj.transform.GetComponent<Camera>().orthographicSize = cameraSidescrollSize;
-        playerObj.transform.GetComponent<PlayerController>().health = playerObj.transform.GetComponent<PlayerController>().maxHealth;
-        updateHealthSlider(playerObj.transform.GetComponent<PlayerController>().minHealth, playerObj.transform.GetComponent<PlayerController>().maxHealth, playerObj.transform.GetComponent<PlayerController>().health);
+        playerObj.transform.GetChild(0).GetComponent<PlayerController>().health = playerObj.transform.GetChild(0).GetComponent<PlayerController>().maxHealth;
+        updateHealthSlider(playerObj.transform.GetChild(0).GetComponent<PlayerController>().minHealth, playerObj.transform.GetChild(0).GetComponent<PlayerController>().maxHealth, playerObj.transform.GetChild(0).GetComponent<PlayerController>().health);
 
         if (dayOrNight) /*/If should be day (dayOrNight true = day, false = night)
         {

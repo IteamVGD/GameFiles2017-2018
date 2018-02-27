@@ -15,7 +15,7 @@ public class TextTyper : MonoBehaviour
     private AudioSource typeSound2Source;
     private AudioSource typeSoundSpaceSource;
 
-    string message;
+    public string message;
     Text textComp;
 
     private void Awake()

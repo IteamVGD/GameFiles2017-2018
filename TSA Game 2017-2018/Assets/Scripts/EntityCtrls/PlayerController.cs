@@ -802,6 +802,7 @@ public class PlayerController : MonoBehaviour
     {
         yield return new WaitForSeconds(downPunchTime);
         isDownPunching = false;
+        animatorWalk.SetBool("isDownPunching", false);
     }
 
     public IEnumerator InvincibilityFramesTimer()

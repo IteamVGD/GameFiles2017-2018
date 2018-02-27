@@ -41,13 +41,13 @@ public class PunchCollideController : MonoBehaviour {
         }
 
         //Down Punch Controller
-        if (playerObj.transform.GetComponent<SpriteRenderer>().sprite.name == "DownPunchRight_1")
+        if (playerObj.transform.GetComponent<SpriteRenderer>().sprite.name == "DownPunchRight_1" || (playerObj.transform.GetComponent<PlayerController>().isDownPunching && playerObj.transform.GetComponent<PlayerController>().effectiveDownPunch))
         {
             punchCollider.enabled = true;
             punchCollider.offset = new Vector2(-0.045f, -0.77f);
             punchCollider.size = new Vector2(1.41f, 1.062f);
         }
-        if (playerObj.transform.GetComponent<SpriteRenderer>().sprite.name == "DownPunchLeft_1")
+        if (playerObj.transform.GetComponent<SpriteRenderer>().sprite.name == "DownPunchLeft_1" || (playerObj.transform.GetComponent<PlayerController>().isDownPunching && playerObj.transform.GetComponent<PlayerController>().effectiveDownPunch))
         {
             punchCollider.enabled = true;
             punchCollider.offset = new Vector2(-0.045f, -0.77f);

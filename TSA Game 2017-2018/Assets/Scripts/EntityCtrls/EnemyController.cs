@@ -50,9 +50,6 @@ public class EnemyController : MonoBehaviour {
     public bool isBlocking; //If the enemy is blocking
     public int blockTimer; //Counts down to disable block
 
-    public int downPunchCount; //Controls the size of the down punch collider on the enemy so it gets harder for the player to down punch off him each time (no infinite bounce)
-    public List<Vector2> downPunchSizes; 
-
     //Misc
     public bool isDead; //Controls fading out
     public int randomBlockChance;
@@ -76,11 +73,6 @@ public class EnemyController : MonoBehaviour {
 	void Update () {
         transform.parent.GetChild(1).position = transform.position; //Makes sure NoPushCollider follows enemy
         transform.parent.GetChild(2).position = transform.position; //Makes sure DownPunchCollider
-        if(downPunchCount > 0 && playerObj.transform.GetComponent<PlayerController>().canJump) //If the downPunchCollider is smaller than default and the player is not down punching
-        {
-            downPunchCount = 0;
-            gameObject.transform.parent.GetChild(2).GetComponent<BoxCollider2D>().size = downPunchSizes[downPunchCount]; //Resets down punch collider's size
-        }
         if (!playerInRange) //If a player is in the range for agro
         {
             if(Vector3.Distance(playerObj.transform.position, gameObject.transform.position) <= detectionRange)
@@ -243,16 +235,11 @@ public class EnemyController : MonoBehaviour {
         }
             //Death Check
             if (isDead)
-            DeathVoid(deathFadeOutSpeed); //Fade out
+                DeathVoid(deathFadeOutSpeed); //Fade out
     }
 
     public void TakeDamage(int dmgToTake, bool isDownPunch) //Substracts dmgToTake from health and destroys object if at or below 0
     {
-        if (isDownPunch && downPunchCount < downPunchSizes.Count)
-        {
-            downPunchCount++;
-            gameObject.transform.parent.GetChild(2).GetComponent<BoxCollider2D>().size = downPunchSizes[downPunchCount]; //Sets the down punch collider's size to be smaller so it's hearder to down punch off of this enemy
-        }
         if (!isBlocking)
         {
             health -= dmgToTake;
