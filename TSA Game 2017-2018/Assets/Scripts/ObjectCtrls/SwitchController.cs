@@ -14,6 +14,7 @@ public class SwitchController : MonoBehaviour {
     public Sprite blueSwitchSprite;
 
     public GameObject playerObj;
+    public bool hasSwitched;
     public bool test;
 
     private void Start()
@@ -36,11 +37,12 @@ public class SwitchController : MonoBehaviour {
         ManageBoxes();
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerStay2D(Collider2D collision)
     {
-        if(collision.gameObject.layer == 10 || collision.gameObject.layer == 15)
+        if((collision.gameObject.layer == 10 || collision.gameObject.layer == 15) && !hasSwitched)
         {
             redOrBlue = !redOrBlue;
+            hasSwitched = true;
             ManageBoxes();
             if(playerObj.transform.GetComponent<PlayerController>().isDownPunching)
             {
@@ -105,7 +107,8 @@ public class SwitchController : MonoBehaviour {
     IEnumerator CanBeSwitchedTimer()
     {
         canBeSwitched = false;
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.25f);
+        hasSwitched = false;
         canBeSwitched = true;
     }
 }
