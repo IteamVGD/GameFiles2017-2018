@@ -86,6 +86,13 @@ public class GameController : MonoBehaviour { //18
     public float levelDayTimeSunIntensity;
     public float levelNightTimeSunIntensity;
 
+    //Switch Stuff
+    public bool redOrBlue; //False = red, true = blue
+    public List<GameObject> redBoxes; //The red crate parent object, child 0 = crate, child 1 = outline
+    public List<GameObject> blueBoxes; //^^^ same but for blue crate
+    public List<GameObject> switches;
+    public bool canBeSwitched;
+
     private void Awake()
     {
         Application.targetFrameRate = 60;
@@ -100,6 +107,22 @@ public class GameController : MonoBehaviour { //18
     void Start () {
         currentView = 0;
         playerObjStatic = playerObj;
+
+        foreach (GameObject redBoxObj in GameObject.FindGameObjectsWithTag("RedBox"))
+        {
+            redBoxes.Add(redBoxObj);
+        }
+        foreach (GameObject blueBoxObj in GameObject.FindGameObjectsWithTag("BlueBox"))
+        {
+            blueBoxes.Add(blueBoxObj);
+        }
+        foreach (GameObject switchObj in GameObject.FindGameObjectsWithTag("DownPunchable"))
+        {
+            if (switchObj.layer == 16)
+            {
+                switches.Add(switchObj);
+            }
+        }
     }
 
     // Update is called once per frame
@@ -417,6 +440,7 @@ public class GameController : MonoBehaviour { //18
             }
         }
         levels[levelID].SetActive(true); //Enables next level
+        levels[levelID].transform.GetChild(4).gameObject.SetActive(true);
         topDownUIObj.SetActive(false);
         playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().gravityScale = 2.5f; //Makes player react to gravity
         playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0); //Stops player
@@ -553,5 +577,50 @@ public class GameController : MonoBehaviour { //18
     {
         yield return new WaitForSeconds(0.7f);
         titleFadeInTimer = true;
+    }
+
+    //Switch Stuff
+    public void ManageBoxes()
+    {
+        if (canBeSwitched)
+        {
+            redOrBlue = !redOrBlue;
+            if (redOrBlue)
+            {
+                foreach (GameObject box in redBoxes)
+                {
+                    box.transform.GetChild(0).gameObject.SetActive(false);
+                }
+                foreach (GameObject box in blueBoxes)
+                {
+                    box.transform.GetChild(0).gameObject.SetActive(true);
+                }
+            }
+            else
+            {
+                foreach (GameObject box in redBoxes)
+                {
+                    box.transform.GetChild(0).gameObject.SetActive(true);
+                }
+                foreach (GameObject box in blueBoxes)
+                {
+                    box.transform.GetChild(0).gameObject.SetActive(false);
+                }
+            }
+
+            foreach (GameObject switchObj in switches)
+            {
+                switchObj.transform.GetComponent<SwitchController>().SwitchSprite();
+            }
+
+            StartCoroutine(CanBeSwitchedTimer());
+        }
+    }
+
+    IEnumerator CanBeSwitchedTimer()
+    {
+        canBeSwitched = false;
+        yield return new WaitForSeconds(0.25f);
+        canBeSwitched = true;
     }
 }

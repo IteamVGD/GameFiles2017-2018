@@ -15,6 +15,9 @@ public class DoorController : MonoBehaviour {
 
     public int nextID; //Which city/level to go to
 
+    public bool hasRemovedBlockade;
+    public GameObject firstTownBlockade;
+
 	// Update is called once per frame
 	void Update () {
         if(!isBeingAccessed)
@@ -35,6 +38,11 @@ public class DoorController : MonoBehaviour {
                         {
                             gameControllerObj.transform.GetComponent<GameController>().cityID = nextID;
                             gameControllerObj.transform.GetComponent<GameController>().travellingToCity = true;
+                            if(!hasRemovedBlockade && nextID == 0)
+                            {
+                                firstTownBlockade.SetActive(false);
+                                hasRemovedBlockade = true;
+                            }
                         }                            
                     }
                     isBeingAccessed = true;

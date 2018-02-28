@@ -58,16 +58,29 @@ public class EnemyController : MonoBehaviour {
     public GameObject levelExitDoor; //Is enabled when the enemy dies
     public bool enableDoorOnDeath;
 
+    //SFX
+    public AudioSource audioSource;
+    public AudioClip punch;
+    public AudioClip gotPunched;
+    public bool canPlayHurtSound;
+    public bool canPlayAttackSound;
+    public IEnumerator resetCanPlayHurtSound;
+    public IEnumerator resetCanPlayAttackSound;
+
 
     //Use this for initialization
     void Start ()
     {
+        resetCanPlayHurtSound = ResetCanPlayHurtSound();
+        resetCanPlayAttackSound = ResetCanPlayAttackSound();
         anim = gameObject.transform.GetComponent<Animator>();
         body = gameObject.transform.GetComponent<Rigidbody2D>();
         health = maxHealth; //Start at max health
         healthSlider.transform.GetComponent<Slider>().minValue = minHealth; //Set health bar above to match health stats
         healthSlider.transform.GetComponent<Slider>().maxValue = maxHealth; //^^^
         healthSlider.transform.GetComponent<Slider>().value = health; //^^^
+
+        audioSource = gameObject.AddComponent<AudioSource>();
     }
 	
 	// Update is called once per frame
@@ -76,12 +89,12 @@ public class EnemyController : MonoBehaviour {
         transform.parent.GetChild(2).position = transform.position; //Makes sure DownPunchCollider
         if (!playerInRange) //If a player is in the range for agro
         {
-            if(Vector3.Distance(playerObj.transform.position, gameObject.transform.position) <= detectionRange)
+            if(Vector3.Distance(playerObj.transform.position, gameObject.transform.position) <= detectionRange && !playerObj.transform.GetComponent<PlayerController>().isBeingKOd)
                 playerInRange = true;
         }
         if(playerInRange)
         {
-            if (Vector3.Distance(playerObj.transform.position, gameObject.transform.position) > detectionRange)
+            if (Vector3.Distance(playerObj.transform.position, gameObject.transform.position) > detectionRange || playerObj.transform.GetComponent<PlayerController>().isBeingKOd)
                 playerInRange = false;
         }
         if(agressiveRandomiser == 2 && Vector3.Distance(gameObject.transform.position, playerObj.transform.position) + 2 > attackRange) //Stops enemy from running away and passing agro range
@@ -155,6 +168,7 @@ public class EnemyController : MonoBehaviour {
                     if (isPunching && (GetComponent<SpriteRenderer>().sprite.name == "BlondePunchLeft_4" || GetComponent<SpriteRenderer>().sprite.name == "BlondePunchRight_4")) //If is punching and is on the punch sprite where the collider should turn on
                     {
                         punchCollider.enabled = true; //Enables the punch collider when the enemy's punch is on (first frame)
+                        PlayPunchSound();
                     }
                     if (isPunching && (GetComponent<SpriteRenderer>().sprite.name == "BlondePunchLeft_7" || GetComponent<SpriteRenderer>().sprite.name == "BlondePunchRight_7")) //If is punching and is on the punch sprite where the collider should turn off
                     {
@@ -173,6 +187,7 @@ public class EnemyController : MonoBehaviour {
                     {
                         punchCollider.enabled = true; //Enables the punch collider when the enemy's punch is on (first frame)
                         isPunching = true;
+                        PlayPunchSound();
                     }
                     if (isPunching == true && GetComponent<SpriteRenderer>().sprite.name != "BossPunchLeft") //If is punching and is on the punch sprite where the collider should turn off
                     {
@@ -250,6 +265,14 @@ public class EnemyController : MonoBehaviour {
                 healthSlider.transform.GetChild(1).GetChild(0).gameObject.SetActive(false); //Sets fill object on health slider to inactive to prevent small amount of red "health" at the very left
             }
             healthSlider.transform.GetComponent<Slider>().value = health; //Updates health bar above enemy with new health
+            if(canPlayHurtSound)
+            {
+                canPlayHurtSound = false;
+                StopCoroutine(resetCanPlayHurtSound);
+                resetCanPlayHurtSound = ResetCanPlayHurtSound();
+                StartCoroutine(resetCanPlayHurtSound);
+                audioSource.PlayOneShot(gotPunched);
+            }
         }
     }
 
@@ -330,6 +353,30 @@ public class EnemyController : MonoBehaviour {
         if (collision.gameObject.tag == "Object" || collision.gameObject.tag == "Crate") //If collided with an "object" (ex. crates)
         {
             Jump();
+        }
+    }
+
+    IEnumerator ResetCanPlayHurtSound()
+    {
+        yield return new WaitForSeconds(0.5f);
+        canPlayHurtSound = true;
+    }
+
+    IEnumerator ResetCanPlayAttackSound()
+    {
+        yield return new WaitForSeconds(0.5f);
+        canPlayAttackSound = true;
+    }
+
+    void PlayPunchSound()
+    {
+        if (canPlayAttackSound)
+        {
+            canPlayAttackSound = false;
+            StopCoroutine(resetCanPlayAttackSound);
+            resetCanPlayAttackSound = ResetCanPlayAttackSound();
+            StartCoroutine(resetCanPlayAttackSound);
+            audioSource.PlayOneShot(punch);
         }
     }
 }

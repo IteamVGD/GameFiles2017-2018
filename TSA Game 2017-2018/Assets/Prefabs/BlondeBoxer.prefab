@@ -243,7 +243,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1681469744230354}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 21.9, y: -3.4000015, z: 0}
+  m_LocalPosition: {x: 155.11, y: -1.19, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4391901417045166}
@@ -613,12 +613,14 @@ MonoBehaviour:
   punchColliderObj: {fileID: 1265360122106632}
   isBlocking: 0
   blockTimer: 30
-  downPunchCount: 0
-  downPunchSizes: []
   isDead: 0
   randomBlockChance: 0
   triedBlocking: 0
   levelExitDoor: {fileID: 0}
+  enableDoorOnDeath: 1
+  audioSource: {fileID: 0}
+  punch: {fileID: 8300000, guid: b9c2cd6a4c329f440928c41b3cf924c0, type: 3}
+  gotPunched: {fileID: 8300000, guid: 6797418e21ada974696ea99db0fee41d, type: 3}
 --- !u!114 &114466722400554794
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -702,7 +704,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 227643245
-  m_SortingLayer: 6
+  m_SortingLayer: 7
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: c23d8050cb3e51b4898c47656760ec35, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

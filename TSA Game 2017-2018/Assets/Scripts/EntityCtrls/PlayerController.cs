@@ -68,7 +68,6 @@ public class PlayerController : MonoBehaviour
     public bool isDownPunching;
     public bool canDownPunch;
     public bool effectiveDownPunch; //If false, player can down punch but wont get shot up when they do so
-    public bool downPunchingOnEnemy;
     public bool enableDownPunch;
 
     //Attack Variables
@@ -85,6 +84,8 @@ public class PlayerController : MonoBehaviour
 
     public bool canMove;
     public bool isTalkingToNPC;
+
+    public GameObject objThatAllowedDownpunch;
     
     //NOTE: Most actual punch detection is done in PunchCollideController on the punch child obj
 
@@ -114,18 +115,39 @@ public class PlayerController : MonoBehaviour
     public Vector2 topDownColliderOffset; 
     public Vector2 topDownColliderSize; 
     public Vector2 sideScrollColliderOffset;
-    public Vector2 sideScrollColliderSize; 
+    public Vector2 sideScrollColliderSize;
 
+    public IEnumerator downPunchTimerVar;
+    public IEnumerator breakOutOfDownPunchAnim;
+    public bool hasDownPunchedOnce;
+
+    //SFX
+    public AudioSource audioSource;
+
+    public AudioClip gotPunched1;
+    public AudioClip gotPunched2;
+    public AudioClip gotPunched3;
+    public AudioClip gotPunched4;
+
+    public AudioClip downPunch;
+    public AudioClip normalPunch;
+    public AudioClip jump;
+
+    public AudioClip crateSwitch;
 
     private void Awake()
     {
         gameControllerScript = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>();
         gameControllerScript.playerObj = gameObject.transform.parent.gameObject;
+        audioSource = gameObject.AddComponent<AudioSource>();
     }
 
     // Use this for initialization
     void Start()
     {
+        downPunchTimerVar = downPunchTimer();
+        breakOutOfDownPunchAnim = StopDownPunchAnim();
+
         colliderOriginalSize = sideScrollColliderSize; //Saves original size and offset of box collider to reset to when un-crouching & switching views
         colliderOriginalOffset = sideScrollColliderOffset; //^^^
 
@@ -155,11 +177,6 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(canJump && effectiveDownPunch)
-        {
-            effectiveDownPunch = false;
-        }
-
         if ((Input.GetKeyDown(KeyCode.L) || Input.GetButtonDown("Fire0")) && gameObject.transform.GetComponent<Rigidbody2D>().velocity.y == 0)
         {
             if(blockMeter > (maxBlock / 4))
@@ -374,13 +391,12 @@ public class PlayerController : MonoBehaviour
 
             if ((Input.GetKeyDown(KeyCode.K) || Input.GetButtonDown("Fire1")) && letGoOfSpace == false)
             {
-                animatorWalk.SetBool("isDownPunching", false);
-                //enableDownPunch = true;
                 canDownPunch = true;
                 animatorWalk.SetBool("canJumpBool", false);
                 animatorWalk.SetBool("isBlocking", false);
                 jumpheightTimerInt = 0;
                 goToMinJump = true;
+                audioSource.PlayOneShot(jump);
             }
 
             if (goToMinJump == true)
@@ -449,15 +465,6 @@ public class PlayerController : MonoBehaviour
                 GetComponent<Rigidbody2D>().velocity = new Vector2(GetComponent<Rigidbody2D>().velocity.x, -jumpSpeedInt * 1.5f);
             }
 
-            if(isDownPunching && canJump == false && effectiveDownPunch) //If down punching and grounded, stop down punching
-            {
-                GetComponent<Rigidbody2D>().velocity = new Vector2(GetComponent<Rigidbody2D>().velocity.x, jumpSpeedInt * 1.5f);
-                StartCoroutine(CanDownPunch(0.3f));
-                effectiveDownPunch = false;
-                downPunchingOnEnemy = false;
-            }
-
-
             //Crouch
             if ((Input.GetKey(KeyCode.S) || (downPressed == true && yAxisFloat < -0.8)) && canJump && !isCrouching && GetComponent<Rigidbody2D>().velocity.x == 0) //If press down on dpad && is grounded && was moving but now is not
             {
@@ -506,7 +513,7 @@ public class PlayerController : MonoBehaviour
         //Attack Code
         if ((Input.GetKeyDown(KeyCode.J) || Input.GetButtonDown("Fire3")) && isPunching == false)
         {
-            if(canJump) //If is grounded, do regular punch
+            if (canJump) //If is grounded, do regular punch
             {
                 if (isCrouching == false)
                 {
@@ -525,19 +532,22 @@ public class PlayerController : MonoBehaviour
             }
             else //If mid jump, do down punch (if allowed by canDownPunch)
             {
-                if(canDownPunch)
+                if (canDownPunch)
                 {
                     isDownPunching = true;
-                    if(effectiveDownPunch)
+                    animatorWalk.SetBool("isDownPunching", true);
+                    if (effectiveDownPunch)
                     {
+                        audioSource.PlayOneShot(downPunch);
+                        GetComponent<Rigidbody2D>().velocity = new Vector2(GetComponent<Rigidbody2D>().velocity.x, jumpSpeedInt * 1.5f);
+                        effectiveDownPunch = false;
                         StartCoroutine(gameControllerScript.SpawnPow(gameObject.transform.position));
                     }
-                    else
-                    {
-                        canDownPunch = false;
-                    }
-                    StartCoroutine(downPunchTimer());
-                    animatorWalk.SetBool("isDownPunching", true);
+                    canDownPunch = false;
+                    StartCoroutine(downPunchTimerVar);
+                    StopCoroutine(breakOutOfDownPunchAnim);
+                    breakOutOfDownPunchAnim = StopDownPunchAnim();
+                    StartCoroutine(breakOutOfDownPunchAnim);
                 }
             }
         }
@@ -557,10 +567,6 @@ public class PlayerController : MonoBehaviour
             horizontalMovementSpeed = 4;
             isPunching = false;
             gameObject.transform.GetComponent<Animator>().speed = initialAnimSpeed;
-        }
-        if ((Input.GetKeyUp(KeyCode.J) || Input.GetButtonUp("Fire3")) && isDownPunching)
-        {
-            isDownPunching = false;
         }
 
         if (Input.GetKeyDown(KeyCode.J) || Input.GetButtonDown("Fire3"))
@@ -583,13 +589,6 @@ public class PlayerController : MonoBehaviour
             tempColor.a = 255;
             GetComponent<SpriteRenderer>().color = tempColor;
         }
-
-        //Leave this code at the bottom of update so it is the last thing that runs in the frame
-        if (enableDownPunch || !canJump)
-        {
-            //canDownPunch = true;
-            enableDownPunch = false;
-        }
     }
 
     private void OnCollisionStay2D(Collision2D collision)
@@ -609,32 +608,17 @@ public class PlayerController : MonoBehaviour
                 canJump = true;
                 animatorWalk.SetBool("canJumpBool", true);
                 animatorWalk.SetBool("isDownPunching", false);
-                isDownPunching = false;
-                canDownPunch = true;
-            }
-        }
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.transform.tag == "DownPunchable")
-            effectiveDownPunch = true;
-        else
-        {
-            if (downPunchingOnEnemy == false)
-            {
-                animatorWalk.SetBool("isDownPunching", false);
                 effectiveDownPunch = false;
                 isDownPunching = false;
             }
         }
     }
 
-    private void OnTriggerStay2D(Collider2D collision)
+    /*private void OnTriggerStay2D(Collider2D collision)
     {
         if (collision.transform.tag == "DownPunchable" && !effectiveDownPunch)
             effectiveDownPunch = true;
-    }
+    }*/
 
     private void OnCollisionExit2D(Collision2D collision)
     {
@@ -642,7 +626,6 @@ public class PlayerController : MonoBehaviour
         {
             canJump = false;
             canDownPunch = true;
-            animatorWalk.SetBool("isDownPunching", false);
             animatorWalk.SetBool("canJumpBool", false);
             animatorWalk.SetBool("isBlocking", false);
         }
@@ -735,6 +718,24 @@ public class PlayerController : MonoBehaviour
                 SetupKO();
             StopAllCoroutines();
             StartCoroutine(InvincibilityFramesTimer());
+
+            //Got Punched SFX
+            int tempSoundRand = Random.Range(1, 5);
+            switch (tempSoundRand)
+            {
+                case 1:
+                    audioSource.PlayOneShot(gotPunched1);
+                    break;
+                case 2:
+                    audioSource.PlayOneShot(gotPunched2);
+                    break;
+                case 3:
+                    audioSource.PlayOneShot(gotPunched3);
+                    break;
+                case 4:
+                    audioSource.PlayOneShot(gotPunched4);
+                    break;
+            }
         }
     }
 
@@ -797,18 +798,18 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public IEnumerator CanDownPunch(float time)
-    {
-        //canDownPunch = false;
-        yield return new WaitForSeconds(time);
-        //canDownPunch = true;
-    }
-
     public IEnumerator downPunchTimer()
     {
         yield return new WaitForSeconds(downPunchTime);
         isDownPunching = false;
+        StopCoroutine(downPunchTimerVar);
+    }
+
+    IEnumerator StopDownPunchAnim()
+    {
+        yield return new WaitForSeconds(0.6f);
         animatorWalk.SetBool("isDownPunching", false);
+        canDownPunch = true;
     }
 
     public IEnumerator InvincibilityFramesTimer()

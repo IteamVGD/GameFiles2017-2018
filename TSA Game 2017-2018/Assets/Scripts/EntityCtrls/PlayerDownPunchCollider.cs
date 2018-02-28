@@ -9,6 +9,8 @@ public class PlayerDownPunchCollider : MonoBehaviour
     public Vector2 initialOffset;
     public Vector2 initialSize;
 
+    public bool test;
+
     private void Start()
     {
         initialSize = gameObject.transform.GetComponent<BoxCollider2D>().size;
@@ -17,7 +19,12 @@ public class PlayerDownPunchCollider : MonoBehaviour
 
     private void OnTriggerStay2D(Collider2D collision)
     {
-        if (gameObject.layer == 15 || gameObject.layer == 16)
+        if (collision.gameObject.transform.tag == "DownPunchable")
+        {
+            gameObject.transform.parent.GetChild(0).GetComponent<PlayerController>().effectiveDownPunch = true;
+            gameObject.transform.parent.GetChild(0).GetComponent<PlayerController>().objThatAllowedDownpunch = collision.gameObject;
+        }
+        if (collision.gameObject.transform.tag == "Enemy")
         {
             gameObject.transform.parent.GetChild(0).GetComponent<PlayerController>().effectiveDownPunch = true;
         }
@@ -25,7 +32,15 @@ public class PlayerDownPunchCollider : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (gameObject.layer == 15 || gameObject.layer == 16)
+        if(collision.gameObject.transform.tag == "DownPunchable")
+        {
+            gameObject.transform.parent.GetChild(0).GetComponent<PlayerController>().effectiveDownPunch = false;
+            if (gameObject.transform.parent.GetChild(0).GetComponent<PlayerController>().objThatAllowedDownpunch == collision.gameObject)
+            {
+                gameObject.transform.parent.GetChild(0).GetComponent<PlayerController>().objThatAllowedDownpunch = null;
+            }
+        }
+        if (collision.gameObject.transform.tag == "Enemy")
         {
             gameObject.transform.parent.GetChild(0).GetComponent<PlayerController>().effectiveDownPunch = false;
         }
@@ -35,7 +50,7 @@ public class PlayerDownPunchCollider : MonoBehaviour
     {
         gameObject.transform.position = gameObject.transform.parent.GetChild(0).transform.position;
 
-        if (gameObject.transform.parent.GetChild(0).GetComponent<SpriteRenderer>().sprite.name == "DownPunchLeft_1" || gameObject.transform.parent.GetChild(0).GetComponent<SpriteRenderer>().sprite.name == "DownPunchRight_1")
+        if (gameObject.transform.parent.GetChild(0).GetComponent<PlayerController>().isDownPunching)
         {
             smallerCollider();
         }

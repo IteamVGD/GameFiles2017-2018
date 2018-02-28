@@ -40,6 +40,8 @@ public class NPCController : MonoBehaviour {
     public float xDistance;
     public float yDistance;
 
+    public float acceptanceWaitTime;
+
     private void Start()
     {
         coroutine = dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().TypeText();
@@ -205,7 +207,7 @@ public class NPCController : MonoBehaviour {
 
     IEnumerator WaitForAcceptance()
     {
-        yield return new WaitForSeconds(4);
+        yield return new WaitForSeconds(acceptanceWaitTime);
         fadeOutCoroutine = FadeTextBoxOut();
         StartCoroutine(fadeOutCoroutine);
     }
