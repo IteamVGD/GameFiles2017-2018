@@ -18,6 +18,8 @@ public class TextTyper : MonoBehaviour
     public string message;
     Text textComp;
 
+    public bool doneTyping;
+
     private void Awake()
     {
         typeSound1Source = AddAudio(typeSound1, false, false, 0.5f);
@@ -31,11 +33,11 @@ public class TextTyper : MonoBehaviour
         textComp = GetComponent<Text>();
         message = textComp.text;
         textComp.text = "";
-        StartCoroutine(TypeText());
     }
 
-    IEnumerator TypeText()
+    public IEnumerator TypeText()
     {
+        doneTyping = false;
         foreach (char letter in message.ToCharArray())
         {
             textComp.text += letter;
@@ -54,6 +56,7 @@ public class TextTyper : MonoBehaviour
             yield return 0;
             yield return new WaitForSeconds(letterPause);
         }
+        doneTyping = true;
     }
 
     public AudioSource AddAudio(AudioClip clip, bool loop, bool playAwake, float vol)

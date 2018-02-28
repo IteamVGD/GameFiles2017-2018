@@ -27,6 +27,9 @@ public class PlayerController : MonoBehaviour
     public float invincibiltiyFrameTime; //How long the player should stay invincible for after taking damage (ex. 0.75 = 3/4ths of a second; preferably make them divisible by 5)
     public float reviveInvincibilityFrameTimer; //How long the player is invincible for after coming back from being KOd
 
+    public int vendorCredits = 1; //How many "credits" the player has to buy things with
+    public int credits; //How much money the player has to spend on items/things at the store (not implemented as of States version)
+
     //Movement Variables    
     public float horizontalMovementSpeed;
     public float verticalMovementSpeed;
@@ -81,13 +84,14 @@ public class PlayerController : MonoBehaviour
     public bool isInInvincibilityFrame;
 
     public bool canMove;
+    public bool isTalkingToNPC;
     
     //NOTE: Most actual punch detection is done in PunchCollideController on the punch child obj
 
     //Animator
     Animator animatorWalk;
 
-    //CONTROLLER DOCUMENTATION: dInput: 0 = A, 1 = B, 2 = X, 3 = Y, 6 = start, 7 = start; xInput: 
+    //CONTROLLER DOCUMENTATION: dInput: 0 (Fire0) = A, 1 (Fire1) = B, 2 (Fire2) = X, 3 (Fire3) = Y, 6 = start, 7 = start; xInput: 
 
     public float xAxisFloat; //if -1, dpad left, if 1 dpad right, 0 = idle
     public bool leftPressed; //true if xAxis -1
@@ -122,7 +126,6 @@ public class PlayerController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        isAControllerConnected = gameControllerScript.controllerConnected; //If no controller is connected, dont run controller only code
         colliderOriginalSize = sideScrollColliderSize; //Saves original size and offset of box collider to reset to when un-crouching & switching views
         colliderOriginalOffset = sideScrollColliderOffset; //^^^
 
@@ -157,9 +160,9 @@ public class PlayerController : MonoBehaviour
             effectiveDownPunch = false;
         }
 
-        if ((Input.GetKeyDown(KeyCode.L) || Input.GetButtonDown("Fire2")) && gameObject.transform.GetComponent<Rigidbody2D>().velocity.y == 0)
+        if ((Input.GetKeyDown(KeyCode.L) || Input.GetButtonDown("Fire0")) && gameObject.transform.GetComponent<Rigidbody2D>().velocity.y == 0)
         {
-            if(blockMeter > (maxBlock / 3))
+            if(blockMeter > (maxBlock / 4))
             {
                 isBlocking = true;
                 animatorWalk.SetBool("isBlocking", true);
@@ -167,7 +170,7 @@ public class PlayerController : MonoBehaviour
                 gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
             }
         }
-        if ((Input.GetKeyUp(KeyCode.L) || Input.GetButtonUp("Fire2")) && isBlocking == true)
+        if ((Input.GetKeyUp(KeyCode.L) || Input.GetButtonUp("Fire0")) && isBlocking == true)
         {
             isBlocking = false;
             animatorWalk.SetBool("isBlocking", false);
@@ -292,55 +295,58 @@ public class PlayerController : MonoBehaviour
             //Topdown Movement
 
             //Press down to move
-            if (Input.GetKey(KeyCode.D) || (rightPressed == true && xAxisFloat > 0.8))
+            if(!isTalkingToNPC)
             {
-                gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
-                sideFacing = 4;
-            }
-            if (Input.GetKey(KeyCode.A) || (leftPressed == true && xAxisFloat < -0.8))
-            {
-                gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(-horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
-                sideFacing = 2;
-            }
-            if (Input.GetKey(KeyCode.W) || (upPressed == true && yAxisFloat > 0.8))
-            {
-                gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, verticalMovementSpeed);
-                sideFacing = 1;
-            }
-            if (Input.GetKey(KeyCode.S) || (downPressed == true && yAxisFloat < -0.8))
-            {
-                gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, -verticalMovementSpeed);
-                sideFacing = 3;
-            }
+                if (Input.GetKey(KeyCode.D) || (rightPressed == true && xAxisFloat > 0.8))
+                {
+                    gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
+                    sideFacing = 4;
+                }
+                if (Input.GetKey(KeyCode.A) || (leftPressed == true && xAxisFloat < -0.8))
+                {
+                    gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(-horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
+                    sideFacing = 2;
+                }
+                if (Input.GetKey(KeyCode.W) || (upPressed == true && yAxisFloat > 0.8))
+                {
+                    gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, verticalMovementSpeed);
+                    sideFacing = 1;
+                }
+                if (Input.GetKey(KeyCode.S) || (downPressed == true && yAxisFloat < -0.8))
+                {
+                    gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, -verticalMovementSpeed);
+                    sideFacing = 3;
+                }
 
-            //Let go to stop
-            if (Input.GetKeyUp(KeyCode.D) || (rightPressed == true && xAxisFloat < 0.8))
-            {
-                gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
-                isIdle = true;
-                sideFacing = 3;
-                rightPressed = false;
-            }
-            if (Input.GetKeyUp(KeyCode.A) || (leftPressed == true && xAxisFloat > -0.8))
-            {
-                gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
-                isIdle = true;
-                sideFacing = 3;
-                leftPressed = false;
-            }
-            if (Input.GetKeyUp(KeyCode.W) || (upPressed == true && yAxisFloat < 0.8))
-            {
-                gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, 0);
-                isIdle = true;
-                sideFacing = 3;
-                upPressed = false;
-            }
-            if (Input.GetKeyUp(KeyCode.S) || (downPressed == true && yAxisFloat > -0.8))
-            {
-                gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, 0);
-                isIdle = true;
-                sideFacing = 3;
-                downPressed = false;
+                //Let go to stop
+                if (Input.GetKeyUp(KeyCode.D) || (rightPressed == true && xAxisFloat < 0.8))
+                {
+                    gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
+                    isIdle = true;
+                    sideFacing = 3;
+                    rightPressed = false;
+                }
+                if (Input.GetKeyUp(KeyCode.A) || (leftPressed == true && xAxisFloat > -0.8))
+                {
+                    gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
+                    isIdle = true;
+                    sideFacing = 3;
+                    leftPressed = false;
+                }
+                if (Input.GetKeyUp(KeyCode.W) || (upPressed == true && yAxisFloat < 0.8))
+                {
+                    gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, 0);
+                    isIdle = true;
+                    sideFacing = 3;
+                    upPressed = false;
+                }
+                if (Input.GetKeyUp(KeyCode.S) || (downPressed == true && yAxisFloat > -0.8))
+                {
+                    gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, 0);
+                    isIdle = true;
+                    sideFacing = 3;
+                    downPressed = false;
+                }
             }
         }
         if (gameControllerScript.currentView == 2 && !isBeingKOd)

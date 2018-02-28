@@ -86,13 +86,20 @@ public class GameController : MonoBehaviour { //18
     public float levelDayTimeSunIntensity;
     public float levelNightTimeSunIntensity;
 
+    private void Awake()
+    {
+        Application.targetFrameRate = 60;
+        if (Input.GetJoystickNames().Length > 0)
+        {
+            controllerConnected = true;
+            playerObj.transform.GetChild(0).GetComponent<PlayerController>().isAControllerConnected = true;
+        }
+    }
+
     // Use this for initialization
     void Start () {
         currentView = 0;
         playerObjStatic = playerObj;
-        Application.targetFrameRate = 60;
-        if(Input.GetJoystickNames().Length > 0)
-            controllerConnected = true;
     }
 
     // Update is called once per frame
@@ -431,6 +438,8 @@ public class GameController : MonoBehaviour { //18
         mainCameraObj.transform.GetComponent<Camera>().orthographicSize = cameraSidescrollSize;
         playerObj.transform.GetChild(0).GetComponent<PlayerController>().health = playerObj.transform.GetChild(0).GetComponent<PlayerController>().maxHealth;
         updateHealthSlider(playerObj.transform.GetChild(0).GetComponent<PlayerController>().minHealth, playerObj.transform.GetChild(0).GetComponent<PlayerController>().maxHealth, playerObj.transform.GetChild(0).GetComponent<PlayerController>().health);
+        playerObj.transform.GetChild(0).GetComponent<PlayerController>().blockMeter = playerObj.transform.GetChild(0).GetComponent<PlayerController>().maxBlock;
+        updateBlockSlider(playerObj.transform.GetChild(0).GetComponent<PlayerController>().minBlock, playerObj.transform.GetChild(0).GetComponent<PlayerController>().maxBlock, (int) playerObj.transform.GetChild(0).GetComponent<PlayerController>().blockMeter);
 
         if (dayOrNight) /*/If should be day (dayOrNight true = day, false = night)
         {

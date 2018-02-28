@@ -21,7 +21,7 @@ public class DoorController : MonoBehaviour {
         {
             if (!cityToCityDoor) //If this door goes from city -> level or level -> city
             {
-                if ((Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown("Fire4")) && Vector3.Distance(gameObject.transform.position, playerObj.transform.GetChild(0).position) < maxAccessRange) //Opens door if E or UpDpad is pressed
+                if ((Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown("Fire2")) && Vector3.Distance(gameObject.transform.position, playerObj.transform.GetChild(0).position) < maxAccessRange) //Opens door if E or UpDpad is pressed
                 {
                     StartCoroutine(gameControllerObj.transform.GetComponent<GameController>().ChangeViewFadeOut(0.04f, 0.04f, 0.45f));
                     if (cityToLevel)
