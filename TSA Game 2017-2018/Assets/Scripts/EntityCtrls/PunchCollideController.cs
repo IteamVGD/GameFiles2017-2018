@@ -41,17 +41,17 @@ public class PunchCollideController : MonoBehaviour {
         }
 
         //Down Punch Controller
-        if (playerObj.transform.GetComponent<SpriteRenderer>().sprite.name == "DownPunchRight_1" || (playerObj.transform.GetComponent<PlayerController>().isDownPunching && playerObj.transform.GetComponent<PlayerController>().effectiveDownPunch))
+        if (playerObj.transform.GetComponent<SpriteRenderer>().sprite.name == "DownPunchRight_1" || playerObj.transform.GetComponent<PlayerController>().isDownPunching && playerObj.transform.GetComponent<PlayerController>().isDownPunching)
         {
             punchCollider.enabled = true;
-            punchCollider.offset = new Vector2(-0.045f, -0.77f);
-            punchCollider.size = new Vector2(1.41f, 1.062f);
+            punchCollider.offset = new Vector2(-0.045f, -1.1f);
+            punchCollider.size = new Vector2(1.41f, 1.45f);
         }
-        if (playerObj.transform.GetComponent<SpriteRenderer>().sprite.name == "DownPunchLeft_1" || (playerObj.transform.GetComponent<PlayerController>().isDownPunching && playerObj.transform.GetComponent<PlayerController>().effectiveDownPunch))
+        if (playerObj.transform.GetComponent<SpriteRenderer>().sprite.name == "DownPunchLeft_1" || playerObj.transform.GetComponent<PlayerController>().isDownPunching && playerObj.transform.GetComponent<PlayerController>().isDownPunching)
         {
             punchCollider.enabled = true;
-            punchCollider.offset = new Vector2(-0.045f, -0.77f);
-            punchCollider.size = new Vector2(1.41f, 1.062f);
+            punchCollider.offset = new Vector2(-0.045f, -1.1f);
+            punchCollider.size = new Vector2(1.41f, 1.45f);
         }
 
         //Normal/Charge Punch Controller

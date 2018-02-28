@@ -55,7 +55,8 @@ public class EnemyController : MonoBehaviour {
     public int randomBlockChance;
     public bool triedBlocking;
 
-    public GameObject levelExitDoor; //Is enabled when the boss dies
+    public GameObject levelExitDoor; //Is enabled when the enemy dies
+    public bool enableDoorOnDeath;
 
 
     //Use this for initialization
@@ -285,7 +286,7 @@ public class EnemyController : MonoBehaviour {
         if(tempColor.a <= 0) //If object has reached transparency
         {
             GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>().enemyList.Remove(gameObject);
-            if (enemyType == 2)
+            if (enemyType == 2 || enableDoorOnDeath)
                 levelExitDoor.SetActive(true); //Enables exit door
             Destroy(gameObject.transform.parent.gameObject); //Destroy enemy object
         }

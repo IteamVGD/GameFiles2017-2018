@@ -42,6 +42,15 @@ public class SwitchController : MonoBehaviour {
         {
             redOrBlue = !redOrBlue;
             ManageBoxes();
+            if(playerObj.transform.GetComponent<PlayerController>().isDownPunching)
+            {
+                playerObj.transform.GetComponent<PlayerController>().effectiveDownPunch = true;
+                playerObj.transform.GetComponent<PlayerController>().canDownPunch = true;
+                if (GameObject.FindGameObjectsWithTag("Pow").Length == 0)
+                {
+                    StartCoroutine(playerObj.transform.GetComponent<PlayerController>().gameControllerScript.SpawnPow(gameObject.transform.position));
+                }
+            }
         }
     }
 

@@ -203,11 +203,10 @@ public class GameController : MonoBehaviour { //18
             {
                 foreach (GameObject bag in rollingBagList)
                 {
-                    if (Vector3.Distance(playerObj.transform.GetChild(0).position, bag.transform.position) <= bag.transform.GetComponent<RollingBagController>().enableRange) //If the player is close enough that the bag should start rolling
+                    if (Vector3.Distance(playerObj.transform.GetChild(0).position, bag.transform.position) <= bag.transform.GetComponent<RollingBagController>().enableRange && bag.activeSelf == false) //If the player is close enough that the bag should start rolling
                     {
                         bag.SetActive(true); //Activate bag
                         bag.transform.GetComponent<RollingBagController>().StartRoll();
-                        rollingBagList.Remove(bag); //Doesnt need to ever be loaded/unloaded again as it will be done by the background parent obj
                     }
                 }
             }
@@ -361,32 +360,27 @@ public class GameController : MonoBehaviour { //18
 
     public void changeToTopdown()
     {
-        if(!travellingToCity)
+        currentView = 1;
+        topDownUIObj.SetActive(true); //Enables the parent of the topdown ui, disables the parent of the sidescroll ui
+        sideScrollUIObj.SetActive(false);
+        playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().gravityScale = 0.0f; //Stops player from reacting to gravity
+        playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0); //Stops player
+        sideScrollMapObj.SetActive(false); //Disables sidescroll map
+        topDownMapObj.SetActive(true); //Enables topdown map
+        playerObj.transform.GetChild(0).GetComponent<Animator>().SetLayerWeight(1, 1);
+        mainCameraObj.transform.GetComponent<CameraController>().followY = true;
+        playerObj.transform.GetChild(0).transform.GetComponent<BoxCollider2D>().offset = playerObj.transform.GetChild(0).transform.GetComponent<PlayerController>().topDownColliderOffset;
+        playerObj.transform.GetChild(0).transform.GetComponent<BoxCollider2D>().size = playerObj.transform.GetChild(0).transform.GetComponent<PlayerController>().topDownColliderSize;
+        mainCameraObj.transform.GetComponent<CameraController>().offset = mainCameraObj.transform.GetComponent<CameraController>().topDownOffset;
+        foreach (GameObject city in cities)
         {
-            topDownUIObj.SetActive(true); //Enables the parent of the topdown ui, disables the parent of the sidescroll ui
-            sideScrollUIObj.SetActive(false);
-            playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().gravityScale = 0.0f; //Stops player from reacting to gravity
-            playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0); //Stops player
-            sideScrollMapObj.SetActive(false); //Disables sidescroll map
-            topDownMapObj.SetActive(true); //Enables topdown map
-            playerObj.transform.GetChild(0).GetComponent<Animator>().SetLayerWeight(1, 1);
-            mainCameraObj.transform.GetComponent<CameraController>().followY = true;
-            playerObj.transform.GetChild(0).transform.GetComponent<BoxCollider2D>().offset = playerObj.transform.GetChild(0).transform.GetComponent<PlayerController>().topDownColliderOffset;
-            playerObj.transform.GetChild(0).transform.GetComponent<BoxCollider2D>().size = playerObj.transform.GetChild(0).transform.GetComponent<PlayerController>().topDownColliderSize;
-            mainCameraObj.transform.GetComponent<CameraController>().offset = mainCameraObj.transform.GetComponent<CameraController>().topDownOffset;
-        }
-        else
-        {
-            foreach(GameObject city in cities)
+            if (city.activeSelf)
             {
-                if(city.activeSelf)
-                {
-                    city.SetActive(false);
-                    break;
-                }
+                city.SetActive(false);
+                break;
             }
-            cities[cityID].SetActive(true);
         }
+        cities[cityID].SetActive(true);
         playerObj.transform.GetChild(0).transform.position = citySpawnPoints[cityID].transform.position;
         mainCameraObj.transform.position = citySpawnPoints[cityID].transform.position;
         mainCameraObj.transform.GetComponent<CameraController>().canFollowX = true;
