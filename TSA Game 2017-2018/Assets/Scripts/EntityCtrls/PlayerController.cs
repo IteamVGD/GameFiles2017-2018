@@ -65,11 +65,6 @@ public class PlayerController : MonoBehaviour
     public Vector2 colliderOriginalSize;
     public Vector2 colliderOriginalOffset;
 
-    public bool isDownPunching;
-    public bool canDownPunch;
-    public bool effectiveDownPunch; //If false, player can down punch but wont get shot up when they do so
-    public bool enableDownPunch;
-
     //Attack Variables
     public int standardPunchDamage = 10; //punchDamage is reset to this at the start of every punch
     public int punchDamage; //Changes according to how long you hold it. Default is 10
@@ -84,8 +79,6 @@ public class PlayerController : MonoBehaviour
 
     public bool canMove;
     public bool isTalkingToNPC;
-
-    public GameObject objThatAllowedDownpunch;
     
     //NOTE: Most actual punch detection is done in PunchCollideController on the punch child obj
 
@@ -117,10 +110,6 @@ public class PlayerController : MonoBehaviour
     public Vector2 sideScrollColliderOffset;
     public Vector2 sideScrollColliderSize;
 
-    public IEnumerator downPunchTimerVar;
-    public IEnumerator breakOutOfDownPunchAnim;
-    public bool hasDownPunchedOnce;
-
     //SFX
     public AudioSource audioSource;
 
@@ -129,7 +118,6 @@ public class PlayerController : MonoBehaviour
     public AudioClip gotPunched3;
     public AudioClip gotPunched4;
 
-    public AudioClip downPunch;
     public AudioClip normalPunch;
     public AudioClip jump;
 
@@ -177,6 +165,7 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        gameObject.transform.parent.GetChild(1).position = gameObject.transform.position;
         if ((Input.GetKeyDown(KeyCode.L) || Input.GetButtonDown("Fire0")) && gameObject.transform.GetComponent<Rigidbody2D>().velocity.y == 0)
         {
             if(blockMeter > (maxBlock / 4))
@@ -392,6 +381,7 @@ public class PlayerController : MonoBehaviour
             if ((Input.GetKeyDown(KeyCode.K) || Input.GetButtonDown("Fire1")) && letGoOfSpace == false)
             {
                 canDownPunch = true;
+                transform.parent.GetChild(1).GetComponent<PlayerDownPunchCollider>().enabled = true;
                 animatorWalk.SetBool("canJumpBool", false);
                 animatorWalk.SetBool("isBlocking", false);
                 jumpheightTimerInt = 0;
@@ -544,8 +534,10 @@ public class PlayerController : MonoBehaviour
                         StartCoroutine(gameControllerScript.SpawnPow(gameObject.transform.position));
                     }
                     canDownPunch = false;
+                    transform.parent.GetChild(1).GetComponent<PlayerDownPunchCollider>().enabled = false;
                     StartCoroutine(downPunchTimerVar);
                     StopCoroutine(breakOutOfDownPunchAnim);
+                    objThatAllowedDownpunch = null;
                     breakOutOfDownPunchAnim = StopDownPunchAnim();
                     StartCoroutine(breakOutOfDownPunchAnim);
                 }
@@ -578,7 +570,7 @@ public class PlayerController : MonoBehaviour
             punchIsPressed = false;
         }
 
-        if((Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown("Fire1")) && isBeingKOd)
+        if(Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown("Fire0") || Input.GetButtonDown("Fire1") && isBeingKOd)
         {
             mashAmount++;
         }
@@ -626,6 +618,7 @@ public class PlayerController : MonoBehaviour
         {
             canJump = false;
             canDownPunch = true;
+            transform.parent.GetChild(1).GetComponent<PlayerDownPunchCollider>().enabled = true;
             animatorWalk.SetBool("canJumpBool", false);
             animatorWalk.SetBool("isBlocking", false);
         }
@@ -807,9 +800,10 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator StopDownPunchAnim()
     {
-        yield return new WaitForSeconds(0.6f);
+        yield return new WaitForSeconds(0.7f);
         animatorWalk.SetBool("isDownPunching", false);
         canDownPunch = true;
+        transform.parent.GetChild(1).GetComponent<PlayerDownPunchCollider>().enabled = true;
     }
 
     public IEnumerator InvincibilityFramesTimer()

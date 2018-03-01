@@ -48,8 +48,6 @@ public class PlayerDownPunchCollider : MonoBehaviour
 
     private void Update()
     {
-        gameObject.transform.position = gameObject.transform.parent.GetChild(0).transform.position;
-
         if (gameObject.transform.parent.GetChild(0).GetComponent<PlayerController>().isDownPunching)
         {
             smallerCollider();

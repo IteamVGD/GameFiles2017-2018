@@ -127,7 +127,7 @@ public class PunchCollideController : MonoBehaviour {
 
     public void ActivateSwitches()
     {
-        if(canSwitchSwitches && playerObj.transform.GetComponent<PlayerController>().objThatAllowedDownpunch != null)
+        if(canSwitchSwitches && playerObj.transform.GetComponent<PlayerController>().objThatAllowedDownpunch != null && playerObj.transform.GetComponent<PlayerController>().objThatAllowedDownpunch.transform.GetComponent<SwitchController>() != null)
         {
             if (playerObj.transform.position.x - playerObj.transform.GetComponent<PlayerController>().objThatAllowedDownpunch.transform.position.x > 0 && (sidePunching == 1 || sidePunching == 0)) //If player is right of or above switch
             {
@@ -146,6 +146,7 @@ public class PunchCollideController : MonoBehaviour {
                     StartCoroutine(ResetPlaySoundsBool());
                 }
             }
+            playerObj.transform.GetComponent<PlayerController>().objThatAllowedDownpunch = null;
         }
     }
 
