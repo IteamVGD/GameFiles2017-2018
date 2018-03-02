@@ -225,6 +225,11 @@ public class GameController : MonoBehaviour { //18
             {
                 foreach (GameObject bag in rollingBagList)
                 {
+                    if(bag == null)
+                    {
+                        rollingBagList.Remove(bag);
+                        break;
+                    }
                     if (Vector3.Distance(playerObj.transform.GetChild(0).position, bag.transform.position) <= bag.transform.GetComponent<RollingBagController>().enableRange && bag.activeSelf == false) //If the player is close enough that the bag should start rolling
                     {
                         bag.SetActive(true); //Activate bag

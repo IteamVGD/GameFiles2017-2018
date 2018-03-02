@@ -10,6 +10,7 @@ public class SwitchController : MonoBehaviour {
 
     public bool triggerSongObj; //Enables the first child object to trigger an audio source
     public GameObject levelMusicSource; //Is disabled if this object triggers a song
+    public GameObject newMusicSource;
 
     public void SwitchSprite()
     {
@@ -22,7 +23,7 @@ public class SwitchController : MonoBehaviour {
 
     public void TriggerSong()
     {
-        transform.GetChild(0).gameObject.SetActive(true);
+        newMusicSource.SetActive(true);
         levelMusicSource.SetActive(false);
     }
 }

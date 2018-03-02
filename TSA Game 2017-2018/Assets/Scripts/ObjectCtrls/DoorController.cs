@@ -68,7 +68,7 @@ public class DoorController : MonoBehaviour {
             }
         }
 
-        if (musicToRevertTo != null && !musicToRevertTo.activeSelf)
+        if (musicToRevertTo != null && !musicToRevertTo.activeSelf && !transform.GetComponent<AudioSource>().isPlaying)
             musicToRevertTo.SetActive(true);
     }
 
