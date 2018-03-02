@@ -13,85 +13,85 @@ AnimatorController:
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: VerticalSpeedTD
     m_Type: 3
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: Blend
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: isCrouching
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: isIdleBool
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: canJumpBool
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 1
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: isPunching
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: sideFacingInt
     m_Type: 3
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: previousSideFacing
     m_Type: 3
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: canStopPunching
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: isBlocking
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: isDownPunching
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: isDowned
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   - m_Name: isMoving
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 1
-    m_Controller: {fileID: 0}
+    m_Controller: {fileID: 9100000}
   m_AnimatorLayers:
   - serializedVersion: 5
     m_Name: Sidescroll
@@ -1020,15 +1020,15 @@ AnimatorStateTransition:
   - m_ConditionMode: 6
     m_ConditionEvent: VerticalSpeedTD
     m_EventTreshold: 0
-  - m_ConditionMode: 2
-    m_ConditionEvent: isPunching
-    m_EventTreshold: 0
   - m_ConditionMode: 3
     m_ConditionEvent: HorizontalSpeedTD
     m_EventTreshold: 0
   - m_ConditionMode: 1
     m_ConditionEvent: canStopPunching
     m_EventTreshold: 0
+  - m_ConditionMode: 6
+    m_ConditionEvent: previousSideFacing
+    m_EventTreshold: 4
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 1102029310683692104}
   m_Solo: 0
@@ -1254,7 +1254,7 @@ AnimatorStateTransition:
   - m_ConditionMode: 2
     m_ConditionEvent: canJumpBool
     m_EventTreshold: 0
-  - m_ConditionMode: 3
+  - m_ConditionMode: 7
     m_ConditionEvent: VerticalSpeedTD
     m_EventTreshold: 0
   - m_ConditionMode: 6
@@ -1959,7 +1959,7 @@ AnimatorStateTransition:
   - m_ConditionMode: 2
     m_ConditionEvent: canJumpBool
     m_EventTreshold: 0
-  - m_ConditionMode: 3
+  - m_ConditionMode: 7
     m_ConditionEvent: VerticalSpeedTD
     m_EventTreshold: 0
   - m_ConditionMode: 6
@@ -3539,7 +3539,7 @@ AnimatorStateTransition:
     m_EventTreshold: 0
   - m_ConditionMode: 6
     m_ConditionEvent: sideFacingInt
-    m_EventTreshold: 4
+    m_EventTreshold: 2
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 1102061527961374510}
   m_Solo: 0
@@ -4080,12 +4080,12 @@ AnimatorStateTransition:
   - m_ConditionMode: 6
     m_ConditionEvent: VerticalSpeedTD
     m_EventTreshold: 0
-  - m_ConditionMode: 2
-    m_ConditionEvent: isPunching
-    m_EventTreshold: 0
   - m_ConditionMode: 1
     m_ConditionEvent: canStopPunching
     m_EventTreshold: 0
+  - m_ConditionMode: 6
+    m_ConditionEvent: previousSideFacing
+    m_EventTreshold: 2
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 1102061527961374510}
   m_Solo: 0
@@ -4932,7 +4932,7 @@ AnimatorStateTransition:
   - m_ConditionMode: 2
     m_ConditionEvent: canJumpBool
     m_EventTreshold: 0
-  - m_ConditionMode: 3
+  - m_ConditionMode: 7
     m_ConditionEvent: VerticalSpeedTD
     m_EventTreshold: 0
   - m_ConditionMode: 6
@@ -6120,7 +6120,7 @@ AnimatorStateTransition:
   - m_ConditionMode: 2
     m_ConditionEvent: canJumpBool
     m_EventTreshold: 0
-  - m_ConditionMode: 3
+  - m_ConditionMode: 7
     m_ConditionEvent: VerticalSpeedTD
     m_EventTreshold: 0
   - m_ConditionMode: 6
@@ -7230,12 +7230,12 @@ AnimatorState:
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
+  - {fileID: 1101861010055734510}
+  - {fileID: 1101187392522533592}
   - {fileID: 1101072248261470574}
   - {fileID: 1101336909591899350}
   - {fileID: 1101760932865891364}
   - {fileID: 1101088429235337644}
-  - {fileID: 1101861010055734510}
-  - {fileID: 1101187392522533592}
   - {fileID: 1101676897685738062}
   - {fileID: 1101271108238176194}
   - {fileID: 1101539482961273806}
@@ -7661,9 +7661,9 @@ AnimatorState:
   - {fileID: 1101745318877927286}
   - {fileID: 1101011035897120722}
   - {fileID: 1101578267100338988}
+  - {fileID: 1101131033707433350}
   - {fileID: 1101411024119392084}
   - {fileID: 1101030474207290540}
-  - {fileID: 1101131033707433350}
   - {fileID: 1101311749903874042}
   m_StateMachineBehaviours: []
   m_Position: {x: 50, y: 50, z: 0}
@@ -7959,12 +7959,12 @@ AnimatorState:
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
+  - {fileID: 1101263557270592914}
+  - {fileID: 1101707879924812764}
   - {fileID: 1101907472430685300}
   - {fileID: 1101321905891518486}
   - {fileID: 1101402991814210490}
   - {fileID: 1101760407506066638}
-  - {fileID: 1101707879924812764}
-  - {fileID: 1101263557270592914}
   - {fileID: 1101563407786418520}
   - {fileID: 1101141196671167378}
   - {fileID: 1101660306508420674}

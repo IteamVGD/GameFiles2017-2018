@@ -4,70 +4,38 @@ using UnityEngine;
 
 public class PlayerDownPunchCollider : MonoBehaviour
 {
-    public Vector2 isJumpPunchingOffset;
-    public Vector2 isJumpPunchingSize;
-    public Vector2 initialOffset;
-    public Vector2 initialSize;
 
-    public bool test;
+    public GameObject playerObj;
+    public bool shouldCheck;
 
-    private void Start()
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        initialSize = gameObject.transform.GetComponent<BoxCollider2D>().size;
-        initialOffset = gameObject.transform.GetComponent<BoxCollider2D>().offset;
-    }
-
-    private void OnTriggerStay2D(Collider2D collision)
-    {
-        if (collision.gameObject.transform.tag == "DownPunchable")
+        if(shouldCheck)
         {
-            gameObject.transform.parent.GetChild(0).GetComponent<PlayerController>().effectiveDownPunch = true;
-            gameObject.transform.parent.GetChild(0).GetComponent<PlayerController>().objThatAllowedDownpunch = collision.gameObject;
-        }
-        if (collision.gameObject.transform.tag == "Enemy")
-        {
-            gameObject.transform.parent.GetChild(0).GetComponent<PlayerController>().effectiveDownPunch = true;
-        }
-    }
-
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if(collision.gameObject.transform.tag == "DownPunchable")
-        {
-            gameObject.transform.parent.GetChild(0).GetComponent<PlayerController>().effectiveDownPunch = false;
-            if (gameObject.transform.parent.GetChild(0).GetComponent<PlayerController>().objThatAllowedDownpunch == collision.gameObject)
+            if (collision.gameObject.layer == 16)
             {
-                gameObject.transform.parent.GetChild(0).GetComponent<PlayerController>().objThatAllowedDownpunch = null;
+                if (collision.GetComponent<SwitchController>().triggerSongObj)
+                    collision.GetComponent<SwitchController>().TriggerSong();
+                playerObj.transform.GetComponent<PlayerController>().canDownPunch = true;
+                playerObj.transform.GetComponent<PlayerController>().gameControllerScript.ManageBoxes();
+                playerObj.transform.GetComponent<PlayerController>().DownPunch();
+                shouldCheck = true;
+            }
+            else
+            {
+                if (collision.transform.tag == "DownPunchable" || collision.transform.tag == "EnemyDownPunchable")
+                {
+                    playerObj.transform.GetComponent<PlayerController>().canDownPunch = true;
+                    playerObj.transform.GetComponent<PlayerController>().DownPunch();
+                    shouldCheck = true;
+                }
             }
         }
-        if (collision.gameObject.transform.tag == "Enemy")
-        {
-            gameObject.transform.parent.GetChild(0).GetComponent<PlayerController>().effectiveDownPunch = false;
-        }
+        gameObject.SetActive(false);
     }
 
-    private void Update()
+    private void OnEnable()
     {
-        if (gameObject.transform.parent.GetChild(0).GetComponent<PlayerController>().isDownPunching)
-        {
-            smallerCollider();
-        }
-        else
-        {
-            if (gameObject.transform.GetComponent<BoxCollider2D>().size.x != initialSize.x)
-                largerCollider();
-        }
-    }
-
-    public void smallerCollider()
-    {
-        gameObject.transform.GetComponent<BoxCollider2D>().size = isJumpPunchingSize;
-        gameObject.transform.GetComponent<BoxCollider2D>().offset = isJumpPunchingOffset;
-    }
-
-    public void largerCollider()
-    {
-        gameObject.transform.GetComponent<BoxCollider2D>().size = initialSize;
-        gameObject.transform.GetComponent<BoxCollider2D>().offset = initialOffset;
+        shouldCheck = true;
     }
 }

@@ -39,7 +39,7 @@ public class PlayerController : MonoBehaviour
 
     public float punchTime = 0.8f; //Time a punch stays displayed; DONT MESS WITH! Complex punch system to allow charge punching to work
     public float crouchPunchTime = 0.5f; //Time a crouch punch stays displayed
-    
+
     public bool isPunching;
 
     public Sprite tempSprite; //Used to keep track of what sprite was in use before attacking;
@@ -77,9 +77,18 @@ public class PlayerController : MonoBehaviour
     public bool isBlocking;
     public bool isInInvincibilityFrame;
 
+    //Down Punch Variables
+    public GameObject downPunchColliderObj;
+    public bool isDownPunching;
+    public bool canDownPunch;
+    public bool antiSpamBool;
+
+    public IEnumerator downPunchTimerCoroutine;
+    public IEnumerator antiSpamDownPunchCoroutine;
+
     public bool canMove;
     public bool isTalkingToNPC;
-    
+
     //NOTE: Most actual punch detection is done in PunchCollideController on the punch child obj
 
     //Animator
@@ -105,8 +114,8 @@ public class PlayerController : MonoBehaviour
     public int maxMashAmount;
     public List<int> mashAmountList;
 
-    public Vector2 topDownColliderOffset; 
-    public Vector2 topDownColliderSize; 
+    public Vector2 topDownColliderOffset;
+    public Vector2 topDownColliderSize;
     public Vector2 sideScrollColliderOffset;
     public Vector2 sideScrollColliderSize;
 
@@ -120,6 +129,7 @@ public class PlayerController : MonoBehaviour
 
     public AudioClip normalPunch;
     public AudioClip jump;
+    public AudioClip downPunch;
 
     public AudioClip crateSwitch;
 
@@ -133,8 +143,10 @@ public class PlayerController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        downPunchTimerVar = downPunchTimer();
-        breakOutOfDownPunchAnim = StopDownPunchAnim();
+        //downPunchTimerVar = downPunchTimer();
+        //breakOutOfDownPunchAnim = StopDownPunchAnim();
+        downPunchTimerCoroutine = DownPunchTimer();
+        antiSpamDownPunchCoroutine = DownPunchAntiSpam();
 
         colliderOriginalSize = sideScrollColliderSize; //Saves original size and offset of box collider to reset to when un-crouching & switching views
         colliderOriginalOffset = sideScrollColliderOffset; //^^^
@@ -166,9 +178,9 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         gameObject.transform.parent.GetChild(1).position = gameObject.transform.position;
-        if ((Input.GetKeyDown(KeyCode.L) || Input.GetButtonDown("Fire0")) && gameObject.transform.GetComponent<Rigidbody2D>().velocity.y == 0)
+        if ((Input.GetKeyDown(KeyCode.L) || Input.GetButtonDown("Fire0")) && gameObject.transform.GetComponent<Rigidbody2D>().velocity.y == 0 && !isBeingKOd)
         {
-            if(blockMeter > (maxBlock / 4))
+            if (blockMeter > (maxBlock / 4))
             {
                 isBlocking = true;
                 animatorWalk.SetBool("isBlocking", true);
@@ -188,9 +200,9 @@ public class PlayerController : MonoBehaviour
             horizontalMovementSpeed = 4;
         }
 
-        if(isBlocking == true)
+        if (isBlocking == true)
         {
-            if(blockMeter > minBlock + blockRemoveAmt)
+            if (blockMeter > minBlock + blockRemoveAmt)
             {
                 blockMeter -= blockRemoveAmt; //Degrades block meter
                 if (horizontalMovementSpeed != 0)
@@ -208,7 +220,7 @@ public class PlayerController : MonoBehaviour
             if (blockMeter < maxBlock)
             {
                 blockMeter += blockAddAmt; //Regenerates block meter
-                gameControllerScript.updateBlockSlider(minBlock, maxBlock, (int) blockMeter); //Updates the block meter at the top left
+                gameControllerScript.updateBlockSlider(minBlock, maxBlock, (int)blockMeter); //Updates the block meter at the top left
             }
         }
 
@@ -280,7 +292,7 @@ public class PlayerController : MonoBehaviour
                 }
                 else
                 {
-                   // upPressed = false;
+                    // upPressed = false;
                     //downPressed = false;
                 }
             }
@@ -301,7 +313,7 @@ public class PlayerController : MonoBehaviour
             //Topdown Movement
 
             //Press down to move
-            if(!isTalkingToNPC)
+            if (!isTalkingToNPC)
             {
                 if (Input.GetKey(KeyCode.D) || (rightPressed == true && xAxisFloat > 0.8))
                 {
@@ -360,7 +372,7 @@ public class PlayerController : MonoBehaviour
             //Sidescroll Movement
 
             //Press to move
-            if((Input.GetKey(KeyCode.D) || (rightPressed == true && xAxisFloat > 0.8)) && GetComponent<Rigidbody2D>().velocity.x < 0.005)
+            if ((Input.GetKey(KeyCode.D) || (rightPressed == true && xAxisFloat > 0.8)) && GetComponent<Rigidbody2D>().velocity.x < 0.005)
             {
                 GetComponent<Rigidbody2D>().AddForce(transform.right * horizontalMovementSpeed * 50);
                 sideFacing = 4;
@@ -380,7 +392,7 @@ public class PlayerController : MonoBehaviour
 
             if ((Input.GetKeyDown(KeyCode.K) || Input.GetButtonDown("Fire1")) && letGoOfSpace == false)
             {
-                canDownPunch = true;
+                //canDownPunch = true;
                 transform.parent.GetChild(1).GetComponent<PlayerDownPunchCollider>().enabled = true;
                 animatorWalk.SetBool("canJumpBool", false);
                 animatorWalk.SetBool("isBlocking", false);
@@ -450,7 +462,7 @@ public class PlayerController : MonoBehaviour
             }
 
             //Fast Fall
-            if((Input.GetKey(KeyCode.S) || (downPressed == true && yAxisFloat < -0.8)) && !canJump)
+            if ((Input.GetKey(KeyCode.S) || (downPressed == true && yAxisFloat < -0.8)) && !canJump)
             {
                 GetComponent<Rigidbody2D>().velocity = new Vector2(GetComponent<Rigidbody2D>().velocity.x, -jumpSpeedInt * 1.5f);
             }
@@ -522,25 +534,18 @@ public class PlayerController : MonoBehaviour
             }
             else //If mid jump, do down punch (if allowed by canDownPunch)
             {
-                if (canDownPunch)
+                if(!antiSpamBool)
                 {
-                    isDownPunching = true;
-                    animatorWalk.SetBool("isDownPunching", true);
-                    if (effectiveDownPunch)
-                    {
-                        audioSource.PlayOneShot(downPunch);
-                        GetComponent<Rigidbody2D>().velocity = new Vector2(GetComponent<Rigidbody2D>().velocity.x, jumpSpeedInt * 1.5f);
-                        effectiveDownPunch = false;
-                        StartCoroutine(gameControllerScript.SpawnPow(gameObject.transform.position));
-                    }
                     canDownPunch = false;
-                    transform.parent.GetChild(1).GetComponent<PlayerDownPunchCollider>().enabled = false;
-                    StartCoroutine(downPunchTimerVar);
-                    StopCoroutine(breakOutOfDownPunchAnim);
-                    objThatAllowedDownpunch = null;
-                    breakOutOfDownPunchAnim = StopDownPunchAnim();
-                    StartCoroutine(breakOutOfDownPunchAnim);
+                    downPunchColliderObj.SetActive(true);
                 }
+                else
+                StopCoroutine(downPunchTimerCoroutine);
+                downPunchTimerCoroutine = DownPunchTimer();
+                StartCoroutine(downPunchTimerCoroutine);
+                StopCoroutine(antiSpamDownPunchCoroutine);
+                antiSpamDownPunchCoroutine = DownPunchAntiSpam();
+                StartCoroutine(antiSpamDownPunchCoroutine);
             }
         }
         if ((Input.GetButtonDown("Fire3") || (Input.GetKeyDown(KeyCode.J)) && isPunching == true)) //Spam punch code
@@ -549,7 +554,7 @@ public class PlayerController : MonoBehaviour
             animatorWalk.SetBool("canStopPunching", false);
         }
 
-        if((Input.GetKeyUp(KeyCode.J) || Input.GetButtonUp("Fire3")) && spamPunchTimerInt < 20 && isCrouching == false && isPunching == true)
+        if ((Input.GetKeyUp(KeyCode.J) || Input.GetButtonUp("Fire3")) && spamPunchTimerInt < 20 && isCrouching == false && isPunching == true)
         {
             //StopAllCoroutines(); //Breaks out of punch / charge punch
             Color tempColor = gameObject.transform.GetComponent<SpriteRenderer>().color;
@@ -570,12 +575,12 @@ public class PlayerController : MonoBehaviour
             punchIsPressed = false;
         }
 
-        if(Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown("Fire0") || Input.GetButtonDown("Fire1") && isBeingKOd)
+        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown("Fire0") || Input.GetButtonDown("Fire1") && isBeingKOd)
         {
             mashAmount++;
         }
 
-        if(GetComponent<SpriteRenderer>().color.a <= 0 && !isInInvincibilityFrame)
+        if (GetComponent<SpriteRenderer>().color.a <= 0 && !isInInvincibilityFrame)
         {
             Color tempColor = GetComponent<SpriteRenderer>().color;
             tempColor.a = 255;
@@ -591,17 +596,17 @@ public class PlayerController : MonoBehaviour
             {
                 letGoOfSpace = false;
             }
-            if(isIdle == false)
+            if (isIdle == false)
             {
                 isIdle = true;
             }
-            if(canJump == false)
+            if (canJump == false)
             {
                 canJump = true;
                 animatorWalk.SetBool("canJumpBool", true);
                 animatorWalk.SetBool("isDownPunching", false);
-                effectiveDownPunch = false;
-                isDownPunching = false;
+                //effectiveDownPunch = false;
+                //isDownPunching = false;
             }
         }
     }
@@ -617,7 +622,7 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.layer == 8 && collision.transform.GetComponent<ObjectCollisionController>() != null && collision.collider == collision.transform.GetComponent<ObjectCollisionController>().canJumpCollider) //8 == "Floor" layer
         {
             canJump = false;
-            canDownPunch = true;
+            //canDownPunch = true;
             transform.parent.GetChild(1).GetComponent<PlayerDownPunchCollider>().enabled = true;
             animatorWalk.SetBool("canJumpBool", false);
             animatorWalk.SetBool("isBlocking", false);
@@ -625,7 +630,7 @@ public class PlayerController : MonoBehaviour
         //animatorWalk.SetBool("isMoving", true);
     }
 
-    IEnumerator Punch() 
+    IEnumerator Punch()
     {
         punchDamage = standardPunchDamage; //Resets punch damage from previous punch
         float waitTime = punchTime / 5; //How long it will wait between incrementing damage
@@ -642,7 +647,7 @@ public class PlayerController : MonoBehaviour
         gameObject.transform.GetComponent<Animator>().speed -= punchTime * 0.2f; //Slows current animation
         yield return new WaitForSeconds(waitTime); //Second wait + slows punch to show that it is a charge punch
 
-        if(punchIsPressed == false)
+        if (punchIsPressed == false)
         {
             StopAllCoroutines(); //Breaks out of punch / charge punch
             Color tempColor = gameObject.transform.GetComponent<SpriteRenderer>().color;
@@ -689,7 +694,7 @@ public class PlayerController : MonoBehaviour
 
     public void FixedUpdate()
     {
-        if(spamPunchTimerInt > 0)
+        if (spamPunchTimerInt > 0)
             spamPunchTimerInt -= 1;
         else
         {
@@ -703,7 +708,7 @@ public class PlayerController : MonoBehaviour
 
     public void TakeDamage(int dmgToTake) //Subtracts dmgToTake from health, triggers KO system if needed
     {
-        if(!isBlocking && !isInInvincibilityFrame && !isBeingKOd) //If is not blocking
+        if (!isBlocking && !isInInvincibilityFrame && !isBeingKOd) //If is not blocking
         {
             health -= dmgToTake;
             gameControllerScript.updateHealthSlider(minHealth, maxHealth, health); //Updates health slider at top left
@@ -742,7 +747,7 @@ public class PlayerController : MonoBehaviour
         gameControllerScript.koSlider.transform.parent.gameObject.SetActive(true);
         timesKOd++;
         mashAmount = 0;
-        if(timesKOd != koTimerList.Count)
+        if (timesKOd != koTimerList.Count)
         {
             koTimer = koTimerList[timesKOd - 1];
             maxMashAmount = mashAmountList[timesKOd - 1];
@@ -752,7 +757,7 @@ public class PlayerController : MonoBehaviour
 
     void KoTimer()
     {
-        if(koTimer > 0 && mashAmount < maxMashAmount)
+        if (koTimer > 0 && mashAmount < maxMashAmount)
         {
             koTimer -= 0.02f;
             gameControllerScript.koTimerText.transform.GetComponent<Text>().text = koTimer.ToString("F2");
@@ -760,7 +765,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            if (koTimer <= 0.05)
+            if (koTimer <= 0.03)
             {
                 koTimer = 0;
                 health = maxHealth;
@@ -769,6 +774,9 @@ public class PlayerController : MonoBehaviour
                 animatorWalk.SetBool("isDowned", false); //Disables KO animation
                 gameControllerScript.koSlider.transform.parent.gameObject.SetActive(false); //Disables the KO slider ui
                 gameObject.transform.position = gameControllerScript.levelSpawnpoints[gameControllerScript.levelID].transform.position; //Resets player to start of level
+                gameControllerScript.mainCameraObj.transform.position = gameObject.transform.position;
+                gameControllerScript.mainCameraObj.GetComponent<CameraController>().desiredPostion = gameObject.transform.position;
+                timesKOd = 0;
             }
             if (mashAmount >= maxMashAmount)
             {
@@ -784,26 +792,26 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator KoTimerRunner()
     {
-        if(isBeingKOd)
+        if (isBeingKOd)
         {
             yield return new WaitForSeconds(0.2f);
             KoTimer();
         }
     }
 
-    public IEnumerator downPunchTimer()
+    public IEnumerator DownPunchTimer()
     {
+        animatorWalk.SetBool("isDownPunching", true);
         yield return new WaitForSeconds(downPunchTime);
         isDownPunching = false;
-        StopCoroutine(downPunchTimerVar);
+        animatorWalk.SetBool("isDownPunching", false);
     }
 
-    IEnumerator StopDownPunchAnim()
+    public IEnumerator DownPunchAntiSpam()
     {
-        yield return new WaitForSeconds(0.7f);
-        animatorWalk.SetBool("isDownPunching", false);
-        canDownPunch = true;
-        transform.parent.GetChild(1).GetComponent<PlayerDownPunchCollider>().enabled = true;
+        antiSpamBool = true;
+        yield return new WaitForSeconds(0.5f);
+        antiSpamBool = false;
     }
 
     public IEnumerator InvincibilityFramesTimer()
@@ -856,5 +864,16 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(time);
         gameObject.transform.GetComponent<SpriteRenderer>().color = backupColor;
         isInInvincibilityFrame = false;
+    }
+
+    public void DownPunch()
+    {
+        isDownPunching = true;
+        audioSource.PlayOneShot(downPunch);
+        GetComponent<Rigidbody2D>().velocity = new Vector2(GetComponent<Rigidbody2D>().velocity.x, jumpSpeedInt * 1.5f);
+        if (GameObject.FindGameObjectsWithTag("Pow").Length == 0)
+        {
+            StartCoroutine(gameControllerScript.SpawnPow(gameObject.transform.position));
+        }
     }
 }

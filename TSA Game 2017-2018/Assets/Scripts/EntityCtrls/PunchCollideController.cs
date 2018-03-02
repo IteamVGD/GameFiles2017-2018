@@ -19,13 +19,12 @@ public class PunchCollideController : MonoBehaviour {
         runCode = true;
     }
 
-    // Update is called once per frame
+    //Update is called once per frame
     void Update () {
         if (playerObj.transform.GetComponent<SpriteRenderer>().sprite.name != "CrouchPunchRight" && playerObj.transform.GetComponent<SpriteRenderer>().sprite.name != "CrouchPunchLeft" && playerObj.transform.GetComponent<PlayerController>().isCrouching == true && playerObj.transform.GetComponent<PlayerController>().isDownPunching == false) //If is not crouch punching
         {
             punchCollider.enabled = false; //Disable collider
         }
-
         if (playerObj.transform.GetComponent<SpriteRenderer>().sprite.name != "DownPunchLeft_1" && playerObj.transform.GetComponent<SpriteRenderer>().sprite.name != "DownPunchRight_1" && playerObj.transform.GetComponent<PlayerController>().isCrouching == false && playerObj.transform.GetComponent<SpriteRenderer>().sprite.name != "PunchLeft_4" && playerObj.transform.GetComponent<SpriteRenderer>().sprite.name != "PunchRight_4" && playerObj.transform.GetComponent<SpriteRenderer>().sprite.name != "PunchLeft_5" && playerObj.transform.GetComponent<SpriteRenderer>().sprite.name != "PunchRight_5" && playerObj.transform.GetComponent<PlayerController>().isDownPunching == false)
         {
             punchCollider.enabled = false;
@@ -38,7 +37,6 @@ public class PunchCollideController : MonoBehaviour {
             punchCollider.size = new Vector2(1.26f, 0.71f);
             punchCollider.enabled = true; //Enable collider
             sidePunching = 2;
-            ActivateSwitches();
             PlayPunchSound();
         }
         if (playerObj.transform.GetComponent<SpriteRenderer>().sprite.name == "CrouchPunchRight" && punchCollider.enabled == false) //If is crouch punching right
@@ -47,7 +45,6 @@ public class PunchCollideController : MonoBehaviour {
             punchCollider.size = new Vector2(1.26f, 0.71f);
             punchCollider.enabled = true; //Enable collider
             sidePunching = 1;
-            ActivateSwitches();
             PlayPunchSound();
         }
 
@@ -58,7 +55,6 @@ public class PunchCollideController : MonoBehaviour {
             punchCollider.offset = new Vector2(-0.045f, -0.9f);
             punchCollider.size = new Vector2(1.41f, 1.4f);
             sidePunching = 0;
-            ActivateSwitches();
         }
         if (playerObj.transform.GetComponent<SpriteRenderer>().sprite.name == "DownPunchLeft_1" || playerObj.transform.GetComponent<PlayerController>().isDownPunching && punchCollider.enabled == false)
         {
@@ -66,26 +62,23 @@ public class PunchCollideController : MonoBehaviour {
             punchCollider.offset = new Vector2(-0.045f, -0.9f);
             punchCollider.size = new Vector2(1.41f, 1.4f);
             sidePunching = 0;
-            ActivateSwitches();
         }
 
         //Normal/Charge Punch Controller
         if (playerObj.transform.GetComponent<SpriteRenderer>().sprite.name == "PunchLeft_4" || playerObj.transform.GetComponent<SpriteRenderer>().sprite.name == "PunchLeft_5" && punchCollider.enabled == false) //Frame of punch animation where collider should turn on (arm is extended, punch is in full effect), punching left
         {
-            punchCollider.offset = new Vector2(-1.34f, 0.59f); //Set collider offset to face left
-            punchCollider.size = new Vector2(1.26f, 0.71f);
+            punchCollider.offset = new Vector2(-1.25f, 0.59f); //Set collider offset to face left
+            punchCollider.size = new Vector2(1.4f, 0.71f);
             punchCollider.enabled = true; //Enable collider
             sidePunching = 2;
-            ActivateSwitches();
             PlayPunchSound();
         }
         if (playerObj.transform.GetComponent<SpriteRenderer>().sprite.name == "PunchRight_4" || playerObj.transform.GetComponent<SpriteRenderer>().sprite.name == "PunchRight_5" && punchCollider.enabled == false) //Frame of punch animation where collider should turn on (arm is extended, punch is in full effect), punching right
         {
-            punchCollider.offset = new Vector2(1.34f, 0.59f); //Set collider offset to face right
-            punchCollider.size = new Vector2(1.26f, 0.71f);
+            punchCollider.offset = new Vector2(1.25f, 0.59f); //Set collider offset to face right
+            punchCollider.size = new Vector2(1.4f, 0.71f);
             punchCollider.enabled = true; //Enable collider
             sidePunching = 1;
-            ActivateSwitches();
             PlayPunchSound();
         }
     }
@@ -106,48 +99,34 @@ public class PunchCollideController : MonoBehaviour {
                 else //If player is facing left
                     collision.gameObject.GetComponent<Rigidbody2D>().AddForce(-transform.right * playerObj.transform.GetComponent<PlayerController>().horizontalKnockbackStrength); //Knockback left
                 collision.gameObject.transform.GetComponent<EnemyController>().GotPunched(); //Tells the enemy it just got punched
-
-                ContactPoint2D contact = collision.contacts[0];
-                StartCoroutine(playerObj.transform.GetComponent<PlayerController>().gameControllerScript.SpawnPow(contact.point));
+                if (GameObject.FindGameObjectsWithTag("Pow").Length == 0)
+                {
+                    ContactPoint2D contact = collision.contacts[0];
+                    StartCoroutine(playerObj.transform.GetComponent<PlayerController>().gameControllerScript.SpawnPow(contact.point));
+                }
             }
         }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.transform.tag == "DownPunchable")
+        if (collision.gameObject.GetComponent<SwitchController>() != null)
         {
-            if (collision.transform.GetComponent<SwitchController>() != null && playerObj.transform.GetComponent<PlayerController>().objThatAllowedDownpunch == collision.gameObject)
+            if (collision.GetComponent<SwitchController>().triggerSongObj)
+                collision.GetComponent<SwitchController>().TriggerSong();
+            ActivateSwitches();
+            if (GameObject.FindGameObjectsWithTag("Pow").Length == 0)
             {
-                ActivateSwitches();
-                //StartCoroutine(playerObj.transform.GetComponent<PlayerController>().gameControllerScript.SpawnPow(collision.gameObject.transform.position));
+                StartCoroutine(playerObj.transform.GetComponent<PlayerController>().gameControllerScript.SpawnPow(collision.gameObject.transform.position));
             }
         }
     }
 
     public void ActivateSwitches()
     {
-        if(canSwitchSwitches && playerObj.transform.GetComponent<PlayerController>().objThatAllowedDownpunch != null && playerObj.transform.GetComponent<PlayerController>().objThatAllowedDownpunch.transform.GetComponent<SwitchController>() != null)
-        {
-            if (playerObj.transform.position.x - playerObj.transform.GetComponent<PlayerController>().objThatAllowedDownpunch.transform.position.x > 0 && (sidePunching == 1 || sidePunching == 0)) //If player is right of or above switch
-            {
-                canSwitchSwitches = false;
-                playerObj.transform.GetComponent<PlayerController>().audioSource.PlayOneShot(playerObj.transform.GetComponent<PlayerController>().crateSwitch);
-                playerObj.transform.GetComponent<PlayerController>().gameControllerScript.ManageBoxes();
-                StartCoroutine(ResetPlaySoundsBool());
-            }
-            else
-            {
-                if (playerObj.transform.position.x - playerObj.transform.GetComponent<PlayerController>().objThatAllowedDownpunch.transform.position.x < 0 && (sidePunching == 2 || sidePunching == 0))//If player is left of or above switch
-                {
-                    canSwitchSwitches = false;
-                    playerObj.transform.GetComponent<PlayerController>().audioSource.PlayOneShot(playerObj.transform.GetComponent<PlayerController>().crateSwitch);
-                    playerObj.transform.GetComponent<PlayerController>().gameControllerScript.ManageBoxes();
-                    StartCoroutine(ResetPlaySoundsBool());
-                }
-            }
-            playerObj.transform.GetComponent<PlayerController>().objThatAllowedDownpunch = null;
-        }
+        playerObj.transform.GetComponent<PlayerController>().audioSource.PlayOneShot(playerObj.transform.GetComponent<PlayerController>().crateSwitch);
+        playerObj.transform.GetComponent<PlayerController>().gameControllerScript.ManageBoxes();
+        StartCoroutine(ResetPlaySoundsBool());
     }
 
     public void PlayPunchSound()

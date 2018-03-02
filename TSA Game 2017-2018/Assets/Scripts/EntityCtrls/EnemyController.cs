@@ -62,11 +62,12 @@ public class EnemyController : MonoBehaviour {
     public AudioSource audioSource;
     public AudioClip punch;
     public AudioClip gotPunched;
-    public bool canPlayHurtSound;
-    public bool canPlayAttackSound;
+    public bool canPlayHurtSound = true;
+    public bool canPlayAttackSound = true;
     public IEnumerator resetCanPlayHurtSound;
     public IEnumerator resetCanPlayAttackSound;
 
+    public GameObject musicToPauseOnDeath; //Will disable this obj on death if not null
 
     //Use this for initialization
     void Start ()
@@ -311,6 +312,8 @@ public class EnemyController : MonoBehaviour {
             GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>().enemyList.Remove(gameObject);
             if (enemyType == 2 || enableDoorOnDeath)
                 levelExitDoor.SetActive(true); //Enables exit door
+            if (musicToPauseOnDeath != null)
+                musicToPauseOnDeath.SetActive(false);
             Destroy(gameObject.transform.parent.gameObject); //Destroy enemy object
         }
     }
@@ -358,13 +361,13 @@ public class EnemyController : MonoBehaviour {
 
     IEnumerator ResetCanPlayHurtSound()
     {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.2f);
         canPlayHurtSound = true;
     }
 
     IEnumerator ResetCanPlayAttackSound()
     {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.2f);
         canPlayAttackSound = true;
     }
 

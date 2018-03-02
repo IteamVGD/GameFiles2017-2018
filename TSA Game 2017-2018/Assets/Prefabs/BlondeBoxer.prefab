@@ -37,7 +37,7 @@ GameObject:
   - component: {fileID: 61158673646810666}
   m_Layer: 15
   m_Name: DownPunchCollider
-  m_TagString: Untagged
+  m_TagString: EnemyDownPunchable
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -193,7 +193,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4945469026520132}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4134991520320588
 Transform:
@@ -206,7 +206,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4945469026520132}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4391901417045166
 Transform:
@@ -243,12 +243,12 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1681469744230354}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 155.11, y: -1.19, z: 0}
+  m_LocalPosition: {x: 52.84, y: -3.4000015, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4391901417045166}
-  - {fileID: 4046052438242770}
   - {fileID: 4134991520320588}
+  - {fileID: 4046052438242770}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -304,7 +304,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.1660738, y: 1.0576617}
+  m_Offset: {x: 0.030822754, y: 0.18652439}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -315,7 +315,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.2367878, y: 0.5646446}
+  m_Size: {x: 1.8693924, y: 2.5855656}
   m_EdgeRadius: 0
 --- !u!61 &61284092035526152
 BoxCollider2D:
@@ -617,10 +617,12 @@ MonoBehaviour:
   randomBlockChance: 0
   triedBlocking: 0
   levelExitDoor: {fileID: 0}
-  enableDoorOnDeath: 1
+  enableDoorOnDeath: 0
   audioSource: {fileID: 0}
   punch: {fileID: 8300000, guid: b9c2cd6a4c329f440928c41b3cf924c0, type: 3}
   gotPunched: {fileID: 8300000, guid: 6797418e21ada974696ea99db0fee41d, type: 3}
+  canPlayHurtSound: 1
+  canPlayAttackSound: 1
 --- !u!114 &114466722400554794
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -762,7 +764,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -773,7 +775,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1037890825317226}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -5, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 224128154947864218}
@@ -792,7 +794,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1225376107567702}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 948.35, y: 543.47, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 224698723077767484}
@@ -811,7 +813,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1766641137430306}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -4.74984, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 224698723077767484}
@@ -829,7 +831,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1781222016707768}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -948.13794, y: -541.604, z: 0}
   m_LocalScale: {x: 0.01386508, y: 0.019124253, z: 0.019124253}
   m_Children:
   - {fileID: 224563856073908318}

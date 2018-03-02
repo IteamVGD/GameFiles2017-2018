@@ -15,6 +15,7 @@ TagManager:
   - Pow
   - BlueBox
   - RedBox
+  - EnemyDownPunchable
   layers:
   - Default
   - TransparentFX

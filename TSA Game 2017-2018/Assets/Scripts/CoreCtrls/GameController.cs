@@ -48,7 +48,6 @@ public class GameController : MonoBehaviour { //18
     public GameObject koTimerText; //Text below the slider that counts the timer down
 
     //Chunk and world loading variables
-
     public List<GameObject> backgroundObjs; //A list of the parent objects of each background tile, used for "chunk managing"
     public int chunkUnloadRange; //How far away a "chunk" needs to be from the player to be "unloaded" (disabled)
     public int chunkLoadRange; //How far away a "chunk" needs to be from the player to be "loaded" (enabled)
@@ -412,7 +411,6 @@ public class GameController : MonoBehaviour { //18
 
         //City Stuff
         cities[cityID].SetActive(true); //Enables the city the player is at
-        dayOrNight = !dayOrNight; //Flips day/night state from previous city
         if (dayOrNight) //If should be day (dayOrNight true = day, false = night)
         {
             gameObject.transform.GetChild(1).transform.GetComponent<Light>().intensity = cityDayTimeSunIntensity; //Day time sun intensity (default 0.7)
@@ -425,7 +423,14 @@ public class GameController : MonoBehaviour { //18
             foreach (GameObject light in cityLights)
                 light.SetActive(true); //Enables all city lights
         }
-        travellingToCity = false;
+        if(!travellingToCity)
+        {
+            dayOrNight = !dayOrNight; //Flips day/night state from previous level
+        }
+        else
+        {
+            travellingToCity = false;
+        }
     }
 
     public void changeToSidescroll()
@@ -459,7 +464,7 @@ public class GameController : MonoBehaviour { //18
         playerObj.transform.GetChild(0).GetComponent<PlayerController>().blockMeter = playerObj.transform.GetChild(0).GetComponent<PlayerController>().maxBlock;
         updateBlockSlider(playerObj.transform.GetChild(0).GetComponent<PlayerController>().minBlock, playerObj.transform.GetChild(0).GetComponent<PlayerController>().maxBlock, (int) playerObj.transform.GetChild(0).GetComponent<PlayerController>().blockMeter);
 
-        if (dayOrNight) /*/If should be day (dayOrNight true = day, false = night)
+        /*if (dayOrNight) //If should be day (dayOrNight true = day, false = night)
         {
             gameObject.transform.GetChild(1).transform.GetComponent<Light>().intensity = levelDayTimeSunIntensity; //Day time sun intensity (default 0.6)
             foreach (GameObject light in lightList)
@@ -472,12 +477,13 @@ public class GameController : MonoBehaviour { //18
                 light.SetActive(true);
         }*/
         gameObject.transform.GetChild(1).transform.GetComponent<Light>().intensity = levelDayTimeSunIntensity; //Lowers sun intensity
-        cities[cityID].gameObject.SetActive(false); //Disables city
+        cities[cityID].gameObject.SetActive(false); //Disables city 
         travellingToLevel = false;
     }
 
     public void startNewGame()
     {
+        miscUIObj.SetActive(true);
         StartCoroutine(ChangeViewFadeOut(0.02f, 0.04f, 1f));
     }
 
@@ -558,7 +564,7 @@ public class GameController : MonoBehaviour { //18
     {
         Quaternion powRotation = new Quaternion(Random.Range(-50, 50), Random.Range(-50, 50), Random.Range(-180, 180), Random.Range(-180, 180)); //Randomises the pow's rotation
         GameObject powObj = Instantiate(powEffectPrefab, collPosition, powRotation); //Instatiates the pow effect obh
-        yield return new WaitForSeconds(0.2f); //Waits for (almost) half a second
+        yield return new WaitForSeconds(0.15f); //Waits for (almost) half a second
         Destroy(powObj); //Destroys the pow effect
     }
 
