@@ -110,6 +110,7 @@ public class PlayerController : MonoBehaviour
     public float koTimer; //How long the player has to mash buttons to get back up; gets lower each time
     public List<float> koTimerList; //The list with which the koTimer scales
     public int timesKOd; //How many times the player has been KO'd
+    public bool canRunDeathJingle;
     public int mashAmount; //How much the player needs to mash to get back up; gets higher each time
     public int maxMashAmount;
     public List<int> mashAmountList;
@@ -132,6 +133,8 @@ public class PlayerController : MonoBehaviour
     public AudioClip downPunch;
 
     public AudioClip crateSwitch;
+
+    public AudioClip deathJingle;
 
     private void Awake()
     {
@@ -633,7 +636,7 @@ public class PlayerController : MonoBehaviour
     IEnumerator Punch()
     {
         punchDamage = standardPunchDamage; //Resets punch damage from previous punch
-        float waitTime = punchTime / 5; //How long it will wait between incrementing damage
+        float waitTime = punchTime / 3; //How long it will wait between incrementing damage
         int damageToAdd = punchDamageCap / 8; //Divided by 8 because base damage is already half of cap (so / 2) and we want 4 increments (so / 4) which is just / 8
 
         isPunching = true;
@@ -765,18 +768,15 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            if (koTimer <= 0.03)
+            if (koTimer <= 0.03 && canRunDeathJingle)
             {
                 koTimer = 0;
-                health = maxHealth;
-                gameControllerScript.updateHealthSlider(minHealth, maxHealth, health);
-                isBeingKOd = false; //Re-enables basic functions (ex. movement)
-                animatorWalk.SetBool("isDowned", false); //Disables KO animation
-                gameControllerScript.koSlider.transform.parent.gameObject.SetActive(false); //Disables the KO slider ui
-                gameObject.transform.position = gameControllerScript.levelSpawnpoints[gameControllerScript.levelID].transform.position; //Resets player to start of level
-                gameControllerScript.mainCameraObj.transform.position = gameObject.transform.position;
-                gameControllerScript.mainCameraObj.GetComponent<CameraController>().desiredPostion = gameObject.transform.position;
                 timesKOd = 0;
+                gameControllerScript.levelMusicObjs[gameControllerScript.levelID].GetComponent<AudioSource>().Pause();
+                audioSource.PlayOneShot(deathJingle);
+                IEnumerator deathJingleIEnum = DeathJingleTimer();
+                StartCoroutine(deathJingleIEnum);
+                canRunDeathJingle = false;
             }
             if (mashAmount >= maxMashAmount)
             {
@@ -875,5 +875,27 @@ public class PlayerController : MonoBehaviour
         {
             StartCoroutine(gameControllerScript.SpawnPow(gameObject.transform.position));
         }
+    }
+
+    IEnumerator DeathJingleTimer()
+    {
+        yield return new WaitForSeconds(4.5f);
+        ResetAfterKO();
+    }
+
+    void ResetAfterKO()
+    {
+        health = maxHealth;
+        gameControllerScript.updateHealthSlider(minHealth, maxHealth, health);
+        isBeingKOd = false; //Re-enables basic functions (ex. movement)
+        animatorWalk.SetBool("isDowned", false); //Disables KO animation
+        gameControllerScript.koSlider.transform.parent.gameObject.SetActive(false); //Disables the KO slider ui
+        gameObject.transform.position = gameControllerScript.levelSpawnpoints[gameControllerScript.levelID].transform.position; //Resets player to start of level
+        gameControllerScript.mainCameraObj.transform.position = gameObject.transform.position;
+        gameControllerScript.mainCameraObj.GetComponent<CameraController>().desiredPostion = new Vector3(gameObject.transform.position.x, gameObject.transform.position.y, -10);
+        gameControllerScript.levelMusicObjs[gameControllerScript.levelID].GetComponent<AudioSource>().UnPause();
+        gameControllerScript.levelParallaxObjs[gameControllerScript.levelID].transform.position = new Vector3(gameObject.transform.position.x, gameControllerScript.levelParallaxObjs[gameControllerScript.levelID].transform.position.y, gameControllerScript.levelParallaxObjs[gameControllerScript.levelID].transform.position.z);
+        canRunDeathJingle = true;
+
     }
 }

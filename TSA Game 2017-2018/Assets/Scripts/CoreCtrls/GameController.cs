@@ -29,6 +29,7 @@ public class GameController : MonoBehaviour { //18
     public GameObject sideScrollUIObj;
     public GameObject topDownUIObj;
     public GameObject miscUIObj;
+    public GameObject creditUIObj;
 
     //Health UI
     public GameObject healthSlider; //The top left slider that shows the player's health
@@ -82,6 +83,7 @@ public class GameController : MonoBehaviour { //18
     public List<GameObject> levels;
     public List<GameObject> levelSpawnpoints;
     public List<GameObject> levelParallaxObjs;
+    public List<GameObject> levelMusicObjs;
     public float levelDayTimeSunIntensity;
     public float levelNightTimeSunIntensity;
 
@@ -242,7 +244,13 @@ public class GameController : MonoBehaviour { //18
 
     public void ChangeView()
     {
-        if(currentView == 1 && travellingToLevel)
+        if (currentView == 3)
+        {
+            currentView = 1;
+            cityID = 1;
+            changeToTopdown();
+        }
+        if (currentView == 1 && travellingToLevel)
         {
             currentView = 2;
             changeToSidescroll();
@@ -387,59 +395,78 @@ public class GameController : MonoBehaviour { //18
 
     public void changeToTopdown()
     {
-        currentView = 1;
-        topDownUIObj.SetActive(true); //Enables the parent of the topdown ui, disables the parent of the sidescroll ui
-        sideScrollUIObj.SetActive(false);
-        playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().gravityScale = 0.0f; //Stops player from reacting to gravity
-        playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0); //Stops player
-        sideScrollMapObj.SetActive(false); //Disables sidescroll map
-        topDownMapObj.SetActive(true); //Enables topdown map
-        playerObj.transform.GetChild(0).GetComponent<Animator>().SetLayerWeight(1, 1);
-        mainCameraObj.transform.GetComponent<CameraController>().followY = true;
-        playerObj.transform.GetChild(0).transform.GetComponent<BoxCollider2D>().offset = playerObj.transform.GetChild(0).transform.GetComponent<PlayerController>().topDownColliderOffset;
-        playerObj.transform.GetChild(0).transform.GetComponent<BoxCollider2D>().size = playerObj.transform.GetChild(0).transform.GetComponent<PlayerController>().topDownColliderSize;
-        mainCameraObj.transform.GetComponent<CameraController>().offset = mainCameraObj.transform.GetComponent<CameraController>().topDownOffset;
-        foreach (GameObject city in cities)
+        if(travellingToCity && cityID == 999) //Go to credits
         {
-            if (city.activeSelf)
+            playerObj.SetActive(false);
+            currentView = 3;
+            creditUIObj.SetActive(true);
+            sideScrollMapObj.SetActive(false);
+            topDownMapObj.SetActive(false);
+            mainCameraObj.GetComponent<CameraController>().enabled = false;
+            mainCameraObj.transform.position = new Vector3(0, 0, -10);
+            sideScrollUIObj.SetActive(false);
+            topDownUIObj.SetActive(false);
+        }
+        else
+        {
+            creditUIObj.SetActive(false);
+            playerObj.SetActive(true);
+            mainCameraObj.GetComponent<CameraController>().enabled = true;
+            currentView = 1;
+            topDownUIObj.SetActive(true); //Enables the parent of the topdown ui, disables the parent of the sidescroll ui
+            sideScrollUIObj.SetActive(false);
+            playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().gravityScale = 0.0f; //Stops player from reacting to gravity
+            playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0); //Stops player
+            sideScrollMapObj.SetActive(false); //Disables sidescroll map
+            topDownMapObj.SetActive(true); //Enables topdown map
+            playerObj.transform.GetChild(0).GetComponent<Animator>().SetLayerWeight(1, 1);
+            mainCameraObj.transform.GetComponent<CameraController>().followY = true;
+            playerObj.transform.GetChild(0).transform.GetComponent<BoxCollider2D>().offset = playerObj.transform.GetChild(0).transform.GetComponent<PlayerController>().topDownColliderOffset;
+            playerObj.transform.GetChild(0).transform.GetComponent<BoxCollider2D>().size = playerObj.transform.GetChild(0).transform.GetComponent<PlayerController>().topDownColliderSize;
+            mainCameraObj.transform.GetComponent<CameraController>().offset = mainCameraObj.transform.GetComponent<CameraController>().topDownOffset;
+            foreach (GameObject city in cities)
             {
-                city.SetActive(false);
-                break;
+                if (city.activeSelf)
+                {
+                    city.SetActive(false);
+                    break;
+                }
             }
-        }
-        cities[cityID].SetActive(true);
-        playerObj.transform.GetChild(0).transform.position = citySpawnPoints[cityID].transform.position;
-        mainCameraObj.transform.position = citySpawnPoints[cityID].transform.position;
-        mainCameraObj.transform.GetComponent<CameraController>().canFollowX = true;
-        mainCameraObj.transform.GetComponent<CameraController>().canFollowY = true;
-        mainCameraObj.transform.GetComponent<Camera>().orthographicSize = cameraTopdownSize;
+            cities[cityID].SetActive(true);
+            playerObj.transform.GetChild(0).transform.position = citySpawnPoints[cityID].transform.position;
+            mainCameraObj.transform.position = citySpawnPoints[cityID].transform.position;
+            mainCameraObj.transform.GetComponent<CameraController>().canFollowX = true;
+            mainCameraObj.transform.GetComponent<CameraController>().canFollowY = true;
+            mainCameraObj.transform.GetComponent<Camera>().orthographicSize = cameraTopdownSize;
 
-        //City Stuff
-        cities[cityID].SetActive(true); //Enables the city the player is at
-        if (dayOrNight) //If should be day (dayOrNight true = day, false = night)
-        {
-            gameObject.transform.GetChild(1).transform.GetComponent<Light>().intensity = cityDayTimeSunIntensity; //Day time sun intensity (default 0.7)
-            foreach (GameObject light in cityLights)
-                light.SetActive(false); //Disables all city lights
-        }
-        else
-        {
-            gameObject.transform.GetChild(1).transform.GetComponent<Light>().intensity = cityNightTimeSunIntensity; //Night time sun intensity (default 0)
-            foreach (GameObject light in cityLights)
-                light.SetActive(true); //Enables all city lights
-        }
-        if(!travellingToCity)
-        {
-            dayOrNight = !dayOrNight; //Flips day/night state from previous level
-        }
-        else
-        {
-            travellingToCity = false;
+            //City Stuff
+            cities[cityID].SetActive(true); //Enables the city the player is at
+            if (dayOrNight) //If should be day (dayOrNight true = day, false = night)
+            {
+                gameObject.transform.GetChild(1).transform.GetComponent<Light>().intensity = cityDayTimeSunIntensity; //Day time sun intensity (default 0.7)
+                foreach (GameObject light in cityLights)
+                    light.SetActive(false); //Disables all city lights
+            }
+            else
+            {
+                gameObject.transform.GetChild(1).transform.GetComponent<Light>().intensity = cityNightTimeSunIntensity; //Night time sun intensity (default 0)
+                foreach (GameObject light in cityLights)
+                    light.SetActive(true); //Enables all city lights
+            }
+            if (!travellingToCity)
+            {
+                dayOrNight = !dayOrNight; //Flips day/night state from previous level
+            }
+            else
+            {
+                travellingToCity = false;
+            }
         }
     }
 
     public void changeToSidescroll()
     {
+        mainCameraObj.GetComponent<CameraController>().enabled = true;
         sideScrollUIObj.SetActive(true); //Enables the parent of the sidescroll ui, disables the parent of the topdown ui
         foreach(GameObject level in levels) //Disables previous level
         {

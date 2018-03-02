@@ -55,6 +55,7 @@ public class DoorController : MonoBehaviour {
                         }                            
                     }
                     isBeingAccessed = true;
+                    playerObj.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
                 }
             }
             else //If is a city -> city door

@@ -238,6 +238,7 @@
     <Compile Include="Assets\Scripts\ObjectCtrls\RollingBagController.cs" />
     <Compile Include="Assets\Scripts\ObjectCtrls\SwitchController.cs" />
     <Compile Include="Assets\Scripts\ObjectCtrls\TDObjSortLayerCtrl.cs" />
+    <Compile Include="Assets\Scripts\UICtrls\CreditsCtrl.cs" />
     <Compile Include="Assets\Scripts\UICtrls\ItemBoxController.cs" />
     <Compile Include="Assets\Scripts\UICtrls\SidescrollUIController.cs" />
     <Compile Include="Assets\Scripts\UICtrls\TextTyper.cs" />
