@@ -42,6 +42,18 @@ public class NPCController : MonoBehaviour {
 
     public float acceptanceWaitTime;
 
+    //Movement AI
+    public bool enableAI; //If true, the NPC can walk around
+    public int timer; //When this ticks to 0 the npc will move
+    public int timerMax = 5000; //The max this could be ^
+    public int timerMin = 500; //The min this could be ^
+    public int timeToMoveFor; //How long the npc will walk in that direction for
+    public int maxTimeToMoveFor = 3; //The max this could be ^
+    public int minTimeToMoveFor = 1; //The min this could be ^
+    public float movementSpeed; //The speed at witch the npc will move
+    public float maxMovementSpeed = 3; //The max this could be ^
+    public float minMovementSpeed = 1; //The min this could be ^
+
     private void Start()
     {
         coroutine = dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().TypeText();
@@ -50,7 +62,16 @@ public class NPCController : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update() {
+    void Update()
+    {
+        //Movement Code, only runs if enableAI is true
+        if(enableAI)
+        {
+            if(timer > 0) //Counts down from random number, when it hits 0 the npc moves. 
+                timer--;
+            else
+                Move(); //Makes npc move
+        }
 
         //Code for talking to npc
         if ((Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown("Fire2")) && Vector3.Distance(gameObject.transform.position, playerObj.transform.position) < talkRange && canTalk && dialogueCount < dialogue.Count - 1 && !isWaitingForAcceptance)
@@ -226,5 +247,36 @@ public class NPCController : MonoBehaviour {
     {
         playerObj.transform.GetComponent<PlayerController>().standardPunchDamage += 5;
         playerObj.transform.GetComponent<PlayerController>().punchDamageCap += 10;
+    }
+
+    public void Move()
+    {
+        int direction = Random.Range(1, 5); //Which direction to move in. 1-4 (high is exclusive), 1 = left, 2 = right, 3 = up, 4 = down
+        movementSpeed = Random.Range(minMovementSpeed, maxMovementSpeed); //+1 because max is exclusive in Random.Range(int)
+        timeToMoveFor = Random.Range(minTimeToMoveFor, maxTimeToMoveFor + 1); //^^^
+        switch(direction)
+        {
+            case 1:
+                GetComponent<Rigidbody2D>().velocity = new Vector2(-movementSpeed, 0);
+                break;
+            case 2:
+                GetComponent<Rigidbody2D>().velocity = new Vector2(movementSpeed, 0);
+                break;
+            case 3:
+                GetComponent<Rigidbody2D>().velocity = new Vector2(0, movementSpeed);
+                break;
+            case 4:
+                GetComponent<Rigidbody2D>().velocity = new Vector2(0, -movementSpeed);
+                break;
+        }
+        StartCoroutine(WaitToStopMoving()); //Starts countdown until npc should stop moving
+    }
+
+    IEnumerator WaitToStopMoving()
+    {
+        yield return new WaitForSeconds(timeToMoveFor); //Waits to stop npc from moving (otherwise it would be instant. start -> stop)
+        GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0); //Stops npc
+        timer = Random.Range(timerMin, timerMax); //Resets timer until npc can move again
+        StopCoroutine(WaitToStopMoving());
     }
 }

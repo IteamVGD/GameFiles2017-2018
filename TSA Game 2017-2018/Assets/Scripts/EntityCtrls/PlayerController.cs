@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
-
     public GameController gameControllerScript;
 
     //Stats
@@ -36,6 +35,9 @@ public class PlayerController : MonoBehaviour
     public float jumpSpeed;
     public bool canJump;
     public bool movementKeyBeingPressed;
+    public GameObject fastFallStarObj; //The star indicator that apears when the player is fast falling
+    public Color fastFallColor; //Used to make the player slightly darker when fast falling
+    public Color originalColor; //The player's original color. Is reset to this fater fast falling
 
     public float punchTime = 0.8f; //Time a punch stays displayed; DONT MESS WITH! Complex punch system to allow charge punching to work
     public float crouchPunchTime = 0.5f; //Time a crouch punch stays displayed
@@ -175,6 +177,8 @@ public class PlayerController : MonoBehaviour
         koTimerList.Add(20);
         koTimerList.Add(15);
         koTimerList.Add(10); //Preety sure thats impossible
+
+        originalColor = GetComponent<SpriteRenderer>().color;
     }
 
     // Update is called once per frame
@@ -468,6 +472,11 @@ public class PlayerController : MonoBehaviour
             if ((Input.GetKey(KeyCode.S) || (downPressed == true && yAxisFloat < -0.8)) && !canJump)
             {
                 GetComponent<Rigidbody2D>().velocity = new Vector2(GetComponent<Rigidbody2D>().velocity.x, -jumpSpeedInt * 1.5f);
+                if (fastFallStarObj.activeInHierarchy == false)
+                {
+                    fastFallStarObj.SetActive(true);
+                    GetComponent<SpriteRenderer>().color = fastFallColor;
+                }
             }
 
             //Crouch
@@ -608,6 +617,13 @@ public class PlayerController : MonoBehaviour
                 canJump = true;
                 animatorWalk.SetBool("canJumpBool", true);
                 animatorWalk.SetBool("isDownPunching", false);
+
+                //Resets fast fall
+                if (fastFallStarObj.activeInHierarchy == true)
+                {
+                    fastFallStarObj.SetActive(false);
+                    GetComponent<SpriteRenderer>().color = originalColor;
+                }
                 //effectiveDownPunch = false;
                 //isDownPunching = false;
             }
