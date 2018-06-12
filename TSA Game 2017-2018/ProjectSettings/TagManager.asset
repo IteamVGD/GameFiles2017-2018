@@ -16,6 +16,10 @@ TagManager:
   - BlueBox
   - RedBox
   - EnemyDownPunchable
+  - Gym
+  - MarketInterior
+  - HospitalInteriror
+  - CityLight
   layers:
   - Default
   - TransparentFX

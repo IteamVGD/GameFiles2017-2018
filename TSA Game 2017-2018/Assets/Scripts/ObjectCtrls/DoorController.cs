@@ -7,6 +7,10 @@ public class DoorController : MonoBehaviour {
     public bool cityToCityDoor; //If true, transitions from city -> city
     public bool cityToLevel; //If true, transitions from city -> level
     public bool levelToCity; //If true, transitions from level -> city
+    public bool teleportDoor; //Teleports the player to a new place through a fade transition. Mostly used for entering / exiting buildings
+    public int inOutInt; //1 = player is indoors, 2 = player is outdoors
+
+    public int buildingType; //If going into/outof building, this int is: 1 = hospital, 2 = market
 
     public GameObject playerObj;
     public int maxAccessRange; //The distance at which the player can access the door
@@ -20,6 +24,8 @@ public class DoorController : MonoBehaviour {
 
     public bool playMusicOnEnable;
     public GameObject musicToRevertTo; //What to play after this object is done playing music (if it should, controlled by bool above)
+
+    public GameObject linkedSpawnpoint; //If this door leads in/out of a building, this is where it will put the player
 
     private void Start()
     {
@@ -52,20 +58,32 @@ public class DoorController : MonoBehaviour {
                                 firstTownBlockade.SetActive(false);
                                 hasRemovedBlockade = true;
                             }
-                        }                            
+                        }
+                        if(teleportDoor)
+                        {
+                            gameControllerObj.GetComponent<GameController>().playerTeleportSpot = linkedSpawnpoint;
+                            gameControllerObj.GetComponent<GameController>().teleportDoorBeingUsed = gameObject;
+                            gameControllerObj.GetComponent<GameController>().inOrOutIntTemp = inOutInt;
+                            StartCoroutine(gameControllerObj.transform.GetComponent<GameController>().ChangeViewFadeOut(0.04f, 0.04f, 0.45f));
+                        }
                     }
                     isBeingAccessed = true;
+                    StartCoroutine(isBeingAccessedTimer());
                     playerObj.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
                 }
             }
             else //If is a city -> city door
             {
-                if (Vector3.Distance(gameObject.transform.position, playerObj.transform.GetChild(0).position) < maxAccessRange) //If player is close enough to this object (no button press required)
+                if(cityToCityDoor)
                 {
-                    StartCoroutine(gameControllerObj.transform.GetComponent<GameController>().ChangeViewFadeOut(0.03f, 0.03f, 0.55f));
-                    gameControllerObj.transform.GetComponent<GameController>().cityID = nextID;
-                    gameControllerObj.transform.GetComponent<GameController>().travellingToCity = true;
-                }   
+                    if (Vector3.Distance(gameObject.transform.position, playerObj.transform.GetChild(0).position) < maxAccessRange) //If player is close enough to this object (no button press required)
+                    {
+                        StartCoroutine(gameControllerObj.transform.GetComponent<GameController>().ChangeViewFadeOut(0.03f, 0.03f, 0.55f));
+                        gameControllerObj.transform.GetComponent<GameController>().cityID = nextID;
+                        gameControllerObj.transform.GetComponent<GameController>().travellingToCity = true;
+                    }
+                }
+ 
             }
         }
 
@@ -76,5 +94,12 @@ public class DoorController : MonoBehaviour {
     private void OnEnable()
     {
         isBeingAccessed = false;
+    }
+
+    public IEnumerator isBeingAccessedTimer()
+    {
+        yield return new WaitForSeconds(1.5f); //Waits until player is gone so the door is interactable again
+        isBeingAccessed = false;
+        StopCoroutine(isBeingAccessedTimer());
     }
 }

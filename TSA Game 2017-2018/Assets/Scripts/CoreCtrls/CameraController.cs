@@ -18,16 +18,32 @@ public class CameraController : MonoBehaviour {
     public Vector3 sidescrollOffset;
     public Vector3 topDownOffset;
     public float constantY;
+    public int id;
+
+    //Interior background color variables
+    public float duration = 1.5f;
+    public float t = 0;
+    public Color color1;
+    public Color color2;
+    public bool switchFlow;
 
     private void FixedUpdate()
     {
         if(playerObj.transform.GetComponent<PlayerController>().gameControllerScript.currentView == 1 && (canFollowX || canFollowY))
         {
-            int id = playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cityID;
-            if (playerObj.transform.position.x >= playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(0).position.x || playerObj.transform.position.x <= playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(1).position.x) //X bounds
+            id = gameControllerObj.transform.GetComponent<GameController>().cityID;
+            if (gameControllerObj.transform.GetComponent<GameController>().inOrOutInt == 1)
+            {
+                if (playerObj.transform.position.x >= playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(0).position.x || playerObj.transform.position.x <= playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(1).position.x) //X bounds
+                    canFollowX = false;
+                if (playerObj.transform.position.y >= playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(0).position.y || playerObj.transform.position.y <= playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(1).position.y) //Y bounds
+                    canFollowY = false;
+            }
+            else
+            {
                 canFollowX = false;
-            if (playerObj.transform.position.y >= playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(0).position.y || playerObj.transform.position.y <= playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(1).position.y) //X bounds
                 canFollowY = false;
+            }
         }
 
         if(!canFollowX || !canFollowY)
@@ -39,11 +55,13 @@ public class CameraController : MonoBehaviour {
             }
             else
             {
-                int id = playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cityID;
-                if (playerObj.transform.position.x < playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(0).position.x && playerObj.transform.position.x > playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(1).position.x)
-                    canFollowX = true;
-                if (playerObj.transform.position.y < playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(0).position.y && playerObj.transform.position.y > playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(1).position.y)
-                    canFollowY = true;
+                if(gameControllerObj.transform.GetComponent<GameController>().inOrOutInt != 1)
+                {
+                    if (playerObj.transform.position.x < playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(0).position.x && playerObj.transform.position.x > playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(1).position.x)
+                        canFollowX = true;
+                    if (playerObj.transform.position.y < playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(0).position.y && playerObj.transform.position.y > playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(1).position.y)
+                        canFollowY = true;
+                }
             }
         }
 
@@ -77,6 +95,30 @@ public class CameraController : MonoBehaviour {
             desiredPostion = new Vector3(playerObj.transform.position.x + offset.x, gameControllerObj.GetComponent<GameController>().levelParallaxObjs[gameControllerObj.GetComponent<GameController>().levelID].transform.position.y, -10);
             smoothedPosition = Vector3.Lerp(gameControllerObj.GetComponent<GameController>().levelParallaxObjs[gameControllerObj.GetComponent<GameController>().levelID].transform.position, desiredPostion, parallaxSmoothSpeed * Time.deltaTime);
             gameControllerObj.GetComponent<GameController>().levelParallaxObjs[gameControllerObj.GetComponent<GameController>().levelID].transform.position = smoothedPosition;
+        }
+    }
+
+    private void Update()
+    {
+        if(gameControllerObj.transform.GetComponent<GameController>().inOrOutInt == 1)
+        {
+            if (switchFlow)
+            {
+                GetComponent<Camera>().backgroundColor = Color.Lerp(color1, color2, t);
+            }
+            else
+            {
+                GetComponent<Camera>().backgroundColor = Color.Lerp(color2, color1, t);
+            }
+            if (t < 1)
+            {
+                t += Time.deltaTime / duration;
+            }
+            else
+            {
+                switchFlow = !switchFlow;
+                t = 0;
+            }
         }
     }
 }

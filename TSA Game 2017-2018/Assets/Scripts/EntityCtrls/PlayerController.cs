@@ -890,11 +890,12 @@ public class PlayerController : MonoBehaviour
         isBeingKOd = false; //Re-enables basic functions (ex. movement)
         animatorWalk.SetBool("isDowned", false); //Disables KO animation
         gameControllerScript.koSlider.transform.parent.gameObject.SetActive(false); //Disables the KO slider ui
-        gameObject.transform.position = gameControllerScript.levelSpawnpoints[gameControllerScript.levelID].transform.position; //Resets player to start of level
+        gameControllerScript.changeToTopdown(true);
+        /*gameObject.transform.position = gameControllerScript.levelSpawnpoints[gameControllerScript.levelID].transform.position; //Resets player to start of level
         gameControllerScript.mainCameraObj.transform.position = gameObject.transform.position;
+        gameControllerScript.levelParallaxObjs[gameControllerScript.levelID].transform.position = new Vector3(gameObject.transform.position.x, gameControllerScript.levelParallaxObjs[gameControllerScript.levelID].transform.position.y, gameControllerScript.levelParallaxObjs[gameControllerScript.levelID].transform.position.z);*/
         gameControllerScript.mainCameraObj.GetComponent<CameraController>().desiredPostion = new Vector3(gameObject.transform.position.x, gameObject.transform.position.y, -10);
-        gameControllerScript.levelMusicObjs[gameControllerScript.levelID].GetComponent<AudioSource>().UnPause();
-        gameControllerScript.levelParallaxObjs[gameControllerScript.levelID].transform.position = new Vector3(gameObject.transform.position.x, gameControllerScript.levelParallaxObjs[gameControllerScript.levelID].transform.position.y, gameControllerScript.levelParallaxObjs[gameControllerScript.levelID].transform.position.z);
+        gameControllerScript.levelMusicObjs[gameControllerScript.levelID].GetComponent<AudioSource>().UnPause();       
         canRunDeathJingle = true;
 
     }

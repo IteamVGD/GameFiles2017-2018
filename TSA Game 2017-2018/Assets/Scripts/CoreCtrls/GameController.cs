@@ -73,11 +73,19 @@ public class GameController : MonoBehaviour { //18
     public int cityID; //Which city the player is in; 0 = first city
     public bool travellingToCity; //If true, fade out will not switch views, but will stay in topdown and load next city
     public bool travellingToLevel;
+    public bool intoBuilding; //If true, go into interior
+    public bool outOfBuilding; //If true, leaving interior of building
     public List<GameObject> cities; //The parent objects that hold all objects in a city
     public List<GameObject> citySpawnPoints; //Holds all spawnpoints (where the player should be placed) when travelling into a city from another city
     public List<GameObject> cityLights; //Turned on for night time, off for daytime
     public float cityDayTimeSunIntensity;
     public float cityNightTimeSunIntensity;
+
+    public List<GameObject> cityGymList; //A list of all gyms in ascending order of cities
+    public int inOrOutInt; //1 = player is indoors, 2 = player is outdoors
+    public int inOrOutIntTemp; //Same as above but keeps the value until the screen fades to black for the transition, then sets the above to this
+    public GameObject indoorsUpperBound; //The bounds for the camera movement when indoors; currently not used, camera is just locked when indoors
+    public GameObject indoorsLowerBound; //^^^
 
     public int levelID;
     public List<GameObject> levels;
@@ -93,6 +101,9 @@ public class GameController : MonoBehaviour { //18
     public List<GameObject> blueBoxes; //^^^ same but for blue crate
     public List<GameObject> switches;
     public bool canBeSwitched;
+
+    public GameObject playerTeleportSpot; //Used with the teleportDoor transition
+    public GameObject teleportDoorBeingUsed; //Door used with val above; resets door to be used again
 
     private void Awake()
     {
@@ -124,6 +135,22 @@ public class GameController : MonoBehaviour { //18
                 switches.Add(switchObj);
             }
         }
+
+        foreach(GameObject obj in GameObject.FindGameObjectsWithTag("Gym"))
+        {
+            cityGymList.Add(obj);
+        }
+        foreach(GameObject obj in GameObject.FindGameObjectsWithTag("CityLight"))
+        {
+            cityLights.Add(obj);
+        }
+
+        foreach(GameObject obj in cities)
+        {
+            obj.SetActive(false);
+        }
+
+        playerObj.SetActive(false);
     }
 
     // Update is called once per frame
@@ -248,7 +275,7 @@ public class GameController : MonoBehaviour { //18
         {
             currentView = 1;
             cityID = 1;
-            changeToTopdown();
+            changeToTopdown(false);
         }
         if (currentView == 1 && travellingToLevel)
         {
@@ -258,11 +285,11 @@ public class GameController : MonoBehaviour { //18
         if(currentView == 2 && travellingToCity)
         {
             currentView = 1;
-            changeToTopdown();
+            changeToTopdown(false);
         }
-        if (currentView == 1 && travellingToCity)
+        if (currentView == 1 && travellingToCity && !intoBuilding && !outOfBuilding)
         {
-            changeToTopdown();
+            changeToTopdown(false);
         }
         if (currentView == 0) //Only runs once per boot when main menu is exited through new game button
         {
@@ -389,11 +416,11 @@ public class GameController : MonoBehaviour { //18
                     }
                 }
             }
-            changeToTopdown();
+            changeToTopdown(false);
         }
     }
 
-    public void changeToTopdown()
+    public void changeToTopdown(bool kickedOutOfLevel)
     {
         if(travellingToCity && cityID == 999) //Go to credits
         {
@@ -433,33 +460,44 @@ public class GameController : MonoBehaviour { //18
                 }
             }
             cities[cityID].SetActive(true);
-            playerObj.transform.GetChild(0).transform.position = citySpawnPoints[cityID].transform.position;
-            mainCameraObj.transform.position = citySpawnPoints[cityID].transform.position;
+            if(!kickedOutOfLevel)
+            {
+                playerObj.transform.GetChild(0).transform.position = citySpawnPoints[cityID].transform.position;
+                mainCameraObj.transform.position = citySpawnPoints[cityID].transform.position;
+            }
+            else
+            {
+                playerObj.transform.GetChild(0).transform.position = cityGymList[cityID].transform.position;
+                mainCameraObj.transform.position = citySpawnPoints[cityID].transform.position;
+            }
             mainCameraObj.transform.GetComponent<CameraController>().canFollowX = true;
             mainCameraObj.transform.GetComponent<CameraController>().canFollowY = true;
             mainCameraObj.transform.GetComponent<Camera>().orthographicSize = cameraTopdownSize;
 
             //City Stuff
             cities[cityID].SetActive(true); //Enables the city the player is at
-            if (dayOrNight) //If should be day (dayOrNight true = day, false = night)
+            if (!kickedOutOfLevel)
             {
-                gameObject.transform.GetChild(1).transform.GetComponent<Light>().intensity = cityDayTimeSunIntensity; //Day time sun intensity (default 0.7)
-                foreach (GameObject light in cityLights)
-                    light.SetActive(false); //Disables all city lights
-            }
-            else
-            {
-                gameObject.transform.GetChild(1).transform.GetComponent<Light>().intensity = cityNightTimeSunIntensity; //Night time sun intensity (default 0)
-                foreach (GameObject light in cityLights)
-                    light.SetActive(true); //Enables all city lights
-            }
-            if (!travellingToCity)
-            {
-                dayOrNight = !dayOrNight; //Flips day/night state from previous level
-            }
-            else
-            {
-                travellingToCity = false;
+                if (dayOrNight) //If should be day (dayOrNight true = day, false = night)
+                {
+                    gameObject.transform.GetChild(1).transform.GetComponent<Light>().intensity = cityDayTimeSunIntensity; //Day time sun intensity (default 0.7)
+                    foreach (GameObject light in cityLights)
+                        light.SetActive(false); //Disables all city lights
+                }
+                else
+                {
+                    gameObject.transform.GetChild(1).transform.GetComponent<Light>().intensity = cityNightTimeSunIntensity; //Night time sun intensity (default 0)
+                    foreach (GameObject light in cityLights)
+                        light.SetActive(true); //Enables all city lights
+                }
+                if (!travellingToCity)
+                {
+                    dayOrNight = !dayOrNight; //Flips day/night state from previous level
+                }
+                else
+                {
+                    travellingToCity = false;
+                }
             }
         }
     }
@@ -491,8 +529,8 @@ public class GameController : MonoBehaviour { //18
         playerObj.transform.GetChild(0).transform.GetComponent<BoxCollider2D>().size = playerObj.transform.GetChild(0).transform.GetComponent<PlayerController>().sideScrollColliderSize;
         mainCameraObj.transform.GetComponent<CameraController>().offset = mainCameraObj.transform.GetComponent<CameraController>().sidescrollOffset;
         mainCameraObj.transform.GetComponent<Camera>().orthographicSize = cameraSidescrollSize;
-        playerObj.transform.GetChild(0).GetComponent<PlayerController>().health = playerObj.transform.GetChild(0).GetComponent<PlayerController>().maxHealth;
-        updateHealthSlider(playerObj.transform.GetChild(0).GetComponent<PlayerController>().minHealth, playerObj.transform.GetChild(0).GetComponent<PlayerController>().maxHealth, playerObj.transform.GetChild(0).GetComponent<PlayerController>().health);
+        //playerObj.transform.GetChild(0).GetComponent<PlayerController>().health = playerObj.transform.GetChild(0).GetComponent<PlayerController>().maxHealth;
+        //updateHealthSlider(playerObj.transform.GetChild(0).GetComponent<PlayerController>().minHealth, playerObj.transform.GetChild(0).GetComponent<PlayerController>().maxHealth, playerObj.transform.GetChild(0).GetComponent<PlayerController>().health); //Resets player's health after level
         playerObj.transform.GetChild(0).GetComponent<PlayerController>().blockMeter = playerObj.transform.GetChild(0).GetComponent<PlayerController>().maxBlock;
         updateBlockSlider(playerObj.transform.GetChild(0).GetComponent<PlayerController>().minBlock, playerObj.transform.GetChild(0).GetComponent<PlayerController>().maxBlock, (int) playerObj.transform.GetChild(0).GetComponent<PlayerController>().blockMeter);
 
@@ -533,7 +571,24 @@ public class GameController : MonoBehaviour { //18
         else
         {
             StartCoroutine(ChangeViewFadeWait(fadeWaitTime, fadeAddAmount, timeToWaitBetweenFades));
-            ChangeView();
+            if(playerTeleportSpot != null)
+            {
+                playerObj.transform.GetChild(0).position = playerTeleportSpot.transform.position; //Teleports player to spawn (either interior, or back at the door of the building)
+                inOrOutInt = inOrOutIntTemp;
+
+                //Disables camera tracking of player & focuses it on the interior
+                Vector3 newCamPos = new Vector3(playerTeleportSpot.transform.position.x, playerTeleportSpot.transform.position.y + 2, -10);
+                mainCameraObj.transform.position = newCamPos;
+                mainCameraObj.GetComponent<CameraController>().desiredPostion = newCamPos;
+                mainCameraObj.GetComponent<CameraController>().canFollowX = false;
+                mainCameraObj.GetComponent<CameraController>().canFollowY = false;
+
+                playerTeleportSpot = null;
+            }
+            else
+            {
+                ChangeView();
+            }
             StopCoroutine(ChangeViewFadeOut(fadeWaitTime, fadeAddAmount, timeToWaitBetweenFades));
         }
     }
@@ -556,6 +611,11 @@ public class GameController : MonoBehaviour { //18
         }
         else
         {
+            if(teleportDoorBeingUsed != null)
+            {
+                teleportDoorBeingUsed.transform.GetComponent<DoorController>().isBeingAccessed = false;
+                teleportDoorBeingUsed = null;
+            }
             StopCoroutine(ChangeViewFadeIn(fadeWaitTime, fadeRemoveAmount));
         }
     }
