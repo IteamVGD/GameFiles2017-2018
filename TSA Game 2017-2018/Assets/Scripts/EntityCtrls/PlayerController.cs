@@ -138,6 +138,13 @@ public class PlayerController : MonoBehaviour
 
     public AudioClip deathJingle;
 
+    //GCode
+    public bool GCodeEnabled; //If true, allows GCode
+    public string inputCode; //Controls the codes; U = up, D = down, L = left, R = right
+
+    private string noClipString = "ULDRU"; //What the user needs to input to noclip. Inputting again disables it
+    public bool noClipEnabled; 
+
     private void Awake()
     {
         gameControllerScript = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>();
@@ -184,15 +191,40 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        gameObject.transform.parent.GetChild(1).position = gameObject.transform.position;
-        if ((Input.GetKeyDown(KeyCode.L) || Input.GetButtonDown("Fire0")) && gameObject.transform.GetComponent<Rigidbody2D>().velocity.y == 0 && !isBeingKOd)
+        if(GCodeEnabled)
+        {
+            //GCode String Filler
+            if (Input.GetKeyDown(KeyCode.UpArrow))
+            {
+                inputCode += "U";
+                GCodeUpdater();
+            }
+            if (Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                inputCode += "D";
+                GCodeUpdater();
+            }
+            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                inputCode += "L";
+                GCodeUpdater();
+            }
+            if (Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                inputCode += "R";
+                GCodeUpdater();
+            }
+        }
+
+        transform.parent.GetChild(1).position = transform.position;
+        if ((Input.GetKeyDown(KeyCode.L) || Input.GetButtonDown("Fire0")) && transform.GetComponent<Rigidbody2D>().velocity.y == 0 && !isBeingKOd)
         {
             if (blockMeter > (maxBlock / 4))
             {
                 isBlocking = true;
                 animatorWalk.SetBool("isBlocking", true);
                 horizontalMovementSpeed = 0;
-                gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
+                transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
             }
         }
         if ((Input.GetKeyUp(KeyCode.L) || Input.GetButtonUp("Fire0")) && isBlocking == true)
@@ -201,9 +233,9 @@ public class PlayerController : MonoBehaviour
             animatorWalk.SetBool("isBlocking", false);
         }
 
-        if (isPunching == false && (gameObject.transform.GetComponent<Animator>().speed != 1 || horizontalMovementSpeed != 4))
+        if (isPunching == false && (transform.GetComponent<Animator>().speed != 1 || horizontalMovementSpeed != 4))
         {
-            gameObject.transform.GetComponent<Animator>().speed = 1;
+            transform.GetComponent<Animator>().speed = 1;
             horizontalMovementSpeed = 4;
         }
 
@@ -307,13 +339,13 @@ public class PlayerController : MonoBehaviour
 
         animatorWalk.SetInteger("sideFacingInt", sideFacing);
         animatorWalk.SetInteger("previousSideFacing", previousSideFacing);
-        if (gameObject.transform.GetComponent<Rigidbody2D>().velocity.x > 0 || gameObject.transform.GetComponent<Rigidbody2D>().velocity.y > 0 || gameObject.transform.GetComponent<Rigidbody2D>().velocity.x < 0 || gameObject.transform.GetComponent<Rigidbody2D>().velocity.y < 0)
+        if (transform.GetComponent<Rigidbody2D>().velocity.x > 0 || transform.GetComponent<Rigidbody2D>().velocity.y > 0 || transform.GetComponent<Rigidbody2D>().velocity.x < 0 || transform.GetComponent<Rigidbody2D>().velocity.y < 0)
         {
             isIdle = false;
             transform.GetComponent<SpriteRenderer>().flipX = false;
         }
-        animatorWalk.SetInteger("HorizontalSpeedTD", (int)gameObject.transform.GetComponent<Rigidbody2D>().velocity.x); //Velocity based animations
-        animatorWalk.SetInteger("VerticalSpeedTD", (int)gameObject.transform.GetComponent<Rigidbody2D>().velocity.y); //TD = Topdown variables
+        animatorWalk.SetInteger("HorizontalSpeedTD", (int)transform.GetComponent<Rigidbody2D>().velocity.x); //Velocity based animations
+        animatorWalk.SetInteger("VerticalSpeedTD", (int)transform.GetComponent<Rigidbody2D>().velocity.y); //TD = Topdown variables
 
         if (gameControllerScript.currentView == 1)
         {
@@ -324,50 +356,50 @@ public class PlayerController : MonoBehaviour
             {
                 if (Input.GetKey(KeyCode.D) || (rightPressed == true && xAxisFloat > 0.8))
                 {
-                    gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
+                    transform.GetComponent<Rigidbody2D>().velocity = new Vector2(horizontalMovementSpeed, transform.GetComponent<Rigidbody2D>().velocity.y);
                     sideFacing = 4;
                 }
                 if (Input.GetKey(KeyCode.A) || (leftPressed == true && xAxisFloat < -0.8))
                 {
-                    gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(-horizontalMovementSpeed, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
+                    transform.GetComponent<Rigidbody2D>().velocity = new Vector2(-horizontalMovementSpeed, transform.GetComponent<Rigidbody2D>().velocity.y);
                     sideFacing = 2;
                 }
                 if (Input.GetKey(KeyCode.W) || (upPressed == true && yAxisFloat > 0.8))
                 {
-                    gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, verticalMovementSpeed);
+                    transform.GetComponent<Rigidbody2D>().velocity = new Vector2(transform.GetComponent<Rigidbody2D>().velocity.x, verticalMovementSpeed);
                     sideFacing = 1;
                 }
                 if (Input.GetKey(KeyCode.S) || (downPressed == true && yAxisFloat < -0.8))
                 {
-                    gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, -verticalMovementSpeed);
+                    transform.GetComponent<Rigidbody2D>().velocity = new Vector2(transform.GetComponent<Rigidbody2D>().velocity.x, -verticalMovementSpeed);
                     sideFacing = 3;
                 }
 
                 //Let go to stop
                 if (Input.GetKeyUp(KeyCode.D) || (rightPressed == true && xAxisFloat < 0.8))
                 {
-                    gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
+                    transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, transform.GetComponent<Rigidbody2D>().velocity.y);
                     isIdle = true;
                     sideFacing = 3;
                     rightPressed = false;
                 }
                 if (Input.GetKeyUp(KeyCode.A) || (leftPressed == true && xAxisFloat > -0.8))
                 {
-                    gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
+                    transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, transform.GetComponent<Rigidbody2D>().velocity.y);
                     isIdle = true;
                     sideFacing = 3;
                     leftPressed = false;
                 }
                 if (Input.GetKeyUp(KeyCode.W) || (upPressed == true && yAxisFloat < 0.8))
                 {
-                    gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, 0);
+                    transform.GetComponent<Rigidbody2D>().velocity = new Vector2(transform.GetComponent<Rigidbody2D>().velocity.x, 0);
                     isIdle = true;
                     sideFacing = 3;
                     upPressed = false;
                 }
                 if (Input.GetKeyUp(KeyCode.S) || (downPressed == true && yAxisFloat > -0.8))
                 {
-                    gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, 0);
+                    transform.GetComponent<Rigidbody2D>().velocity = new Vector2(transform.GetComponent<Rigidbody2D>().velocity.x, 0);
                     isIdle = true;
                     sideFacing = 3;
                     downPressed = false;
@@ -413,14 +445,14 @@ public class PlayerController : MonoBehaviour
                 if (jumpheightTimerInt < minJumpHeight)
                 {
                     jumpheightTimerInt += 1;
-                    gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, jumpSpeedInt);
+                    transform.GetComponent<Rigidbody2D>().velocity = new Vector2(transform.GetComponent<Rigidbody2D>().velocity.x, jumpSpeedInt);
                 }
                 else
                 {
                     goToMinJump = false;
-                    if (letGoOfSpace == true && gameObject.transform.GetComponent<Rigidbody2D>().velocity.y >= 0)
+                    if (letGoOfSpace == true && transform.GetComponent<Rigidbody2D>().velocity.y >= 0)
                     {
-                        gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, 0);
+                        transform.GetComponent<Rigidbody2D>().velocity = new Vector2(transform.GetComponent<Rigidbody2D>().velocity.x, 0);
                     }
                 }
             }
@@ -430,7 +462,7 @@ public class PlayerController : MonoBehaviour
                 if (jumpheightTimerInt < maxJumpHeight)
                 {
                     jumpheightTimerInt += 1;
-                    gameObject.transform.GetComponent<Rigidbody2D>().AddForce(transform.up * jumpSpeedInt);
+                    transform.GetComponent<Rigidbody2D>().AddForce(transform.up * jumpSpeedInt);
                 }
             }
 
@@ -444,9 +476,9 @@ public class PlayerController : MonoBehaviour
                         sideFacing = 3;
                     }
                     letGoOfSpace = true;
-                    if (jumpheightTimerInt >= minJumpHeight && gameObject.transform.GetComponent<Rigidbody2D>().velocity.y >= 0)
+                    if (jumpheightTimerInt >= minJumpHeight && transform.GetComponent<Rigidbody2D>().velocity.y >= 0)
                     {
-                        gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, 0);
+                        transform.GetComponent<Rigidbody2D>().velocity = new Vector2(transform.GetComponent<Rigidbody2D>().velocity.x, 0);
                     }
                 }
             }
@@ -461,9 +493,9 @@ public class PlayerController : MonoBehaviour
                         sideFacing = 3;
                     }
                     letGoOfSpace = true;
-                    if (jumpheightTimerInt >= minJumpHeight && gameObject.transform.GetComponent<Rigidbody2D>().velocity.y >= 0)
+                    if (jumpheightTimerInt >= minJumpHeight && transform.GetComponent<Rigidbody2D>().velocity.y >= 0)
                     {
-                        gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(gameObject.transform.GetComponent<Rigidbody2D>().velocity.x, 0);
+                        transform.GetComponent<Rigidbody2D>().velocity = new Vector2(transform.GetComponent<Rigidbody2D>().velocity.x, 0);
                     }
                 }
             }
@@ -485,14 +517,14 @@ public class PlayerController : MonoBehaviour
                 isCrouching = true;
                 horizontalMovementSpeed = 1;
                 animatorWalk.SetBool("isCrouching", true);
-                gameObject.transform.GetComponent<BoxCollider2D>().size = new Vector2(1.3f, 2.2f);
-                gameObject.transform.GetComponent<BoxCollider2D>().offset = new Vector2(0, -0.15f);
+                transform.GetComponent<BoxCollider2D>().size = new Vector2(1.3f, 2.2f);
+                transform.GetComponent<BoxCollider2D>().offset = new Vector2(0, -0.15f);
             }
 
             //Let go to stop
             if (Input.GetKeyUp(KeyCode.D) || (rightPressed == true && xAxisFloat < 0.8))
             {
-                gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
+                transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, transform.GetComponent<Rigidbody2D>().velocity.y);
                 if (isCrouching == false)
                 {
                     isIdle = true;
@@ -502,7 +534,7 @@ public class PlayerController : MonoBehaviour
             }
             if (Input.GetKeyUp(KeyCode.A) || (leftPressed == true && xAxisFloat > -0.8))
             {
-                gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, gameObject.transform.GetComponent<Rigidbody2D>().velocity.y);
+                transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, transform.GetComponent<Rigidbody2D>().velocity.y);
                 if (isCrouching == false)
                 {
                     isIdle = true;
@@ -518,8 +550,8 @@ public class PlayerController : MonoBehaviour
                 animatorWalk.SetBool("isPunching", false);
                 isIdle = true;
                 sideFacing = 3; //Side facing = forward/toward camera
-                gameObject.transform.GetComponent<BoxCollider2D>().size = colliderOriginalSize; //Resets main boxcollider's size and offset to match character forward model
-                gameObject.transform.GetComponent<BoxCollider2D>().offset = colliderOriginalOffset;
+                transform.GetComponent<BoxCollider2D>().size = colliderOriginalSize; //Resets main boxcollider's size and offset to match character forward model
+                transform.GetComponent<BoxCollider2D>().offset = colliderOriginalOffset;
                 downPressed = false;
             }
         }
@@ -569,13 +601,13 @@ public class PlayerController : MonoBehaviour
         if ((Input.GetKeyUp(KeyCode.J) || Input.GetButtonUp("Fire3")) && spamPunchTimerInt < 20 && isCrouching == false && isPunching == true)
         {
             //StopAllCoroutines(); //Breaks out of punch / charge punch
-            Color tempColor = gameObject.transform.GetComponent<SpriteRenderer>().color;
+            Color tempColor = transform.GetComponent<SpriteRenderer>().color;
             tempColor.a = 255;
-            gameObject.transform.GetComponent<SpriteRenderer>().color = tempColor;
+            transform.GetComponent<SpriteRenderer>().color = tempColor;
             animatorWalk.SetBool("isPunching", false);
             horizontalMovementSpeed = 4;
             isPunching = false;
-            gameObject.transform.GetComponent<Animator>().speed = initialAnimSpeed;
+            transform.GetComponent<Animator>().speed = initialAnimSpeed;
         }
 
         if (Input.GetKeyDown(KeyCode.J) || Input.GetButtonDown("Fire3"))
@@ -663,27 +695,27 @@ public class PlayerController : MonoBehaviour
 
         //Variable Damage System
         yield return new WaitForSeconds(0.05f); //First wait, doesnt add to punch increment so standard punch is differenciated from charge punch
-        gameObject.transform.GetComponent<Animator>().speed -= punchTime * 0.2f; //Slows current animation
+        transform.GetComponent<Animator>().speed -= punchTime * 0.2f; //Slows current animation
         yield return new WaitForSeconds(waitTime); //Second wait + slows punch to show that it is a charge punch
 
         if (punchIsPressed == false)
         {
             StopAllCoroutines(); //Breaks out of punch / charge punch
-            Color tempColor = gameObject.transform.GetComponent<SpriteRenderer>().color;
+            Color tempColor = transform.GetComponent<SpriteRenderer>().color;
             tempColor.a = 255;
-            gameObject.transform.GetComponent<SpriteRenderer>().color = tempColor;
+            transform.GetComponent<SpriteRenderer>().color = tempColor;
             animatorWalk.SetBool("isPunching", false);
             animatorWalk.SetBool("canStopPunching", true);
             horizontalMovementSpeed = 4;
             isPunching = false;
-            gameObject.transform.GetComponent<Animator>().speed = initialAnimSpeed;
+            transform.GetComponent<Animator>().speed = initialAnimSpeed;
         }
 
-        gameObject.transform.GetComponent<Animator>().speed -= punchTime * 1f; //Slows current animation
+        transform.GetComponent<Animator>().speed -= punchTime * 1f; //Slows current animation
         punchDamage += damageToAdd;
         horizontalMovementSpeed = 1;
         yield return new WaitForSeconds(waitTime); //Third wait
-        gameObject.transform.GetComponent<Animator>().speed -= punchTime * 0.4f; //Slows current animation
+        transform.GetComponent<Animator>().speed -= punchTime * 0.4f; //Slows current animation
         punchDamage += damageToAdd;
         yield return new WaitForSeconds(waitTime); //Fourth wait
         punchDamage += damageToAdd;
@@ -694,7 +726,7 @@ public class PlayerController : MonoBehaviour
         animatorWalk.SetBool("canStopPunching", true);
         horizontalMovementSpeed = 4;
         isPunching = false;
-        gameObject.transform.GetComponent<Animator>().speed = initialAnimSpeed;
+        transform.GetComponent<Animator>().speed = initialAnimSpeed;
     }
 
     IEnumerator CrouchPunch()
@@ -762,7 +794,7 @@ public class PlayerController : MonoBehaviour
         isBeingKOd = true;
         health = minHealth;
         gameControllerScript.updateHealthSlider(minHealth, maxHealth, health);
-        gameObject.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
+        transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
         gameControllerScript.koSlider.transform.parent.gameObject.SetActive(true);
         timesKOd++;
         mashAmount = 0;
@@ -834,20 +866,20 @@ public class PlayerController : MonoBehaviour
     {
         isInInvincibilityFrame = true;
         float time = invincibiltiyFrameTime / 5;
-        Color backupColor = gameObject.transform.GetComponent<SpriteRenderer>().color;
-        Color tempColor = gameObject.transform.GetComponent<SpriteRenderer>().color;
+        Color backupColor = transform.GetComponent<SpriteRenderer>().color;
+        Color tempColor = transform.GetComponent<SpriteRenderer>().color;
         tempColor.a = 0.35f;
-        gameObject.transform.GetComponent<SpriteRenderer>().color = tempColor;
+        transform.GetComponent<SpriteRenderer>().color = tempColor;
         yield return new WaitForSeconds(time);
-        gameObject.transform.GetComponent<SpriteRenderer>().color = backupColor;
+        transform.GetComponent<SpriteRenderer>().color = backupColor;
         yield return new WaitForSeconds(time);
-        gameObject.transform.GetComponent<SpriteRenderer>().color = tempColor;
+        transform.GetComponent<SpriteRenderer>().color = tempColor;
         yield return new WaitForSeconds(time);
-        gameObject.transform.GetComponent<SpriteRenderer>().color = backupColor;
+        transform.GetComponent<SpriteRenderer>().color = backupColor;
         yield return new WaitForSeconds(time);
-        gameObject.transform.GetComponent<SpriteRenderer>().color = tempColor;
+        transform.GetComponent<SpriteRenderer>().color = tempColor;
         yield return new WaitForSeconds(time);
-        gameObject.transform.GetComponent<SpriteRenderer>().color = backupColor;
+        transform.GetComponent<SpriteRenderer>().color = backupColor;
         isInInvincibilityFrame = false;
     }
 
@@ -855,30 +887,30 @@ public class PlayerController : MonoBehaviour
     {
         isInInvincibilityFrame = true;
         float time = reviveInvincibilityFrameTimer / 10;
-        Color backupColor = gameObject.transform.GetComponent<SpriteRenderer>().color;
-        Color tempColor = gameObject.transform.GetComponent<SpriteRenderer>().color;
+        Color backupColor = transform.GetComponent<SpriteRenderer>().color;
+        Color tempColor = transform.GetComponent<SpriteRenderer>().color;
         tempColor.a = 0.35f;
-        gameObject.transform.GetComponent<SpriteRenderer>().color = tempColor;
+        transform.GetComponent<SpriteRenderer>().color = tempColor;
         yield return new WaitForSeconds(time);
-        gameObject.transform.GetComponent<SpriteRenderer>().color = backupColor;
+        transform.GetComponent<SpriteRenderer>().color = backupColor;
         yield return new WaitForSeconds(time);
-        gameObject.transform.GetComponent<SpriteRenderer>().color = tempColor;
+        transform.GetComponent<SpriteRenderer>().color = tempColor;
         yield return new WaitForSeconds(time);
-        gameObject.transform.GetComponent<SpriteRenderer>().color = backupColor;
+        transform.GetComponent<SpriteRenderer>().color = backupColor;
         yield return new WaitForSeconds(time);
-        gameObject.transform.GetComponent<SpriteRenderer>().color = tempColor;
+        transform.GetComponent<SpriteRenderer>().color = tempColor;
         yield return new WaitForSeconds(time);
-        gameObject.transform.GetComponent<SpriteRenderer>().color = tempColor;
+        transform.GetComponent<SpriteRenderer>().color = tempColor;
         yield return new WaitForSeconds(time);
-        gameObject.transform.GetComponent<SpriteRenderer>().color = backupColor;
+        transform.GetComponent<SpriteRenderer>().color = backupColor;
         yield return new WaitForSeconds(time);
-        gameObject.transform.GetComponent<SpriteRenderer>().color = tempColor;
+        transform.GetComponent<SpriteRenderer>().color = tempColor;
         yield return new WaitForSeconds(time);
-        gameObject.transform.GetComponent<SpriteRenderer>().color = backupColor;
+        transform.GetComponent<SpriteRenderer>().color = backupColor;
         yield return new WaitForSeconds(time);
-        gameObject.transform.GetComponent<SpriteRenderer>().color = tempColor;
+        transform.GetComponent<SpriteRenderer>().color = tempColor;
         yield return new WaitForSeconds(time);
-        gameObject.transform.GetComponent<SpriteRenderer>().color = backupColor;
+        transform.GetComponent<SpriteRenderer>().color = backupColor;
         isInInvincibilityFrame = false;
     }
 
@@ -889,7 +921,7 @@ public class PlayerController : MonoBehaviour
         GetComponent<Rigidbody2D>().velocity = new Vector2(GetComponent<Rigidbody2D>().velocity.x, jumpSpeedInt * 1.5f);
         if (GameObject.FindGameObjectsWithTag("Pow").Length == 0)
         {
-            StartCoroutine(gameControllerScript.SpawnPow(gameObject.transform.position));
+            StartCoroutine(gameControllerScript.SpawnPow(transform.position));
         }
     }
 
@@ -910,9 +942,25 @@ public class PlayerController : MonoBehaviour
         /*gameObject.transform.position = gameControllerScript.levelSpawnpoints[gameControllerScript.levelID].transform.position; //Resets player to start of level
         gameControllerScript.mainCameraObj.transform.position = gameObject.transform.position;
         gameControllerScript.levelParallaxObjs[gameControllerScript.levelID].transform.position = new Vector3(gameObject.transform.position.x, gameControllerScript.levelParallaxObjs[gameControllerScript.levelID].transform.position.y, gameControllerScript.levelParallaxObjs[gameControllerScript.levelID].transform.position.z);*/
-        gameControllerScript.mainCameraObj.GetComponent<CameraController>().desiredPostion = new Vector3(gameObject.transform.position.x, gameObject.transform.position.y, -10);
+        gameControllerScript.mainCameraObj.GetComponent<CameraController>().desiredPostion = new Vector3(transform.position.x, transform.position.y, -10);
         gameControllerScript.levelMusicObjs[gameControllerScript.levelID].GetComponent<AudioSource>().UnPause();       
         canRunDeathJingle = true;
 
+    }
+
+    void GCodeUpdater()
+    {
+        //String lenth controller
+        if (inputCode.Length > 5)
+        {
+            inputCode = inputCode.Substring(1, 5);
+        }
+
+        if(inputCode == noClipString)
+        {
+            inputCode = "";
+            noClipEnabled = !noClipEnabled;
+            GetComponent<BoxCollider2D>().enabled = !noClipEnabled;
+        }
     }
 }

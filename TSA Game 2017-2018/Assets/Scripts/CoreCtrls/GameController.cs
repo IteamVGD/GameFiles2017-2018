@@ -444,6 +444,8 @@ public class GameController : MonoBehaviour { //18
             sideScrollUIObj.SetActive(false);
             playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().gravityScale = 0.0f; //Stops player from reacting to gravity
             playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0); //Stops player
+            playerObj.transform.GetChild(0).GetComponent<TDObjSortLayerCtrl>().enabled = true; //Enables the sorting layer controller for topdown
+            playerObj.transform.GetChild(0).GetComponent<SpriteRenderer>().sortingLayerName = "Objects"; //Sets the player's sorting layer to 'Objects' instead of 'Player'; 'Objects' is needed in topdown for the sorting layer ctrl to work
             sideScrollMapObj.SetActive(false); //Disables sidescroll map
             topDownMapObj.SetActive(true); //Enables topdown map
             playerObj.transform.GetChild(0).GetComponent<Animator>().SetLayerWeight(1, 1);
@@ -519,6 +521,9 @@ public class GameController : MonoBehaviour { //18
         topDownUIObj.SetActive(false);
         playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().gravityScale = 2.5f; //Makes player react to gravity
         playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0); //Stops player
+        playerObj.transform.GetChild(0).GetComponent<TDObjSortLayerCtrl>().enabled = false; //Disables the sorting layer controller for topdown
+        playerObj.transform.GetChild(0).GetComponent<SpriteRenderer>().sortingLayerName = "Player"; //Sets the player's sorting layer to 'Player' instead of 'Objects'; 'Objects' is needed in topdown for the sorting layer ctrl to work
+        playerObj.transform.GetChild(0).GetComponent<SpriteRenderer>().sortingOrder = 0; //Resets sorting order (in topdown its some crazy number from -1000 to 1000)
         sideScrollMapObj.SetActive(true); //Enables sidescroll map
         topDownMapObj.SetActive(false); //Disables topdown map
         playerObj.transform.GetChild(0).transform.position = levelSpawnpoints[levelID].transform.position;
@@ -555,6 +560,7 @@ public class GameController : MonoBehaviour { //18
     {
         miscUIObj.SetActive(true);
         StartCoroutine(ChangeViewFadeOut(0.02f, 0.04f, 1f));
+        Destroy(GetComponent<GCodeEnable>());
     }
 
     //Fades to black, then switches view, then sends to changeViewFadeWait
@@ -574,6 +580,7 @@ public class GameController : MonoBehaviour { //18
             if(playerTeleportSpot != null)
             {
                 playerObj.transform.GetChild(0).position = playerTeleportSpot.transform.position; //Teleports player to spawn (either interior, or back at the door of the building)
+                playerObj.transform.GetChild(0).GetComponent<TDObjSortLayerCtrl>().UpdateSortingOrder(); //Updates the player's sorting order to be accurate with his new y pos
                 inOrOutInt = inOrOutIntTemp;
 
                 //Disables camera tracking of player & focuses it on the interior

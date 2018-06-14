@@ -60,13 +60,10 @@ TagManager:
   - name: Backgrounds
     uniqueID: 2328097269
     locked: 0
-  - name: BottomBottomObjects
-    uniqueID: 878648639
-    locked: 0
   - name: BottomObjects
     uniqueID: 2938366323
     locked: 0
-  - name: TopBottomObjects
+  - name: Objects
     uniqueID: 1855343633
     locked: 0
   - name: NPCs
@@ -77,12 +74,6 @@ TagManager:
     locked: 0
   - name: Enemies
     uniqueID: 227643245
-    locked: 0
-  - name: TopObjects
-    uniqueID: 72836417
-    locked: 0
-  - name: TopTopObjects
-    uniqueID: 3147496763
     locked: 0
   - name: CombatEffects
     uniqueID: 1480272263

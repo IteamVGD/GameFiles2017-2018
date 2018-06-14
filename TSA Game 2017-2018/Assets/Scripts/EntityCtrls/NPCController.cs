@@ -29,7 +29,7 @@ public class NPCController : MonoBehaviour {
     public int promptPrice; //How much what ever this npc is offering costs (Staes game version ex. beating each gym gives you 1 credit, each upgrade the vendors offer cost 1 credit)
     public string npcName;
 
-    private IEnumerator coroutine;
+    private IEnumerator typeTextCouroutine;
     public IEnumerator fadeInCoroutine;
     public IEnumerator fadeOutCoroutine;
     public IEnumerator waitForAcceptanceCoroutine;
@@ -44,21 +44,28 @@ public class NPCController : MonoBehaviour {
 
     //Movement AI
     public bool enableAI; //If true, the NPC can walk around
+    public bool shouldGiveItem; //If true, npc will offer player something on the last slide of text?
+
     public int timer; //When this ticks to 0 the npc will move
-    public int timerMax = 5000; //The max this could be ^
-    public int timerMin = 500; //The min this could be ^
+    public int timerMax = 800; //The max this could be ^
+    public int timerMin = 100; //The min this could be ^
     public int timeToMoveFor; //How long the npc will walk in that direction for
     public int maxTimeToMoveFor = 3; //The max this could be ^
     public int minTimeToMoveFor = 1; //The min this could be ^
     public float movementSpeed; //The speed at witch the npc will move
-    public float maxMovementSpeed = 3; //The max this could be ^
+    public float maxMovementSpeed = 2; //The max this could be ^
     public float minMovementSpeed = 1; //The min this could be ^
+    public int direction; //Which way to move; 1 = left, 2 = right, 3 = up, 4 = down
+
+    public IEnumerator waitToStop;
 
     private void Start()
     {
-        coroutine = dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().TypeText();
+        typeTextCouroutine = dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().TypeText();
         fadeInCoroutine = FadeTextBoxIn();
         fadeOutCoroutine = FadeTextBoxOut();
+
+        waitToStop = WaitToStopMoving();
     }
 
     // Update is called once per frame
@@ -70,7 +77,11 @@ public class NPCController : MonoBehaviour {
             if(timer > 0) //Counts down from random number, when it hits 0 the npc moves. 
                 timer--;
             else
+            {
+                timer = Random.Range(timerMin, timerMax); //Resets timer until npc can move again
+                StopCoroutine(WaitToStopMoving());
                 Move(); //Makes npc move
+            }
         }
 
         //Code for talking to npc
@@ -85,21 +96,21 @@ public class NPCController : MonoBehaviour {
                     StartCoroutine(fadeInCoroutine);
                     isBeingTalkedTo = true;
                     playerObj.transform.GetComponent<PlayerController>().isTalkingToNPC = true;
-                    StopCoroutine(coroutine);
+                    StopCoroutine(typeTextCouroutine);
                     dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().message = dialogue[dialogueCount];
                     dialogueObj.transform.GetChild(1).GetComponent<Text>().text = "";
-                    coroutine = dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().TypeText();
-                    StartCoroutine(coroutine);
+                    typeTextCouroutine = dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().TypeText();
+                    StartCoroutine(typeTextCouroutine);
                     dialogueObj.transform.GetChild(2).GetComponent<Text>().text = npcName;
                 }
                 else
                 {
                     dialogueCount++;
-                    StopCoroutine(coroutine);
+                    StopCoroutine(typeTextCouroutine);
                     dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().message = dialogue[dialogueCount];
                     dialogueObj.transform.GetChild(1).GetComponent<Text>().text = "";
-                    coroutine = dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().TypeText();
-                    StartCoroutine(coroutine);
+                    typeTextCouroutine = dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().TypeText();
+                    StartCoroutine(typeTextCouroutine);
                 }
             }
             else
@@ -109,11 +120,11 @@ public class NPCController : MonoBehaviour {
                 StartCoroutine(fadeInCoroutine);
                 isBeingTalkedTo = true;
                 playerObj.transform.GetComponent<PlayerController>().isTalkingToNPC = true;
-                StopCoroutine(coroutine);
+                StopCoroutine(typeTextCouroutine);
                 dialogueObj.transform.GetChild(1).GetComponent<Text>().text = "";
                 dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().message = promptNotAvailable;
-                coroutine = dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().TypeText();
-                StartCoroutine(coroutine);
+                typeTextCouroutine = dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().TypeText();
+                StartCoroutine(typeTextCouroutine);
                 waitForAcceptanceCoroutine = WaitForAcceptance();
                 StartCoroutine(waitForAcceptanceCoroutine);
             }
@@ -125,36 +136,41 @@ public class NPCController : MonoBehaviour {
         //Code for when npc is on last slide of dialogue and player presses button
         if ((Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown("Fire2")) && isBeingTalkedTo && canTalk && dialogueCount == dialogue.Count - 1 && playerObj.transform.GetComponent<PlayerController>().vendorCredits >= promptPrice && !hasGivenPrompt)
         {
-            StopCoroutine(coroutine);
-            playerObj.transform.GetComponent<PlayerController>().vendorCredits -= promptPrice;
-            StopCoroutine(coroutine);
+            StopCoroutine(typeTextCouroutine);
+            StopCoroutine(typeTextCouroutine);
             dialogueObj.transform.GetChild(1).GetComponent<Text>().text = "";
             dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().message = promptAccepted;
-            coroutine = dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().TypeText();
-            StartCoroutine(coroutine);
+            typeTextCouroutine = dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().TypeText();
+            StartCoroutine(typeTextCouroutine);
             hasGivenPrompt = true;
-            switch(upgradeToGive)
-            {
-                case 0:
-                    UpgradeDamage();
-                    break;
-                case 1:
-                    UpgradeHealth();
-                    break;
-                case 2:
-                    UpgradeBlock();
-                    break;
-            }
             waitForAcceptanceCoroutine = WaitForAcceptance();
             StartCoroutine(waitForAcceptanceCoroutine);
             dialogueCount = 0;
+
+            //Gives player something and subtracts a price (if there is one)
+            if(shouldGiveItem)
+            {
+                playerObj.transform.GetComponent<PlayerController>().vendorCredits -= promptPrice;
+                switch (upgradeToGive)
+                {
+                    case 0:
+                        UpgradeDamage();
+                        break;
+                    case 1:
+                        UpgradeHealth();
+                        break;
+                    case 2:
+                        UpgradeBlock();
+                        break;
+                }
+            }
         }
 
         //Code to stop talking to NPC
         if ((Input.GetKeyDown(KeyCode.Q) || Input.GetButtonDown("Fire1")) && isBeingTalkedTo && canTalk) 
         {
             playerObj.transform.GetComponent<PlayerController>().isTalkingToNPC = false;
-            StopCoroutine(coroutine);
+            StopCoroutine(typeTextCouroutine);
             isBeingTalkedTo = false;
             StopAllCoroutines();
             dialogueObj.transform.GetChild(1).GetComponent<Text>().text = "";
@@ -223,7 +239,7 @@ public class NPCController : MonoBehaviour {
         isBeingTalkedTo = false;
         playerObj.transform.GetComponent<PlayerController>().isTalkingToNPC = false;
         isWaitingForAcceptance = false;
-        StopCoroutine(coroutine);
+        StopCoroutine(typeTextCouroutine);
     }
 
     IEnumerator WaitForAcceptance()
@@ -251,32 +267,34 @@ public class NPCController : MonoBehaviour {
 
     public void Move()
     {
-        int direction = Random.Range(1, 5); //Which direction to move in. 1-4 (high is exclusive), 1 = left, 2 = right, 3 = up, 4 = down
+        direction = Random.Range(1, 5); //Which direction to move in. 1-4 (high is exclusive), 1 = left, 2 = right, 3 = up, 4 = down
         movementSpeed = Random.Range(minMovementSpeed, maxMovementSpeed); //+1 because max is exclusive in Random.Range(int)
         timeToMoveFor = Random.Range(minTimeToMoveFor, maxTimeToMoveFor + 1); //^^^
         switch(direction)
         {
             case 1:
-                GetComponent<Rigidbody2D>().velocity = new Vector2(-movementSpeed, 0);
+                GetComponent<Rigidbody2D>().velocity = new Vector2(-movementSpeed, 0); //Move left
+                anim.Play(faceLeft);
                 break;
             case 2:
-                GetComponent<Rigidbody2D>().velocity = new Vector2(movementSpeed, 0);
+                GetComponent<Rigidbody2D>().velocity = new Vector2(movementSpeed, 0); //Move right
+                anim.Play(faceRight);
                 break;
             case 3:
-                GetComponent<Rigidbody2D>().velocity = new Vector2(0, movementSpeed);
+                GetComponent<Rigidbody2D>().velocity = new Vector2(0, movementSpeed); //Move up
+                anim.Play(faceBack);
                 break;
             case 4:
-                GetComponent<Rigidbody2D>().velocity = new Vector2(0, -movementSpeed);
+                GetComponent<Rigidbody2D>().velocity = new Vector2(0, -movementSpeed); //Move down
+                anim.Play(faceForward);
                 break;
         }
-        StartCoroutine(WaitToStopMoving()); //Starts countdown until npc should stop moving
+        StartCoroutine(WaitToStopMoving());//Starts countdown until npc should stop moving
     }
 
     IEnumerator WaitToStopMoving()
     {
         yield return new WaitForSeconds(timeToMoveFor); //Waits to stop npc from moving (otherwise it would be instant. start -> stop)
         GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0); //Stops npc
-        timer = Random.Range(timerMin, timerMax); //Resets timer until npc can move again
-        StopCoroutine(WaitToStopMoving());
     }
 }
