@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class PlayerDownPunchCollider : MonoBehaviour
 {
-
     public GameObject playerObj;
     public bool shouldCheck;
 
@@ -14,7 +13,7 @@ public class PlayerDownPunchCollider : MonoBehaviour
         {
             if (collision.gameObject.layer == 16)
             {
-                if (collision.GetComponent<SwitchController>().triggerSongObj)
+                if (collision.GetComponent<SwitchController>().triggerSongObj) //Activates boss music when you flip the lever? (i think, im adding this comment months after writing this)
                     collision.GetComponent<SwitchController>().TriggerSong();
                 playerObj.transform.GetComponent<PlayerController>().canDownPunch = true;
                 playerObj.transform.GetComponent<PlayerController>().gameControllerScript.ManageBoxes();

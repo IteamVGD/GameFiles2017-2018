@@ -354,50 +354,50 @@ public class PlayerController : MonoBehaviour
             //Press down to move
             if (!isTalkingToNPC)
             {
-                if (Input.GetKey(KeyCode.D) || (rightPressed == true && xAxisFloat > 0.8))
+                if (Input.GetKey(KeyCode.D) || (rightPressed == true && xAxisFloat > 0.69))
                 {
                     transform.GetComponent<Rigidbody2D>().velocity = new Vector2(horizontalMovementSpeed, transform.GetComponent<Rigidbody2D>().velocity.y);
                     sideFacing = 4;
                 }
-                if (Input.GetKey(KeyCode.A) || (leftPressed == true && xAxisFloat < -0.8))
+                if (Input.GetKey(KeyCode.A) || (leftPressed == true && xAxisFloat < -0.69))
                 {
                     transform.GetComponent<Rigidbody2D>().velocity = new Vector2(-horizontalMovementSpeed, transform.GetComponent<Rigidbody2D>().velocity.y);
                     sideFacing = 2;
                 }
-                if (Input.GetKey(KeyCode.W) || (upPressed == true && yAxisFloat > 0.8))
+                if (Input.GetKey(KeyCode.W) || (upPressed == true && yAxisFloat > 0.69))
                 {
                     transform.GetComponent<Rigidbody2D>().velocity = new Vector2(transform.GetComponent<Rigidbody2D>().velocity.x, verticalMovementSpeed);
                     sideFacing = 1;
                 }
-                if (Input.GetKey(KeyCode.S) || (downPressed == true && yAxisFloat < -0.8))
+                if (Input.GetKey(KeyCode.S) || (downPressed == true && yAxisFloat < -0.69))
                 {
                     transform.GetComponent<Rigidbody2D>().velocity = new Vector2(transform.GetComponent<Rigidbody2D>().velocity.x, -verticalMovementSpeed);
                     sideFacing = 3;
                 }
 
                 //Let go to stop
-                if (Input.GetKeyUp(KeyCode.D) || (rightPressed == true && xAxisFloat < 0.8))
+                if (Input.GetKeyUp(KeyCode.D) || (rightPressed == true && xAxisFloat < 0.69))
                 {
                     transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, transform.GetComponent<Rigidbody2D>().velocity.y);
                     isIdle = true;
                     sideFacing = 3;
                     rightPressed = false;
                 }
-                if (Input.GetKeyUp(KeyCode.A) || (leftPressed == true && xAxisFloat > -0.8))
+                if (Input.GetKeyUp(KeyCode.A) || (leftPressed == true && xAxisFloat > -0.69))
                 {
                     transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, transform.GetComponent<Rigidbody2D>().velocity.y);
                     isIdle = true;
                     sideFacing = 3;
                     leftPressed = false;
                 }
-                if (Input.GetKeyUp(KeyCode.W) || (upPressed == true && yAxisFloat < 0.8))
+                if (Input.GetKeyUp(KeyCode.W) || (upPressed == true && yAxisFloat < 0.69))
                 {
                     transform.GetComponent<Rigidbody2D>().velocity = new Vector2(transform.GetComponent<Rigidbody2D>().velocity.x, 0);
                     isIdle = true;
                     sideFacing = 3;
                     upPressed = false;
                 }
-                if (Input.GetKeyUp(KeyCode.S) || (downPressed == true && yAxisFloat > -0.8))
+                if (Input.GetKeyUp(KeyCode.S) || (downPressed == true && yAxisFloat > -0.69))
                 {
                     transform.GetComponent<Rigidbody2D>().velocity = new Vector2(transform.GetComponent<Rigidbody2D>().velocity.x, 0);
                     isIdle = true;
@@ -405,6 +405,11 @@ public class PlayerController : MonoBehaviour
                     downPressed = false;
                 }
             }
+
+            if (!upPressed && !downPressed && !leftPressed && !rightPressed && !Input.GetKey(KeyCode.W) && !Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.S) && !Input.GetKey(KeyCode.D)) //Controls animations
+                animatorWalk.SetBool("isMoving", false);
+            else
+                animatorWalk.SetBool("isMoving", true);
         }
         if (gameControllerScript.currentView == 2 && !isBeingKOd)
         {
@@ -442,7 +447,7 @@ public class PlayerController : MonoBehaviour
 
             if (goToMinJump == true)
             {
-                if (jumpheightTimerInt < minJumpHeight)
+                if (jumpheightTimerInt < minJumpHeight && !antiSpamBool)
                 {
                     jumpheightTimerInt += 1;
                     transform.GetComponent<Rigidbody2D>().velocity = new Vector2(transform.GetComponent<Rigidbody2D>().velocity.x, jumpSpeedInt);
@@ -515,10 +520,11 @@ public class PlayerController : MonoBehaviour
             if ((Input.GetKey(KeyCode.S) || (downPressed == true && yAxisFloat < -0.8)) && canJump && !isCrouching && GetComponent<Rigidbody2D>().velocity.x == 0) //If press down on dpad && is grounded && was moving but now is not
             {
                 isCrouching = true;
+                isPunching = false;
                 horizontalMovementSpeed = 1;
                 animatorWalk.SetBool("isCrouching", true);
-                transform.GetComponent<BoxCollider2D>().size = new Vector2(1.3f, 2.2f);
-                transform.GetComponent<BoxCollider2D>().offset = new Vector2(0, -0.15f);
+                transform.GetComponent<BoxCollider2D>().offset = new Vector2(-0.185318f, -0.4041151f); //2.562298 0.01893747
+                transform.GetComponent<BoxCollider2D>().size = new Vector2(1.453499f, 1.716193f);
             }
 
             //Let go to stop
@@ -677,8 +683,8 @@ public class PlayerController : MonoBehaviour
             transform.parent.GetChild(1).GetComponent<PlayerDownPunchCollider>().enabled = true;
             animatorWalk.SetBool("canJumpBool", false);
             animatorWalk.SetBool("isBlocking", false);
+            animatorWalk.SetBool("canStopPunching", true);
         }
-        //animatorWalk.SetBool("isMoving", true);
     }
 
     IEnumerator Punch()
@@ -919,10 +925,8 @@ public class PlayerController : MonoBehaviour
         isDownPunching = true;
         audioSource.PlayOneShot(downPunch);
         GetComponent<Rigidbody2D>().velocity = new Vector2(GetComponent<Rigidbody2D>().velocity.x, jumpSpeedInt * 1.5f);
-        if (GameObject.FindGameObjectsWithTag("Pow").Length == 0)
-        {
+        if (GameObject.FindGameObjectsWithTag("Pow").Length == 0 && GetComponent<Rigidbody2D>().velocity.y > jumpSpeedInt * 1.45f)
             StartCoroutine(gameControllerScript.SpawnPow(transform.position));
-        }
     }
 
     IEnumerator DeathJingleTimer()

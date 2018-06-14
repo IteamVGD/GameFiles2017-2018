@@ -89,7 +89,7 @@ public class PunchCollideController : MonoBehaviour {
         {
             if (collision.gameObject.tag == "Enemy") //If is an enemy
             {
-                if(playerObj.transform.GetComponent<SpriteRenderer>().sprite.name == "DownPunchRight_1" || playerObj.transform.GetComponent<SpriteRenderer>().sprite.name == "DownPunchLeft_1")
+                if(playerObj.transform.GetComponent<PlayerController>().isDownPunching)
                     collision.gameObject.transform.GetComponent<EnemyController>().TakeDamage(playerObj.transform.GetComponent<PlayerController>().punchDamage, true); //Decrease enemy's health in EnemyController by the punchDamage of the player parent's PlayerController
                 else
                     collision.gameObject.transform.GetComponent<EnemyController>().TakeDamage(playerObj.transform.GetComponent<PlayerController>().punchDamage, false); //Decrease enemy's health in EnemyController by the punchDamage of the player parent's PlayerController

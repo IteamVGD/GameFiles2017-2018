@@ -6,6 +6,7 @@ public class CameraController : MonoBehaviour {
 
     public GameObject playerObj;
     public GameObject gameControllerObj;
+    public GameObject paralaxBackgroundObj;
 
     public bool canFollowX;
     public bool canFollowY;
@@ -18,6 +19,7 @@ public class CameraController : MonoBehaviour {
     public Vector3 sidescrollOffset;
     public Vector3 topDownOffset;
     public float constantY;
+    public float parallaxConstantY; //The y coordinate that the scrolling sky stays at
     public int id;
 
     //Interior background color variables
@@ -27,9 +29,31 @@ public class CameraController : MonoBehaviour {
     public Color color2;
     public bool switchFlow;
 
-    private void FixedUpdate()
+    private void Update()
     {
-        if(playerObj.transform.GetComponent<PlayerController>().gameControllerScript.currentView == 1 && (canFollowX || canFollowY))
+        if(gameControllerObj.transform.GetComponent<GameController>().inOrOutInt == 1)
+        {
+            if (switchFlow) //Controls the changing color when in a building
+            {
+                GetComponent<Camera>().backgroundColor = Color.Lerp(color1, color2, t);
+            }
+            else
+            {
+                GetComponent<Camera>().backgroundColor = Color.Lerp(color2, color1, t);
+            }
+            if (t < 1)
+            {
+                t += Time.deltaTime / duration;
+            }
+            else
+            {
+                switchFlow = !switchFlow;
+                t = 0;
+            }
+        }
+
+        //camera tracking stuff
+        if (playerObj.transform.GetComponent<PlayerController>().gameControllerScript.currentView == 1 && (canFollowX || canFollowY))
         {
             id = gameControllerObj.transform.GetComponent<GameController>().cityID;
             if (gameControllerObj.transform.GetComponent<GameController>().inOrOutInt == 1)
@@ -46,7 +70,7 @@ public class CameraController : MonoBehaviour {
             }
         }
 
-        if(!canFollowX || !canFollowY)
+        if (!canFollowX || !canFollowY)
         {
             if (playerObj.transform.GetComponent<PlayerController>().gameControllerScript.currentView != 1)
             {
@@ -55,7 +79,7 @@ public class CameraController : MonoBehaviour {
             }
             else
             {
-                if(gameControllerObj.transform.GetComponent<GameController>().inOrOutInt != 1)
+                if (gameControllerObj.transform.GetComponent<GameController>().inOrOutInt != 1)
                 {
                     if (playerObj.transform.position.x < playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(0).position.x && playerObj.transform.position.x > playerObj.transform.GetComponent<PlayerController>().gameControllerScript.cities[id].transform.GetChild(1).position.x)
                         canFollowX = true;
@@ -79,9 +103,9 @@ public class CameraController : MonoBehaviour {
 
         if (followY)
         {
-            if(canFollowX)
+            if (canFollowX)
                 desiredPostion = new Vector3(playerObj.transform.position.x + offset.x, desiredPostion.y, -10);
-            if(canFollowY)
+            if (canFollowY)
                 desiredPostion = new Vector3(desiredPostion.x, playerObj.transform.position.y + offset.y, -10);
         }
         else
@@ -90,35 +114,11 @@ public class CameraController : MonoBehaviour {
         }
         Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPostion, smoothSpeed * Time.deltaTime);
         transform.position = smoothedPosition;
-        if(gameControllerObj.GetComponent<GameController>().currentView == 2)
+        if (gameControllerObj.GetComponent<GameController>().currentView == 2) //This drags along the sky behind the window at a slightly different speed (parallaxSmoothSpeed)
         {
-            desiredPostion = new Vector3(playerObj.transform.position.x + offset.x, gameControllerObj.GetComponent<GameController>().levelParallaxObjs[gameControllerObj.GetComponent<GameController>().levelID].transform.position.y, -10);
-            smoothedPosition = Vector3.Lerp(gameControllerObj.GetComponent<GameController>().levelParallaxObjs[gameControllerObj.GetComponent<GameController>().levelID].transform.position, desiredPostion, parallaxSmoothSpeed * Time.deltaTime);
-            gameControllerObj.GetComponent<GameController>().levelParallaxObjs[gameControllerObj.GetComponent<GameController>().levelID].transform.position = smoothedPosition;
-        }
-    }
-
-    private void Update()
-    {
-        if(gameControllerObj.transform.GetComponent<GameController>().inOrOutInt == 1)
-        {
-            if (switchFlow)
-            {
-                GetComponent<Camera>().backgroundColor = Color.Lerp(color1, color2, t);
-            }
-            else
-            {
-                GetComponent<Camera>().backgroundColor = Color.Lerp(color2, color1, t);
-            }
-            if (t < 1)
-            {
-                t += Time.deltaTime / duration;
-            }
-            else
-            {
-                switchFlow = !switchFlow;
-                t = 0;
-            }
+            desiredPostion = new Vector3(playerObj.transform.position.x + offset.x, parallaxConstantY, - 5); 
+            smoothedPosition = Vector3.Lerp(paralaxBackgroundObj.transform.position, desiredPostion, parallaxSmoothSpeed * Time.deltaTime);
+            paralaxBackgroundObj.transform.position = smoothedPosition;
         }
     }
 }

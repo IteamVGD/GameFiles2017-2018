@@ -13,9 +13,11 @@ public class TDObjSortLayerCtrl : MonoBehaviour {
 
     public int manualYPos; //Used to overwrite the transform y position
     private float yPos; //The position used in the calculations in UpdateSortingOrder()
+
+    public float yposition;
     void Start()
     {
-        standardSubtractor = 500;
+        standardSubtractor = 1000;
         sRender = GetComponent<SpriteRenderer>();
         UpdateSortingOrder();
         if (GetComponent<Rigidbody2D>() != null)
@@ -26,18 +28,16 @@ public class TDObjSortLayerCtrl : MonoBehaviour {
     void Update() {
         if(canMove && GetComponent<Rigidbody2D>().velocity.y != 0)
             UpdateSortingOrder();
+        yposition = transform.position.y;
 	}
 
     public void UpdateSortingOrder()
     {
         if (manualYPos != 0)
-            yPos = manualYPos;
+            yPos = manualYPos * 100;
         else
-            yPos = Mathf.Round(transform.position.y);
+            yPos = Mathf.Round((transform.position.y * 10));
 
-        if (transform.position.y >= 0)
-            sRender.sortingOrder = (int)(standardSubtractor - yPos);
-        if (transform.position.y < 0)
-            sRender.sortingOrder = (int)(standardSubtractor + yPos);
+        sRender.sortingOrder = (int)(standardSubtractor - yPos); //NOTE: This only works if everything's y values are >= 0
     }
 }

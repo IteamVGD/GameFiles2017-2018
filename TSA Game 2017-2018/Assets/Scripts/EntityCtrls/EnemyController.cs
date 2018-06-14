@@ -64,16 +64,14 @@ public class EnemyController : MonoBehaviour {
     public AudioClip gotPunched;
     public bool canPlayHurtSound = true;
     public bool canPlayAttackSound = true;
-    public IEnumerator resetCanPlayHurtSound;
-    public IEnumerator resetCanPlayAttackSound;
+
+    public int test;
 
     public GameObject musicToPauseOnDeath; //Will disable this obj on death if not null
 
     //Use this for initialization
     void Start ()
     {
-        resetCanPlayHurtSound = ResetCanPlayHurtSound();
-        resetCanPlayAttackSound = ResetCanPlayAttackSound();
         anim = gameObject.transform.GetComponent<Animator>();
         body = gameObject.transform.GetComponent<Rigidbody2D>();
         health = maxHealth; //Start at max health
@@ -121,7 +119,8 @@ public class EnemyController : MonoBehaviour {
         {
             if (agressiveTimer <= 0 && runAgressiveTimer == true)
             {
-                StopAllCoroutines();
+                StopCoroutine(ChasePlayerTimer(0));
+                StopCoroutine(FallBackTimer(0f));
                 closeEnoughToPunch = false; //Resets bool so if the randomiser picks 1
                 agressiveRandomiser = Random.Range(1, 3); //If 1, charge player, 2 fall back; 1-3 b/c max is exclusive
                 if (agressiveRandomiser == 1) //If it picked 1
@@ -269,10 +268,9 @@ public class EnemyController : MonoBehaviour {
             if(canPlayHurtSound)
             {
                 canPlayHurtSound = false;
-                StopCoroutine(resetCanPlayHurtSound);
-                resetCanPlayHurtSound = ResetCanPlayHurtSound();
-                StartCoroutine(resetCanPlayHurtSound);
+                StartCoroutine(ResetCanPlayHurtSound());
                 audioSource.PlayOneShot(gotPunched);
+                test++;
             }
         }
     }
@@ -376,9 +374,7 @@ public class EnemyController : MonoBehaviour {
         if (canPlayAttackSound)
         {
             canPlayAttackSound = false;
-            StopCoroutine(resetCanPlayAttackSound);
-            resetCanPlayAttackSound = ResetCanPlayAttackSound();
-            StartCoroutine(resetCanPlayAttackSound);
+            StartCoroutine(ResetCanPlayAttackSound());
             audioSource.PlayOneShot(punch);
         }
     }

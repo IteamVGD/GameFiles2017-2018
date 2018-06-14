@@ -44,17 +44,18 @@ public class NPCController : MonoBehaviour {
 
     //Movement AI
     public bool enableAI; //If true, the NPC can walk around
+    public bool stationaryAI; //If true, he acts like the npcs that move, but doesnt move
     public bool shouldGiveItem; //If true, npc will offer player something on the last slide of text?
 
     public int timer; //When this ticks to 0 the npc will move
     public int timerMax = 800; //The max this could be ^
-    public int timerMin = 100; //The min this could be ^
-    public int timeToMoveFor; //How long the npc will walk in that direction for
-    public int maxTimeToMoveFor = 3; //The max this could be ^
-    public int minTimeToMoveFor = 1; //The min this could be ^
+    public int timerMin = 50; //The min this could be ^
+    public float timeToMoveFor; //How long the npc will walk in that direction for
+    public float maxTimeToMoveFor = 2.5f; //The max this could be ^
+    public float minTimeToMoveFor = 0.5f; //The min this could be ^
     public float movementSpeed; //The speed at witch the npc will move
-    public float maxMovementSpeed = 2; //The max this could be ^
-    public float minMovementSpeed = 1; //The min this could be ^
+    public float maxMovementSpeed = 2f; //The max this could be ^
+    public float minMovementSpeed = 1f; //The min this could be ^
     public int direction; //Which way to move; 1 = left, 2 = right, 3 = up, 4 = down
 
     public IEnumerator waitToStop;
@@ -64,15 +65,14 @@ public class NPCController : MonoBehaviour {
         typeTextCouroutine = dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().TypeText();
         fadeInCoroutine = FadeTextBoxIn();
         fadeOutCoroutine = FadeTextBoxOut();
-
         waitToStop = WaitToStopMoving();
     }
 
     // Update is called once per frame
     void Update()
     {
-        //Movement Code, only runs if enableAI is true
-        if(enableAI)
+        //Movement Code, only runs if enableAI is true, if the npc is NOT being talked to, and if stationaryAI is false
+        if(enableAI && !isBeingTalkedTo && !stationaryAI)
         {
             if(timer > 0) //Counts down from random number, when it hits 0 the npc moves. 
                 timer--;
@@ -95,6 +95,11 @@ public class NPCController : MonoBehaviour {
                     fadeInCoroutine = FadeTextBoxIn();
                     StartCoroutine(fadeInCoroutine);
                     isBeingTalkedTo = true;
+                    if(enableAI) //Stops the npc from moving while being talked to if he has AI enabled
+                    {
+                        timer = Random.Range(timerMin, timerMax);
+                        GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0); //Stops npc
+                    }
                     playerObj.transform.GetComponent<PlayerController>().isTalkingToNPC = true;
                     StopCoroutine(typeTextCouroutine);
                     dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().message = dialogue[dialogueCount];
@@ -225,7 +230,8 @@ public class NPCController : MonoBehaviour {
 
     IEnumerator FadeTextBoxOut()
     {
-        anim.Play(faceForward);
+        if(enableAI)
+            hasGivenPrompt = false;
         dialogueObj.transform.GetChild(1).GetComponent<Text>().text = "";
         dialogueObj.transform.GetChild(2).GetComponent<Text>().text = "";
         Color tempColor = dialogueObj.transform.GetChild(0).GetComponent<Image>().color;

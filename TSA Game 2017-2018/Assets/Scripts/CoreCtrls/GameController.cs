@@ -90,7 +90,7 @@ public class GameController : MonoBehaviour { //18
     public int levelID;
     public List<GameObject> levels;
     public List<GameObject> levelSpawnpoints;
-    public List<GameObject> levelParallaxObjs;
+    public GameObject levelParalaxSkyObj; //The scrolling sky that passes by the windows in sidescroll
     public List<GameObject> levelMusicObjs;
     public float levelDayTimeSunIntensity;
     public float levelNightTimeSunIntensity;
@@ -431,6 +431,7 @@ public class GameController : MonoBehaviour { //18
             topDownMapObj.SetActive(false);
             mainCameraObj.GetComponent<CameraController>().enabled = false;
             mainCameraObj.transform.position = new Vector3(0, 0, -10);
+            levelParalaxSkyObj.SetActive(false); //Disables scrolling sky
             sideScrollUIObj.SetActive(false);
             topDownUIObj.SetActive(false);
         }
@@ -441,6 +442,7 @@ public class GameController : MonoBehaviour { //18
             mainCameraObj.GetComponent<CameraController>().enabled = true;
             currentView = 1;
             topDownUIObj.SetActive(true); //Enables the parent of the topdown ui, disables the parent of the sidescroll ui
+            levelParalaxSkyObj.SetActive(false); //Disables scrolling sky
             sideScrollUIObj.SetActive(false);
             playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().gravityScale = 0.0f; //Stops player from reacting to gravity
             playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0); //Stops player
@@ -528,6 +530,8 @@ public class GameController : MonoBehaviour { //18
         topDownMapObj.SetActive(false); //Disables topdown map
         playerObj.transform.GetChild(0).transform.position = levelSpawnpoints[levelID].transform.position;
         mainCameraObj.transform.position = levelSpawnpoints[levelID].transform.position;
+        levelParalaxSkyObj.SetActive(true); //Enables the scrolling sky
+        levelParalaxSkyObj.transform.position = new Vector3(mainCameraObj.transform.position.x, mainCameraObj.GetComponent<CameraController>().parallaxConstantY, -5); //Sets the sky to the right(ish) position, camera controller takes care of the rest
         playerObj.transform.GetChild(0).GetComponent<Animator>().SetLayerWeight(1, 0);
         mainCameraObj.transform.GetComponent<CameraController>().followY = false;
         playerObj.transform.GetChild(0).transform.GetComponent<BoxCollider2D>().offset = playerObj.transform.GetChild(0).transform.GetComponent<PlayerController>().sideScrollColliderOffset;
