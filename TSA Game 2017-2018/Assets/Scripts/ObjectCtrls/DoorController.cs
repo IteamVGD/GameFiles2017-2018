@@ -26,6 +26,7 @@ public class DoorController : MonoBehaviour {
     public GameObject musicToRevertTo; //What to play after this object is done playing music (if it should, controlled by bool above)
 
     public GameObject linkedSpawnpoint; //If this door leads in/out of a building, this is where it will put the player
+    public int tpHereYOffset; //If the player tps to this door this number will be added to his yPos;
 
     private void Start()
     {
@@ -41,7 +42,7 @@ public class DoorController : MonoBehaviour {
                 if ((Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown("Fire2")) && Vector3.Distance(gameObject.transform.position, playerObj.transform.GetChild(0).position) < maxAccessRange) //Opens door if E or UpDpad is pressed
                 {
                     playerObj.transform.GetComponent<PlayerController>().timesKOd = 0;
-                    StartCoroutine(gameControllerObj.transform.GetComponent<GameController>().ChangeViewFadeOut(0.04f, 0.04f, 0.45f));
+                    gameControllerObj.transform.GetComponent<GameController>().startFadeOut(0.04f, 0.04f, 0.45f);
                     if (cityToLevel)
                     {
                         gameControllerObj.transform.GetComponent<GameController>().levelID = nextID;
@@ -64,7 +65,7 @@ public class DoorController : MonoBehaviour {
                             gameControllerObj.GetComponent<GameController>().playerTeleportSpot = linkedSpawnpoint;
                             gameControllerObj.GetComponent<GameController>().teleportDoorBeingUsed = gameObject;
                             gameControllerObj.GetComponent<GameController>().inOrOutIntTemp = inOutInt;
-                            StartCoroutine(gameControllerObj.transform.GetComponent<GameController>().ChangeViewFadeOut(0.04f, 0.04f, 0.45f));
+                            gameControllerObj.transform.GetComponent<GameController>().startFadeOut(0.04f, 0.04f, 0.45f);
                         }
                     }
                     isBeingAccessed = true;

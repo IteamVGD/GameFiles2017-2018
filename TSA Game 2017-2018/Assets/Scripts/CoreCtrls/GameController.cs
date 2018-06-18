@@ -24,6 +24,7 @@ public class GameController : MonoBehaviour { //18
     public GameObject titleScreenBackgroundFadeObj;
     public bool launchTitle;
     public bool titleFadeInTimer;
+    public bool isFading; //If true, the player cant start another fade
 
     //UI Objects
     public GameObject sideScrollUIObj;
@@ -567,11 +568,18 @@ public class GameController : MonoBehaviour { //18
         Destroy(GetComponent<GCodeEnable>());
     }
 
+    public void startFadeOut(float wait, float add, float waitBetween)
+    {
+        if(!isFading)
+            StartCoroutine(ChangeViewFadeOut(wait, add, waitBetween));
+    }
+
     //Fades to black, then switches view, then sends to changeViewFadeWait
     public IEnumerator ChangeViewFadeOut(float fadeWaitTime, float fadeAddAmount, float timeToWaitBetweenFades) //Fade wait time = how long it will wait between each up in fade, fade add amount is how much it will add to the fade each time it runs, timetowaitbetweenfades how long between fading out -> fading in
     {
+        isFading = true; //Stops any more fades from starting until this one ends
         yield return new WaitForSeconds(fadeWaitTime);
-        if(miscUIObj.transform.GetChild(0).transform.GetComponent<Image>().color.a < 1)
+        if (miscUIObj.transform.GetChild(0).transform.GetComponent<Image>().color.a < 1)
         {
             Color tempColor = miscUIObj.transform.GetChild(0).transform.GetComponent<Image>().color;
             tempColor.a += fadeAddAmount; //Increases opacity of fade to black image
@@ -581,14 +589,17 @@ public class GameController : MonoBehaviour { //18
         else
         {
             StartCoroutine(ChangeViewFadeWait(fadeWaitTime, fadeAddAmount, timeToWaitBetweenFades));
-            if(playerTeleportSpot != null)
+            if (playerTeleportSpot != null)
             {
-                playerObj.transform.GetChild(0).position = playerTeleportSpot.transform.position; //Teleports player to spawn (either interior, or back at the door of the building)
+                if (playerTeleportSpot.GetComponent<DoorController>()) //If he is teleporting to another teleport door
+                    playerObj.transform.GetChild(0).position = new Vector3(playerTeleportSpot.transform.position.x, playerTeleportSpot.transform.position.y + playerTeleportSpot.GetComponent<DoorController>().tpHereYOffset, playerTeleportSpot.transform.position.z); //Teleports player to the teleport spot & adds the spot's y offset to the player's y
+                else
+                    playerObj.transform.GetChild(0).position = playerTeleportSpot.transform.position; //Teleports player to the teleport spot
                 playerObj.transform.GetChild(0).GetComponent<TDObjSortLayerCtrl>().UpdateSortingOrder(); //Updates the player's sorting order to be accurate with his new y pos
                 inOrOutInt = inOrOutIntTemp;
 
                 //Disables camera tracking of player & focuses it on the interior
-                Vector3 newCamPos = new Vector3(playerTeleportSpot.transform.position.x, playerTeleportSpot.transform.position.y + 2, -10);
+                Vector3 newCamPos = new Vector3(playerObj.transform.GetChild(0).position.x, playerObj.transform.GetChild(0).position.y + 2, -10); //+ 2 to y so that when tp'ing to the inside of a building the camera focuses on the entire interior
                 mainCameraObj.transform.position = newCamPos;
                 mainCameraObj.GetComponent<CameraController>().desiredPostion = newCamPos;
                 mainCameraObj.GetComponent<CameraController>().canFollowX = false;
@@ -627,6 +638,7 @@ public class GameController : MonoBehaviour { //18
                 teleportDoorBeingUsed.transform.GetComponent<DoorController>().isBeingAccessed = false;
                 teleportDoorBeingUsed = null;
             }
+            isFading = false; //Allows the camera to fade in again when needed
             StopCoroutine(ChangeViewFadeIn(fadeWaitTime, fadeRemoveAmount));
         }
     }
