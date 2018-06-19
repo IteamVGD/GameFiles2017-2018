@@ -67,6 +67,8 @@ public class PlayerController : MonoBehaviour
     public Vector2 colliderOriginalSize;
     public Vector2 colliderOriginalOffset;
 
+    public float fastFallStarTime; //How long the fast fall star stays for before dissapearing
+
     //Attack Variables
     public int standardPunchDamage = 10; //punchDamage is reset to this at the start of every punch
     public int punchDamage; //Changes according to how long you hold it. Default is 10
@@ -455,7 +457,7 @@ public class PlayerController : MonoBehaviour
                 else
                 {
                     goToMinJump = false;
-                    if (letGoOfSpace == true && transform.GetComponent<Rigidbody2D>().velocity.y >= 0)
+                    if (letGoOfSpace == true && transform.GetComponent<Rigidbody2D>().velocity.y >= 0 && isDownPunching == false)
                     {
                         transform.GetComponent<Rigidbody2D>().velocity = new Vector2(transform.GetComponent<Rigidbody2D>().velocity.x, 0);
                     }
@@ -481,7 +483,7 @@ public class PlayerController : MonoBehaviour
                         sideFacing = 3;
                     }
                     letGoOfSpace = true;
-                    if (jumpheightTimerInt >= minJumpHeight && transform.GetComponent<Rigidbody2D>().velocity.y >= 0)
+                    if (jumpheightTimerInt >= minJumpHeight && transform.GetComponent<Rigidbody2D>().velocity.y >= 0 && isDownPunching == false)
                     {
                         transform.GetComponent<Rigidbody2D>().velocity = new Vector2(transform.GetComponent<Rigidbody2D>().velocity.x, 0);
                     }
@@ -498,7 +500,7 @@ public class PlayerController : MonoBehaviour
                         sideFacing = 3;
                     }
                     letGoOfSpace = true;
-                    if (jumpheightTimerInt >= minJumpHeight && transform.GetComponent<Rigidbody2D>().velocity.y >= 0)
+                    if (jumpheightTimerInt >= minJumpHeight && transform.GetComponent<Rigidbody2D>().velocity.y >= 0 && isDownPunching == false)
                     {
                         transform.GetComponent<Rigidbody2D>().velocity = new Vector2(transform.GetComponent<Rigidbody2D>().velocity.x, 0);
                     }
@@ -513,6 +515,11 @@ public class PlayerController : MonoBehaviour
                 {
                     fastFallStarObj.SetActive(true);
                     GetComponent<SpriteRenderer>().color = fastFallColor;
+                    if (previousSideFacing == 2) //If player is facing left
+                        fastFallStarObj.transform.localPosition = new Vector3(0.7f, fastFallStarObj.transform.localPosition.y, fastFallStarObj.transform.localPosition.z);
+                    if (previousSideFacing == 4) //If player is facing right
+                        fastFallStarObj.transform.localPosition = new Vector3(-0.7f, fastFallStarObj.transform.localPosition.y, fastFallStarObj.transform.localPosition.z);
+                    StartCoroutine(DisableFastFallStarTimer()); //Starts a timer to disable the fast fall star after a certain amount of time
                 }
             }
 
@@ -650,7 +657,7 @@ public class PlayerController : MonoBehaviour
             {
                 isIdle = true;
             }
-            if (canJump == false)
+            if (!canJump || !animatorWalk.GetBool("canJumpBool"))
             {
                 canJump = true;
                 animatorWalk.SetBool("canJumpBool", true);
@@ -661,6 +668,7 @@ public class PlayerController : MonoBehaviour
                 {
                     fastFallStarObj.SetActive(false);
                     GetComponent<SpriteRenderer>().color = originalColor;
+                    StopCoroutine(DisableFastFallStarTimer());
                 }
                 //effectiveDownPunch = false;
                 //isDownPunching = false;
@@ -950,6 +958,12 @@ public class PlayerController : MonoBehaviour
         gameControllerScript.levelMusicObjs[gameControllerScript.levelID].GetComponent<AudioSource>().UnPause();       
         canRunDeathJingle = true;
 
+    }
+
+    IEnumerator DisableFastFallStarTimer() //Disables the fast fall star after it being active for fastFallStarTime in seconds
+    {
+        yield return new WaitForSeconds(fastFallStarTime);
+        fastFallStarObj.SetActive(false);
     }
 
     void GCodeUpdater()
