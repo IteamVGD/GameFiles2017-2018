@@ -64,8 +64,12 @@ public class GameController : MonoBehaviour { //18
     public List<GameObject> lightList; //A list of all lights in the level
     public List<GameObject> rollingBagList; //A list of all rolling bags in the level
 
-    public bool controllerConnected; //if true, run controller only code
+    public List<string> cratesSortingStrings; //Contains a list of tags. Objects with these tags will be sorted under the 'Crates' parent in a background
+    public List<string> bagsChainsSwitchesStrings; //Contains a list of tags. Objects with these tags will be sorted under the 'BagsChains&Switches' parent in a background
+    public List<string> floorsWallsStrings; //Contains a list of tags. Objects with these tags will be sorted under the 'Floors&Walls' parent in a background
+    public List<string> miscObjectsStrings; //Contains a list of tags. Objects with these tags will be sorted under the 'MiscObjects' parent in a background
 
+    //Effect variables
     public GameObject powEffectPrefab; //The effect that appears when an enemy punches the player or the other way around
     public bool isRemovingPows;
 
@@ -106,13 +110,19 @@ public class GameController : MonoBehaviour { //18
     public GameObject playerTeleportSpot; //Used with the teleportDoor transition
     public GameObject teleportDoorBeingUsed; //Door used with val above; resets door to be used again
 
+    //Controller Stuff (d/x input controls are bound via unity editor
+    public int dOrXInput; //Changes control scheme depending on whether an xInput controller or dInput controller is connected; 1 = dInput, 2 = xInput
+    public int numberOfControllersConnected; //Used in case a controller is disconnected or a new controller is connected to switch schemes
+    public bool controllerConnected; //if true, run controller only code
+
     private void Awake()
     {
-        Application.targetFrameRate = 60;
-        if (Input.GetJoystickNames().Length > 0)
+        Application.targetFrameRate = 60; //Caps fps at 60
+        if (Input.GetJoystickNames().Length > 0) //Checks if there are controllers connected. If not, no need to run controller code
         {
             controllerConnected = true;
             playerObj.transform.GetChild(0).GetComponent<PlayerController>().isAControllerConnected = true;
+            ControllerSchemeController(); //Switches to the right scheme (d or x input)
         }
     }
 
@@ -156,6 +166,9 @@ public class GameController : MonoBehaviour { //18
 
     // Update is called once per frame
     void Update () {
+        if (controllerConnected)
+            ControllerSchemeController();
+
         if (currentView == 0 && Input.GetButtonDown("Start"))
         {
             startNewGame();
@@ -322,66 +335,23 @@ public class GameController : MonoBehaviour { //18
             }
 
             //Item Hierarchy Sorter
-            foreach(GameObject obj in GameObject.FindGameObjectsWithTag("Crate")) 
+            foreach(string tag in cratesSortingStrings)
             {
-                foreach (GameObject background in backgroundObjs)
-                {
-                    if (background.transform.position.x - 8.8 < obj.transform.position.x && background.transform.position.x + 8.8 > obj.transform.position.x)
-                    {
-                        obj.transform.SetParent(background.transform.GetChild(1));
-                        break;
-                    }
-                }
+                HierarchySorter(tag, 1);
             }
-            foreach (GameObject obj in GameObject.FindGameObjectsWithTag("BlueBox"))
+            foreach (string tag in bagsChainsSwitchesStrings)
             {
-                foreach (GameObject background in backgroundObjs)
-                {
-                    if (background.transform.position.x - 8.8 < obj.transform.position.x && background.transform.position.x + 8.8 > obj.transform.position.x)
-                    {
-                        obj.transform.SetParent(background.transform.GetChild(1));
-                        break;
-                    }
-                }
+                HierarchySorter(tag, 2);
             }
-            foreach (GameObject obj in GameObject.FindGameObjectsWithTag("RedBox"))
+            foreach (string tag in floorsWallsStrings)
             {
-                foreach (GameObject background in backgroundObjs)
-                {
-                    if (background.transform.position.x - 8.8 < obj.transform.position.x && background.transform.position.x + 8.8 > obj.transform.position.x)
-                    {
-                        obj.transform.SetParent(background.transform.GetChild(1));
-                        break;
-                    }
-                }
+                HierarchySorter(tag, 3);
             }
-            foreach (GameObject obj in GameObject.FindGameObjectsWithTag("DownPunchable")) //If needs to go under BagsChains&Switches
+            foreach (string tag in miscObjectsStrings)
             {
-                foreach (GameObject background in backgroundObjs)
-                {
-                    if (background.transform.position.x - 8.8 < obj.transform.position.x && background.transform.position.x + 8.8 > obj.transform.position.x)
-                    {
-                        obj.transform.SetParent(background.transform.GetChild(2));
-                        break;
-                    }
-                }
-                if(obj.transform.GetComponent<SpriteRenderer>().sprite.name == "BoxingBagSide") //If this is a rolling bag
-                {
-                    rollingBagList.Add(obj); //Adds to rolling back list
-                    obj.SetActive(false); //Disables so it wont roll until we want it to
-                }
+                HierarchySorter(tag, 4);
             }
-            foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Darkness")) //If needs to go under MiscObjects
-            {
-                foreach (GameObject background in backgroundObjs)
-                {
-                    if (background.transform.position.x - 8.8 < obj.transform.position.x && background.transform.position.x + 8.8 > obj.transform.position.x)
-                    {
-                        obj.transform.SetParent(background.transform.GetChild(4));
-                        break;
-                    }
-                }
-            }
+
             foreach (GameObject enemy in GameObject.FindGameObjectsWithTag("Enemy"))
             {
                 enemyList.Add(enemy.transform.parent.gameObject);
@@ -743,5 +713,65 @@ public class GameController : MonoBehaviour { //18
         canBeSwitched = false;
         yield return new WaitForSeconds(0.25f);
         canBeSwitched = true;
+    }
+
+    void ControllerSchemeController()
+    {
+        if(Input.GetJoystickNames().Length != numberOfControllersConnected) //If a controller has been connected or disconnected, or if the game is booting and it needs to check which controller scheme to run (x or d input)
+        {
+            numberOfControllersConnected = Input.GetJoystickNames().Length;
+            dOrXInput = 1; //Default is dInput b/c idk how to test for dInput controllers, but I can test for xInput controllers by seeing if theres xbox in the name
+            foreach (string controller in Input.GetJoystickNames())
+            {
+                Debug.Log("Controller Detected: " + controller);
+                if (controller.ToLower().Contains("xbox")) //If an xbox controller is connected, switch to xInput scheme instead of dInput scheme
+                    dOrXInput = 2;
+            }
+
+            //Scheme Implementation
+            if (dOrXInput == 1) //Implement dInput
+            {
+                playerObj.transform.GetChild(0).GetComponent<PlayerController>().mashButton1 = "dMash1";
+                playerObj.transform.GetChild(0).GetComponent<PlayerController>().mashButton2 = "dMash2";
+                playerObj.transform.GetChild(0).GetComponent<PlayerController>().blockInput = "dBlock";
+                playerObj.transform.GetChild(0).GetComponent<PlayerController>().attackInput = "dAttack";
+                playerObj.transform.GetChild(0).GetComponent<PlayerController>().jumpInput = "dJump";
+                playerObj.transform.GetChild(0).GetComponent<PlayerController>().interactInput = "dInteract";
+                playerObj.transform.GetChild(0).GetComponent<PlayerController>().cancelInteractInput = "dCancelInteract";
+            }
+            else
+            {
+                if (dOrXInput == 2) //Implement xInput
+                {
+                    playerObj.transform.GetChild(0).GetComponent<PlayerController>().mashButton1 = "xMash1";
+                    playerObj.transform.GetChild(0).GetComponent<PlayerController>().mashButton2 = "xMash2";
+                    playerObj.transform.GetChild(0).GetComponent<PlayerController>().blockInput = "xBlock";
+                    playerObj.transform.GetChild(0).GetComponent<PlayerController>().attackInput = "xAttack";
+                    playerObj.transform.GetChild(0).GetComponent<PlayerController>().jumpInput = "xJump";
+                    playerObj.transform.GetChild(0).GetComponent<PlayerController>().interactInput = "xInteract";
+                    playerObj.transform.GetChild(0).GetComponent<PlayerController>().cancelInteractInput = "xCancelInteract";
+                }
+            }
+        }
+    }
+
+    void HierarchySorter(string str, int childNumber) //Puts objects under the right background parents; Str = which object type to sort, ex: "Crates"; childNumber = which parent to go under when under the right background, ex: BagsChains&Switches
+    {
+        foreach (GameObject obj in GameObject.FindGameObjectsWithTag(str))
+        {
+            foreach (GameObject background in backgroundObjs)
+            {
+                if (background.transform.position.x - 8.8 < obj.transform.position.x && background.transform.position.x + 8.8 > obj.transform.position.x)
+                {
+                    obj.transform.SetParent(background.transform.GetChild(childNumber));
+                    break;
+                }
+            }
+            if (obj.transform.GetComponent<SpriteRenderer>() && obj.transform.GetComponent<SpriteRenderer>().sprite.name == "BoxingBagSide") //If this is a rolling bag
+            {
+                rollingBagList.Add(obj); //Adds to rolling back list
+                obj.SetActive(false); //Disables so it wont roll until we want it to
+            }
+        }
     }
 }

@@ -28,9 +28,12 @@ public class DoorController : MonoBehaviour {
     public GameObject linkedSpawnpoint; //If this door leads in/out of a building, this is where it will put the player
     public int tpHereYOffset; //If the player tps to this door this number will be added to his yPos;
 
+    public string interactInputString;
+
     private void Start()
     {
         playerObj = GameObject.FindGameObjectWithTag("Player").transform.GetChild(0).gameObject;
+        interactInputString = playerObj.GetComponent<PlayerController>().interactInput;
     }
 
     // Update is called once per frame
@@ -39,7 +42,7 @@ public class DoorController : MonoBehaviour {
         {
             if (!cityToCityDoor) //If this door goes from city -> level or level -> city
             {
-                if ((Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown("Fire2")) && Vector3.Distance(gameObject.transform.position, playerObj.transform.GetChild(0).position) < maxAccessRange) //Opens door if E or UpDpad is pressed
+                if ((Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown(interactInputString)) && Vector3.Distance(gameObject.transform.position, playerObj.transform.GetChild(0).position) < maxAccessRange) //Opens door if E or UpDpad is pressed
                 {
                     playerObj.transform.GetComponent<PlayerController>().timesKOd = 0;
                     gameControllerObj.transform.GetComponent<GameController>().startFadeOut(0.04f, 0.04f, 0.45f);

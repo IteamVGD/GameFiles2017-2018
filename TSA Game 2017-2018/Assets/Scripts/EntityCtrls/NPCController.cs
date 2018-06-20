@@ -60,12 +60,17 @@ public class NPCController : MonoBehaviour {
 
     public IEnumerator waitToStop;
 
+    public string interactInputString;
+    public string cancelInteractInputString;
+
     private void Start()
     {
         typeTextCouroutine = dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().TypeText();
         fadeInCoroutine = FadeTextBoxIn();
         fadeOutCoroutine = FadeTextBoxOut();
         waitToStop = WaitToStopMoving();
+        interactInputString = playerObj.GetComponent<PlayerController>().interactInput;
+        cancelInteractInputString = playerObj.GetComponent<PlayerController>().cancelInteractInput;
     }
 
     // Update is called once per frame
@@ -85,9 +90,9 @@ public class NPCController : MonoBehaviour {
         }
 
         //Code for talking to npc
-        if ((Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown("Fire2")) && Vector3.Distance(gameObject.transform.position, playerObj.transform.position) < talkRange && canTalk && dialogueCount < dialogue.Count - 1 && !isWaitingForAcceptance)
+        if ((Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown(interactInputString)) && Vector3.Distance(gameObject.transform.position, playerObj.transform.position) < talkRange && canTalk && dialogueCount < dialogue.Count - 1 && !isWaitingForAcceptance)
         {
-            if(!hasGivenPrompt && playerObj.transform.GetComponent<PlayerController>().vendorCredits >= promptPrice)
+            if(!hasGivenPrompt && playerObj.GetComponent<PlayerController>().vendorCredits >= promptPrice)
             {
                 if (!isBeingTalkedTo)
                 {
@@ -139,7 +144,7 @@ public class NPCController : MonoBehaviour {
         }
 
         //Code for when npc is on last slide of dialogue and player presses button
-        if ((Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown("Fire2")) && isBeingTalkedTo && canTalk && dialogueCount == dialogue.Count - 1 && playerObj.transform.GetComponent<PlayerController>().vendorCredits >= promptPrice && !hasGivenPrompt)
+        if ((Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown(interactInputString)) && isBeingTalkedTo && canTalk && dialogueCount == dialogue.Count - 1 && playerObj.transform.GetComponent<PlayerController>().vendorCredits >= promptPrice && !hasGivenPrompt)
         {
             StopCoroutine(typeTextCouroutine);
             StopCoroutine(typeTextCouroutine);
@@ -172,7 +177,7 @@ public class NPCController : MonoBehaviour {
         }
 
         //Code to stop talking to NPC
-        if ((Input.GetKeyDown(KeyCode.Q) || Input.GetButtonDown("Fire1")) && isBeingTalkedTo && canTalk) 
+        if ((Input.GetKeyDown(KeyCode.Q) || Input.GetButtonDown(cancelInteractInputString)) && isBeingTalkedTo && canTalk) 
         {
             playerObj.transform.GetComponent<PlayerController>().isTalkingToNPC = false;
             StopCoroutine(typeTextCouroutine);

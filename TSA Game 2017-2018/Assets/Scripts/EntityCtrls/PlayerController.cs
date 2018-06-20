@@ -87,7 +87,6 @@ public class PlayerController : MonoBehaviour
     public bool canDownPunch;
     public bool antiSpamBool;
 
-    public IEnumerator downPunchTimerCoroutine;
     public IEnumerator antiSpamDownPunchCoroutine;
 
     public bool canMove;
@@ -98,7 +97,7 @@ public class PlayerController : MonoBehaviour
     //Animator
     Animator animatorWalk;
 
-    //CONTROLLER DOCUMENTATION: dInput: 0 (Fire0) = A, 1 (Fire1) = B, 2 (Fire2) = X, 3 (Fire3) = Y, 6 = start, 7 = start; xInput: 
+    //CONTROLLER DOCUMENTATION (number = joystick button number): dInput: ?, xInput: 0 = A, 1 = B, 2 = X, 3 = Y, 7 = start
 
     public float xAxisFloat; //if -1, dpad left, if 1 dpad right, 0 = idle
     public bool leftPressed; //true if xAxis -1
@@ -108,6 +107,16 @@ public class PlayerController : MonoBehaviour
     public bool downPressed; //true if yAxis -1
 
     public bool isAControllerConnected; //ControllerConnected bool from GameController. Runs controller only code
+
+    public string blockInput; //These strings are the labels for the inputs in the inputManager for their respective action. Change according to x or d input (changed by GameController's ControllerSchemeController())
+    public string attackInput;
+    public string jumpInput;
+
+    public string mashButton1; 
+    public string mashButton2;
+
+    public string interactInput;
+    public string cancelInteractInput; //^^^
 
     //KO Amount
     public bool isBeingKOd;
@@ -157,9 +166,6 @@ public class PlayerController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        //downPunchTimerVar = downPunchTimer();
-        //breakOutOfDownPunchAnim = StopDownPunchAnim();
-        downPunchTimerCoroutine = DownPunchTimer();
         antiSpamDownPunchCoroutine = DownPunchAntiSpam();
 
         colliderOriginalSize = sideScrollColliderSize; //Saves original size and offset of box collider to reset to when un-crouching & switching views
@@ -219,7 +225,7 @@ public class PlayerController : MonoBehaviour
         }
 
         transform.parent.GetChild(1).position = transform.position;
-        if ((Input.GetKeyDown(KeyCode.L) || Input.GetButtonDown("Fire0")) && transform.GetComponent<Rigidbody2D>().velocity.y == 0 && !isBeingKOd)
+        if ((Input.GetKeyDown(KeyCode.L) || Input.GetButtonDown(blockInput)) && transform.GetComponent<Rigidbody2D>().velocity.y == 0 && !isBeingKOd)
         {
             if (blockMeter > (maxBlock / 4))
             {
@@ -229,7 +235,7 @@ public class PlayerController : MonoBehaviour
                 transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
             }
         }
-        if ((Input.GetKeyUp(KeyCode.L) || Input.GetButtonUp("Fire0")) && isBlocking == true)
+        if ((Input.GetKeyUp(KeyCode.L) || Input.GetButtonUp(blockInput)) && isBlocking == true)
         {
             isBlocking = false;
             animatorWalk.SetBool("isBlocking", false);
@@ -267,8 +273,28 @@ public class PlayerController : MonoBehaviour
 
         if (isAControllerConnected == true && gameControllerScript.currentView == 2)
         {
-            xAxisFloat = Input.GetAxis("Horizontal");
-            yAxisFloat = Input.GetAxis("Vertical");
+            if(Input.GetAxis("HorizontalLeftStick") != 0) //If the left stick is being moved (x axis)
+            { 
+                xAxisFloat = Input.GetAxis("HorizontalLeftStick"); //Use the left stick's movement (x axis)
+            }
+            else //If not
+            {
+                if (Input.GetAxis("HorizontalDpad") != 0) //If the dpad is being moved (x axis)
+                {
+                    //xAxisFloat = Input.GetAxis("HorizontalDpad"); //Use the dpad (x axis) (currently disabled because dpad sucks)
+                }
+            }
+            if (Input.GetAxis("VerticalLeftStick") != 0) //If the left stick is being moved (y axis)
+            {
+                yAxisFloat = Input.GetAxis("VerticalLeftStick"); //Use the left stick's movement (y axis)
+            }
+            else //If not
+            {
+                if (Input.GetAxis("VerticalDpad") != 0) //If the dpad is being moved (y axis)
+                {
+                    //yAxisFloat = Input.GetAxis("VerticalDpad"); //Use the dpad (y axis) (currently disabled because dpad sucks)
+                }
+            }
             if (xAxisFloat > 0.8)
             {
                 leftPressed = false;
@@ -299,43 +325,45 @@ public class PlayerController : MonoBehaviour
 
         if (isAControllerConnected == true && gameControllerScript.currentView == 1)
         {
-            xAxisFloat = Input.GetAxis("Horizontal");
-            yAxisFloat = Input.GetAxis("Vertical");
+            if (Input.GetAxis("HorizontalLeftStick") != 0) //If the left stick is being moved (x axis)
+            {
+                xAxisFloat = Input.GetAxis("HorizontalLeftStick"); //Use the left stick's movement (x axis)
+            }
+            else //If not
+            {
+                if (Input.GetAxis("HorizontalDpad") != 0) //If the dpad is being moved (x axis)
+                {
+                    //xAxisFloat = Input.GetAxis("HorizontalDpad"); //Use the dpad (x axis) (currently disabled because dpad sucks)
+                }
+            }
+            if (Input.GetAxis("VerticalLeftStick") != 0) //If the left stick is being moved (y axis)
+            {
+                yAxisFloat = Input.GetAxis("VerticalLeftStick"); //Use the left stick's movement (y axis)
+            }
+            else //If not
+            {
+                if (Input.GetAxis("VerticalDpad") != 0) //If the dpad is being moved (y axis)
+                {
+                    //yAxisFloat = Input.GetAxis("VerticalDpad"); //Use the dpad (y axis) (currently disabled because dpad sucks)
+                }
+            }
             if (xAxisFloat > 0.8)
             {
-                //leftPressed = false;
                 rightPressed = true;
             }
             else
             {
                 if (xAxisFloat < -0.8)
-                {
                     leftPressed = true;
-                    //rightPressed = false;
-                }
-                else
-                {
-                    //leftPressed = false;
-                    //rightPressed = false;
-                }
             }
             if (yAxisFloat > 0.8)
             {
                 upPressed = true;
-                //downPressed = false;
             }
             else
             {
                 if (yAxisFloat < -0.8)
-                {
-                    //upPressed = false;
                     downPressed = true;
-                }
-                else
-                {
-                    // upPressed = false;
-                    //downPressed = false;
-                }
             }
         }
 
@@ -436,7 +464,7 @@ public class PlayerController : MonoBehaviour
             if (GetComponent<Rigidbody2D>().velocity.x == 8)
                 GetComponent<Rigidbody2D>().velocity = new Vector2(4, GetComponent<Rigidbody2D>().velocity.y);
 
-            if ((Input.GetKeyDown(KeyCode.K) || Input.GetButtonDown("Fire1")) && letGoOfSpace == false)
+            if ((Input.GetKeyDown(KeyCode.K) || Input.GetButtonDown(jumpInput)) && letGoOfSpace == false)
             {
                 //canDownPunch = true;
                 transform.parent.GetChild(1).GetComponent<PlayerDownPunchCollider>().enabled = true;
@@ -464,7 +492,7 @@ public class PlayerController : MonoBehaviour
                 }
             }
 
-            if ((Input.GetKey(KeyCode.K) || (Input.GetButton("Fire1")) && goToMinJump == false && letGoOfSpace == false))
+            if ((Input.GetKey(KeyCode.K) || (Input.GetButton(jumpInput)) && goToMinJump == false && letGoOfSpace == false))
             {
                 if (jumpheightTimerInt < maxJumpHeight)
                 {
@@ -473,7 +501,7 @@ public class PlayerController : MonoBehaviour
                 }
             }
 
-            if (Input.GetButtonUp("Fire1") && letGoOfSpace == false)
+            if (Input.GetButtonUp(jumpInput) && letGoOfSpace == false)
             {
                 if (isIdle == false)
                 {
@@ -567,10 +595,15 @@ public class PlayerController : MonoBehaviour
                 transform.GetComponent<BoxCollider2D>().offset = colliderOriginalOffset;
                 downPressed = false;
             }
+
+            if (GetComponent<Rigidbody2D>().velocity.x > 0 && sideFacing != 4)
+                sideFacing = 4;
+            if (GetComponent<Rigidbody2D>().velocity.x < 0 && sideFacing != 2)
+                sideFacing = 2;
         }
 
         //Attack Code
-        if ((Input.GetKeyDown(KeyCode.J) || Input.GetButtonDown("Fire3")) && isPunching == false)
+        if ((Input.GetKeyDown(KeyCode.J) || Input.GetButtonDown(attackInput)) && isPunching == false)
         {
             if (canJump) //If is grounded, do regular punch
             {
@@ -596,22 +629,19 @@ public class PlayerController : MonoBehaviour
                     canDownPunch = false;
                     downPunchColliderObj.SetActive(true);
                 }
-                else
-                StopCoroutine(downPunchTimerCoroutine);
-                downPunchTimerCoroutine = DownPunchTimer();
-                StartCoroutine(downPunchTimerCoroutine);
+                StartCoroutine(DownPunchTimer());
                 StopCoroutine(antiSpamDownPunchCoroutine);
                 antiSpamDownPunchCoroutine = DownPunchAntiSpam();
                 StartCoroutine(antiSpamDownPunchCoroutine);
             }
         }
-        if ((Input.GetButtonDown("Fire3") || (Input.GetKeyDown(KeyCode.J)) && isPunching == true)) //Spam punch code
+        if ((Input.GetButtonDown(attackInput) || (Input.GetKeyDown(KeyCode.J)) && isPunching == true)) //Spam punch code
         {
             spamPunchTimerInt = 20;
             animatorWalk.SetBool("canStopPunching", false);
         }
 
-        if ((Input.GetKeyUp(KeyCode.J) || Input.GetButtonUp("Fire3")) && spamPunchTimerInt < 20 && isCrouching == false && isPunching == true)
+        if ((Input.GetKeyUp(KeyCode.J) || Input.GetButtonUp(attackInput)) && spamPunchTimerInt < 20 && isCrouching == false && isPunching == true)
         {
             //StopAllCoroutines(); //Breaks out of punch / charge punch
             Color tempColor = transform.GetComponent<SpriteRenderer>().color;
@@ -623,19 +653,17 @@ public class PlayerController : MonoBehaviour
             transform.GetComponent<Animator>().speed = initialAnimSpeed;
         }
 
-        if (Input.GetKeyDown(KeyCode.J) || Input.GetButtonDown("Fire3"))
+        if (Input.GetKeyDown(KeyCode.J) || Input.GetButtonDown(attackInput))
         {
             punchIsPressed = true;
         }
-        if (Input.GetKeyUp(KeyCode.J) || Input.GetButtonUp("Fire3"))
+        if (Input.GetKeyUp(KeyCode.J) || Input.GetButtonUp(attackInput))
         {
             punchIsPressed = false;
         }
 
-        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown("Fire0") || Input.GetButtonDown("Fire1") && isBeingKOd)
-        {
+        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.Space) || Input.GetButtonDown(mashButton1) || Input.GetButtonDown(mashButton2) && isBeingKOd)
             mashAmount++;
-        }
 
         if (GetComponent<SpriteRenderer>().color.a <= 0 && !isInInvincibilityFrame)
         {
@@ -779,7 +807,8 @@ public class PlayerController : MonoBehaviour
             gameControllerScript.updateHealthSlider(minHealth, maxHealth, health); //Updates health slider at top left
             if (health <= minHealth) //If player's health is below minimum health (default is 0), start KO system
                 SetupKO();
-            StopAllCoroutines();
+            StopCoroutine(CrouchPunch());
+            StopCoroutine(Punch());
             StartCoroutine(InvincibilityFramesTimer());
 
             //Got Punched SFX
@@ -980,5 +1009,10 @@ public class PlayerController : MonoBehaviour
             noClipEnabled = !noClipEnabled;
             GetComponent<BoxCollider2D>().enabled = !noClipEnabled;
         }
+    }
+
+    public void switchInputScheme(int schemeID) //used to switch from dInput to xInput or vice versa; schemeId: 1 = dInput, 2 = xInput
+    {
+        
     }
 }
