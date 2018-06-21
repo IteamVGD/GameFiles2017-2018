@@ -90,9 +90,9 @@ public class NPCController : MonoBehaviour {
         }
 
         //Code for talking to npc
-        if ((Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown(interactInputString)) && Vector3.Distance(gameObject.transform.position, playerObj.transform.position) < talkRange && canTalk && dialogueCount < dialogue.Count - 1 && !isWaitingForAcceptance)
+        if ((Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown(interactInputString)) && Vector3.Distance(gameObject.transform.position, playerObj.transform.position) < talkRange && canTalk && dialogueCount < dialogue.Count && !isWaitingForAcceptance)
         {
-            if(!hasGivenPrompt && playerObj.GetComponent<PlayerController>().vendorCredits >= promptPrice)
+            if(!hasGivenPrompt)
             {
                 if (!isBeingTalkedTo)
                 {
@@ -123,8 +123,46 @@ public class NPCController : MonoBehaviour {
                     StartCoroutine(typeTextCouroutine);
                 }
             }
+            TalkToNPC();
+            playerObj.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
+        }
+
+        //Code for when npc is on last slide of dialogue and player presses button
+        if ((Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown(interactInputString)) && isBeingTalkedTo && canTalk && dialogueCount == dialogue.Count && !hasGivenPrompt)
+        {
+            if(playerObj.transform.GetComponent<PlayerController>().money >= promptPrice)
+            {
+                StopCoroutine(typeTextCouroutine);
+                dialogueObj.transform.GetChild(1).GetComponent<Text>().text = "";
+                dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().message = promptAccepted;
+                typeTextCouroutine = dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().TypeText();
+                StartCoroutine(typeTextCouroutine);
+                hasGivenPrompt = true;
+                waitForAcceptanceCoroutine = WaitForAcceptance();
+                StartCoroutine(waitForAcceptanceCoroutine);
+                dialogueCount = 0;
+
+                //Gives player something and subtracts a price (if there is one)
+                if (shouldGiveItem)
+                {
+                    playerObj.transform.GetComponent<PlayerController>().money -= promptPrice;
+                    switch (upgradeToGive)
+                    {
+                        case 0:
+                            UpgradeDamage();
+                            break;
+                        case 1:
+                            UpgradeHealth();
+                            break;
+                        case 2:
+                            UpgradeBlock();
+                            break;
+                    }
+                }
+            }
             else
             {
+                StopCoroutine(typeTextCouroutine);
                 isWaitingForAcceptance = true;
                 fadeInCoroutine = FadeTextBoxIn();
                 StartCoroutine(fadeInCoroutine);
@@ -137,42 +175,6 @@ public class NPCController : MonoBehaviour {
                 StartCoroutine(typeTextCouroutine);
                 waitForAcceptanceCoroutine = WaitForAcceptance();
                 StartCoroutine(waitForAcceptanceCoroutine);
-            }
-            TalkToNPC();
-            playerObj.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
-            StartCoroutine(CanRunTalkAgain()); //Stops player from spamming talk
-        }
-
-        //Code for when npc is on last slide of dialogue and player presses button
-        if ((Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown(interactInputString)) && isBeingTalkedTo && canTalk && dialogueCount == dialogue.Count - 1 && playerObj.transform.GetComponent<PlayerController>().vendorCredits >= promptPrice && !hasGivenPrompt)
-        {
-            StopCoroutine(typeTextCouroutine);
-            StopCoroutine(typeTextCouroutine);
-            dialogueObj.transform.GetChild(1).GetComponent<Text>().text = "";
-            dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().message = promptAccepted;
-            typeTextCouroutine = dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().TypeText();
-            StartCoroutine(typeTextCouroutine);
-            hasGivenPrompt = true;
-            waitForAcceptanceCoroutine = WaitForAcceptance();
-            StartCoroutine(waitForAcceptanceCoroutine);
-            dialogueCount = 0;
-
-            //Gives player something and subtracts a price (if there is one)
-            if(shouldGiveItem)
-            {
-                playerObj.transform.GetComponent<PlayerController>().vendorCredits -= promptPrice;
-                switch (upgradeToGive)
-                {
-                    case 0:
-                        UpgradeDamage();
-                        break;
-                    case 1:
-                        UpgradeHealth();
-                        break;
-                    case 2:
-                        UpgradeBlock();
-                        break;
-                }
             }
         }
 
@@ -214,13 +216,6 @@ public class NPCController : MonoBehaviour {
         }
     }
 
-    IEnumerator CanRunTalkAgain()
-    {
-        canTalk = false;
-        yield return new WaitForSeconds(antiSpamTimer);
-        canTalk = true;
-    }
-
     IEnumerator FadeTextBoxIn()
     {
         Color tempColor = dialogueObj.transform.GetChild(0).GetComponent<Image>().color;
@@ -240,17 +235,18 @@ public class NPCController : MonoBehaviour {
         dialogueObj.transform.GetChild(1).GetComponent<Text>().text = "";
         dialogueObj.transform.GetChild(2).GetComponent<Text>().text = "";
         Color tempColor = dialogueObj.transform.GetChild(0).GetComponent<Image>().color;
-        while (tempColor.a > 0)
+        isBeingTalkedTo = false;
+        playerObj.transform.GetComponent<PlayerController>().isTalkingToNPC = false;
+        dialogueCount = 0;
+        isWaitingForAcceptance = false;
+        StopCoroutine(typeTextCouroutine);
+        while (tempColor.a > 0 && isBeingTalkedTo == false)
         {
             tempColor.a -= 0.04f;
             dialogueObj.transform.GetChild(0).GetComponent<Image>().color = tempColor;
             yield return new WaitForSeconds(0.02f);
             tempColor = dialogueObj.transform.GetChild(0).GetComponent<Image>().color;
         }
-        isBeingTalkedTo = false;
-        playerObj.transform.GetComponent<PlayerController>().isTalkingToNPC = false;
-        isWaitingForAcceptance = false;
-        StopCoroutine(typeTextCouroutine);
     }
 
     IEnumerator WaitForAcceptance()

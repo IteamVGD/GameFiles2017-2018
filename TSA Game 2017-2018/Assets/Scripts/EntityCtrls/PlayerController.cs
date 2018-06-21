@@ -26,8 +26,7 @@ public class PlayerController : MonoBehaviour
     public float invincibiltiyFrameTime; //How long the player should stay invincible for after taking damage (ex. 0.75 = 3/4ths of a second; preferably make them divisible by 5)
     public float reviveInvincibilityFrameTimer; //How long the player is invincible for after coming back from being KOd
 
-    public int vendorCredits = 1; //How many "credits" the player has to buy things with
-    public int credits; //How much money the player has to spend on items/things at the store (not implemented as of States version)
+    public int money; //Used to buy stuff from vendors or at a market + healing at the hospital
 
     //Movement Variables    
     public float horizontalMovementSpeed;
@@ -172,7 +171,7 @@ public class PlayerController : MonoBehaviour
         colliderOriginalOffset = sideScrollColliderOffset; //^^^
 
         health = maxHealth; //Starts player at full health
-        gameControllerScript.updateHealthSlider(minHealth, maxHealth, health); //Updates health slider at top left
+        gameControllerScript.UpdateHealthSlider(minHealth, maxHealth, health); //Updates health slider at top left
 
         //finds walk controller animator
         animatorWalk = this.GetComponent<Animator>();
@@ -254,7 +253,7 @@ public class PlayerController : MonoBehaviour
                 blockMeter -= blockRemoveAmt; //Degrades block meter
                 if (horizontalMovementSpeed != 0)
                     horizontalMovementSpeed = 0; //Slows player when blocking
-                gameControllerScript.updateBlockSlider(minBlock, maxBlock, (int)blockMeter); //Updates the block meter at the top left
+                gameControllerScript.UpdateBlockSlider(minBlock, maxBlock, (int)blockMeter); //Updates the block meter at the top left
             }
             else
             {
@@ -267,7 +266,7 @@ public class PlayerController : MonoBehaviour
             if (blockMeter < maxBlock)
             {
                 blockMeter += blockAddAmt; //Regenerates block meter
-                gameControllerScript.updateBlockSlider(minBlock, maxBlock, (int)blockMeter); //Updates the block meter at the top left
+                gameControllerScript.UpdateBlockSlider(minBlock, maxBlock, (int)blockMeter); //Updates the block meter at the top left
             }
         }
 
@@ -804,7 +803,7 @@ public class PlayerController : MonoBehaviour
         if (!isBlocking && !isInInvincibilityFrame && !isBeingKOd) //If is not blocking
         {
             health -= dmgToTake;
-            gameControllerScript.updateHealthSlider(minHealth, maxHealth, health); //Updates health slider at top left
+            gameControllerScript.UpdateHealthSlider(minHealth, maxHealth, health); //Updates health slider at top left
             if (health <= minHealth) //If player's health is below minimum health (default is 0), start KO system
                 SetupKO();
             StopCoroutine(CrouchPunch());
@@ -836,7 +835,7 @@ public class PlayerController : MonoBehaviour
         animatorWalk.SetBool("isDowned", true);
         isBeingKOd = true;
         health = minHealth;
-        gameControllerScript.updateHealthSlider(minHealth, maxHealth, health);
+        gameControllerScript.UpdateHealthSlider(minHealth, maxHealth, health);
         transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
         gameControllerScript.koSlider.transform.parent.gameObject.SetActive(true);
         timesKOd++;
@@ -872,7 +871,7 @@ public class PlayerController : MonoBehaviour
             if (mashAmount >= maxMashAmount)
             {
                 health = maxHealth;
-                gameControllerScript.updateHealthSlider(minHealth, maxHealth, health);
+                gameControllerScript.UpdateHealthSlider(minHealth, maxHealth, health);
                 isBeingKOd = false; //Re-enables basic functions (ex. movement)
                 animatorWalk.SetBool("isDowned", false); //Disables KO animation
                 gameControllerScript.koSlider.transform.parent.gameObject.SetActive(false); //Disables the KO slider ui
@@ -975,7 +974,7 @@ public class PlayerController : MonoBehaviour
     void ResetAfterKO()
     {
         health = maxHealth;
-        gameControllerScript.updateHealthSlider(minHealth, maxHealth, health);
+        gameControllerScript.UpdateHealthSlider(minHealth, maxHealth, health);
         isBeingKOd = false; //Re-enables basic functions (ex. movement)
         animatorWalk.SetBool("isDowned", false); //Disables KO animation
         gameControllerScript.koSlider.transform.parent.gameObject.SetActive(false); //Disables the KO slider ui

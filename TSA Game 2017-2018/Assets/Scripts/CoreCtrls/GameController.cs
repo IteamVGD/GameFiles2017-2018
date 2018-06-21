@@ -49,6 +49,16 @@ public class GameController : MonoBehaviour { //18
     public GameObject koText; //The text above the slider that displays the "Spam A or Space..." text
     public GameObject koTimerText; //Text below the slider that counts the timer down
 
+    //Curency UI
+    public GameObject moneyTextObj; //The money displayed at the top left of the topdown UI; NOTE: This is '$' + your money, NOT the actual word 'Money: ', that is a separate obj so the texts can be different colors
+
+    public bool displayMessageOnFadeIn; //If true, next time the screen fades back in from being black a message will be displayed
+    public float messageDisplayerFloat1;
+    public float messageDisplayerFloat2;
+    public float messageDisplayerFloat3;
+    public string messageDisplayerString;
+    public Material messageDisplayerMaterial;
+
     //Chunk and world loading variables
     public List<GameObject> backgroundObjs; //A list of the parent objects of each background tile, used for "chunk managing"
     public int chunkUnloadRange; //How far away a "chunk" needs to be from the player to be "unloaded" (disabled)
@@ -130,7 +140,6 @@ public class GameController : MonoBehaviour { //18
     void Start () {
         currentView = 0;
         playerObjStatic = playerObj;
-
         foreach (GameObject redBoxObj in GameObject.FindGameObjectsWithTag("RedBox"))
         {
             redBoxes.Add(redBoxObj);
@@ -408,6 +417,7 @@ public class GameController : MonoBehaviour { //18
         }
         else
         {
+            UpdateMoneyTxtObj();
             creditUIObj.SetActive(false);
             playerObj.SetActive(true);
             mainCameraObj.GetComponent<CameraController>().enabled = true;
@@ -512,7 +522,7 @@ public class GameController : MonoBehaviour { //18
         //playerObj.transform.GetChild(0).GetComponent<PlayerController>().health = playerObj.transform.GetChild(0).GetComponent<PlayerController>().maxHealth;
         //updateHealthSlider(playerObj.transform.GetChild(0).GetComponent<PlayerController>().minHealth, playerObj.transform.GetChild(0).GetComponent<PlayerController>().maxHealth, playerObj.transform.GetChild(0).GetComponent<PlayerController>().health); //Resets player's health after level
         playerObj.transform.GetChild(0).GetComponent<PlayerController>().blockMeter = playerObj.transform.GetChild(0).GetComponent<PlayerController>().maxBlock;
-        updateBlockSlider(playerObj.transform.GetChild(0).GetComponent<PlayerController>().minBlock, playerObj.transform.GetChild(0).GetComponent<PlayerController>().maxBlock, (int) playerObj.transform.GetChild(0).GetComponent<PlayerController>().blockMeter);
+        UpdateBlockSlider(playerObj.transform.GetChild(0).GetComponent<PlayerController>().minBlock, playerObj.transform.GetChild(0).GetComponent<PlayerController>().maxBlock, (int) playerObj.transform.GetChild(0).GetComponent<PlayerController>().blockMeter);
 
         /*if (dayOrNight) //If should be day (dayOrNight true = day, false = night)
         {
@@ -538,7 +548,7 @@ public class GameController : MonoBehaviour { //18
         Destroy(GetComponent<GCodeEnable>());
     }
 
-    public void startFadeOut(float wait, float add, float waitBetween)
+    public void StartFadeOut(float wait, float add, float waitBetween)
     {
         if(!isFading)
             StartCoroutine(ChangeViewFadeOut(wait, add, waitBetween));
@@ -609,11 +619,16 @@ public class GameController : MonoBehaviour { //18
                 teleportDoorBeingUsed = null;
             }
             isFading = false; //Allows the camera to fade in again when needed
+            if(displayMessageOnFadeIn)
+            {
+                displayMessageOnFadeIn = false;
+                StartCoroutine(MessageDisplayer(messageDisplayerFloat1, messageDisplayerFloat2, messageDisplayerFloat3, messageDisplayerString));
+            }
             StopCoroutine(ChangeViewFadeIn(fadeWaitTime, fadeRemoveAmount));
         }
     }
 
-    public void updateHealthSlider(int minVal, int maxVal, int val) //minVal = minimum "health" on the slider, maxVal = maximum "health" on the slider, val = current "health" on the slider; also updates max, min, and current health txts left, right, and above the slider
+    public void UpdateHealthSlider(int minVal, int maxVal, int val) //minVal = minimum "health" on the slider, maxVal = maximum "health" on the slider, val = current "health" on the slider; also updates max, min, and current health txts left, right, and above the slider
     {
         Slider sliderComponent = healthSlider.transform.GetComponent<Slider>(); //Temp variable that keeps track of the slider component on the slider obj; used to clean up code
         sliderComponent.minValue = minVal; //Sets min value on slider
@@ -629,7 +644,7 @@ public class GameController : MonoBehaviour { //18
             blockSlider.transform.GetChild(1).transform.GetChild(0).gameObject.SetActive(true); //Sets fill object on block slider to active
     }
 
-    public void updateBlockSlider(int minVal, int maxVal, int val) //minVal = minimum "block" on the slider, maxVal = maximum "block" on the slider, val = current "block" on the slider; also updates max, min, and current block txts left, right, and above the slider
+    public void UpdateBlockSlider(int minVal, int maxVal, int val) //minVal = minimum "block" on the slider, maxVal = maximum "block" on the slider, val = current "block" on the slider; also updates max, min, and current block txts left, right, and above the slider
     {
         Slider sliderComponent = blockSlider.transform.GetComponent<Slider>(); //Temp variable that keeps track of the slider component on the slider obj; used to clean up code
         sliderComponent.minValue = minVal; //Sets min value on slider
@@ -643,6 +658,11 @@ public class GameController : MonoBehaviour { //18
             blockSlider.transform.GetChild(1).transform.GetChild(0).gameObject.SetActive(false); //Sets fill object on block slider to inactive to prevent small amount of blue "block" at the very left
         if (val > minVal) //If above minimum block
             blockSlider.transform.GetChild(1).transform.GetChild(0).gameObject.SetActive(true); //Sets fill object on block slider to active
+    }
+
+    public void UpdateMoneyTxtObj()
+    {
+        moneyTextObj.GetComponent<Text>().text = "$" + playerObj.transform.GetChild(0).GetComponent<PlayerController>().money;
     }
 
     public IEnumerator SpawnPow(Vector3 collPosition) //Spawns a POW damage effect at the position of the collision
@@ -772,6 +792,50 @@ public class GameController : MonoBehaviour { //18
                 rollingBagList.Add(obj); //Adds to rolling back list
                 obj.SetActive(false); //Disables so it wont roll until we want it to
             }
+        }
+    }
+
+    public void MessageDisplayerOnFadein(float fadeWaitTime, float fadeAddAmount, float timeToWaitBetweenFades, string textToDisplay) //Makes it so that next time the screen fades back in from being black it will run MessageDisplayer with these parameters
+    {
+        messageDisplayerFloat1 = fadeWaitTime;
+        messageDisplayerFloat2 = fadeAddAmount;
+        messageDisplayerFloat3 = timeToWaitBetweenFades;
+        messageDisplayerString = textToDisplay;
+        displayMessageOnFadeIn = true;
+    }
+
+    public IEnumerator MessageDisplayer(float fadeWaitTime, float fadeAddAmount, float timeToWaitBetweenFades, string textToDisplay) //Fade wait time = how long it will wait between each up in fade, fade add amount is how much it will add to the fade each time it runs, timetowaitbetweenfades how long between fading out -> fading in, componentWhosColorToFade = the component that will fade in / out
+    {
+        miscUIObj.transform.GetChild(1).GetComponent<Text>().text = textToDisplay;
+        yield return new WaitForSeconds(fadeWaitTime);
+        if (messageDisplayerMaterial.color.a < 1) //Note: Adjusts the material.color instead of .color so we can use Rich Text to have parts of the text have their own colors, and as such their own opacities. Material.color applies to all of it
+        {
+            Color tempColor = messageDisplayerMaterial.color;
+            tempColor.a += fadeAddAmount;
+            messageDisplayerMaterial.color = tempColor;
+            StartCoroutine(MessageDisplayer(fadeWaitTime, fadeAddAmount, timeToWaitBetweenFades, textToDisplay));
+        }
+        else
+        {
+            StartCoroutine(MessageDisplayerWait(fadeWaitTime, fadeAddAmount, timeToWaitBetweenFades));
+        }
+    }
+
+    public IEnumerator MessageDisplayerWait(float fadeWaitTime, float fadeAddAmount, float timeToWaitBetweenFades)
+    {
+        yield return new WaitForSeconds(timeToWaitBetweenFades);
+        StartCoroutine(MessageDisplayerFadeIn(fadeWaitTime, fadeAddAmount));
+    }
+
+    public IEnumerator MessageDisplayerFadeIn(float fadeWaitTime, float fadeAddAmount)
+    {
+        yield return new WaitForSeconds(fadeWaitTime);
+        if (messageDisplayerMaterial.color.a > 0)
+        {
+            Color tempColor = messageDisplayerMaterial.color;
+            tempColor.a -= fadeAddAmount;
+            messageDisplayerMaterial.color = tempColor;
+            StartCoroutine(MessageDisplayerFadeIn(fadeWaitTime, fadeAddAmount));
         }
     }
 }

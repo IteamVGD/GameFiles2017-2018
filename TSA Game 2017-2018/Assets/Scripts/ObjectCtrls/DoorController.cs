@@ -30,6 +30,15 @@ public class DoorController : MonoBehaviour {
 
     public string interactInputString;
 
+    public bool shouldGiveMoney; //If this door should reward the player with money for going through it (ex. end of lvl door)
+    public int moneyAmount; //The amount of money this door gives if the bool above is true and the player goes through it
+    public bool shouldDisplayMessageOnFadein; //If true, next time the screen fades in from being black a message will be displayed
+    public float fadeWaitTime = 0.04f;
+    public float fadeAddAmount = 0.04f;
+    public float timeToWaitBetweenFades = 2;
+    [TextArea]
+    public string textToDisplay; //These bools are the parameters for the message that will be displayed if shouldDisplayMessageOnFadein is true
+
     private void Start()
     {
         playerObj = GameObject.FindGameObjectWithTag("Player").transform.GetChild(0).gameObject;
@@ -44,8 +53,16 @@ public class DoorController : MonoBehaviour {
             {
                 if ((Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown(interactInputString)) && Vector3.Distance(gameObject.transform.position, playerObj.transform.GetChild(0).position) < maxAccessRange) //Opens door if E or UpDpad is pressed
                 {
+                    if (shouldGiveMoney)
+                    {
+                        playerObj.GetComponent<PlayerController>().money += moneyAmount;
+                        shouldGiveMoney = false;
+                    }
+                    if (shouldDisplayMessageOnFadein)
+                        gameControllerObj.GetComponent<GameController>().MessageDisplayerOnFadein(fadeWaitTime, fadeAddAmount, timeToWaitBetweenFades, textToDisplay); //Makes it so next time the screen fades in from black this message will be displayed
+
                     playerObj.transform.GetComponent<PlayerController>().timesKOd = 0;
-                    gameControllerObj.transform.GetComponent<GameController>().startFadeOut(0.04f, 0.04f, 0.45f);
+                    gameControllerObj.transform.GetComponent<GameController>().StartFadeOut(0.04f, 0.04f, 0.45f);
                     if (cityToLevel)
                     {
                         gameControllerObj.transform.GetComponent<GameController>().levelID = nextID;
@@ -68,7 +85,7 @@ public class DoorController : MonoBehaviour {
                             gameControllerObj.GetComponent<GameController>().playerTeleportSpot = linkedSpawnpoint;
                             gameControllerObj.GetComponent<GameController>().teleportDoorBeingUsed = gameObject;
                             gameControllerObj.GetComponent<GameController>().inOrOutIntTemp = inOutInt;
-                            gameControllerObj.transform.GetComponent<GameController>().startFadeOut(0.04f, 0.04f, 0.45f);
+                            gameControllerObj.transform.GetComponent<GameController>().StartFadeOut(0.04f, 0.04f, 0.45f);
                         }
                     }
                     isBeingAccessed = true;
@@ -85,6 +102,11 @@ public class DoorController : MonoBehaviour {
                         StartCoroutine(gameControllerObj.transform.GetComponent<GameController>().ChangeViewFadeOut(0.03f, 0.03f, 0.55f));
                         gameControllerObj.transform.GetComponent<GameController>().cityID = nextID;
                         gameControllerObj.transform.GetComponent<GameController>().travellingToCity = true;
+
+                        if (shouldGiveMoney)
+                            playerObj.GetComponent<PlayerController>().money += moneyAmount;
+                        if (shouldDisplayMessageOnFadein)
+                            gameControllerObj.GetComponent<GameController>().MessageDisplayerOnFadein(fadeWaitTime, fadeAddAmount, timeToWaitBetweenFades, textToDisplay); //Makes it so next time the screen fades in from black this message will be displayed
                     }
                 }
  
