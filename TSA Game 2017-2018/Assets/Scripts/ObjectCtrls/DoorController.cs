@@ -39,19 +39,21 @@ public class DoorController : MonoBehaviour {
     [TextArea]
     public string textToDisplay; //These bools are the parameters for the message that will be displayed if shouldDisplayMessageOnFadein is true
 
-    private void Start()
+    public void Awake()
     {
         playerObj = GameObject.FindGameObjectWithTag("Player").transform.GetChild(0).gameObject;
         interactInputString = playerObj.GetComponent<PlayerController>().interactInput;
     }
 
     // Update is called once per frame
-    void Update () {
-        if(!isBeingAccessed)
+    void Update ()
+    { 
+        interactInputString = playerObj.GetComponent<PlayerController>().interactInput;
+        if (!isBeingAccessed)
         {
             if (!cityToCityDoor) //If this door goes from city -> level or level -> city
             {
-                if ((Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown(interactInputString)) && Vector3.Distance(gameObject.transform.position, playerObj.transform.GetChild(0).position) < maxAccessRange) //Opens door if E or UpDpad is pressed
+                if ((Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown(interactInputString)) && Vector3.Distance(transform.position, playerObj.transform.GetChild(0).position) < maxAccessRange) //Opens door if E or UpDpad is pressed
                 {
                     if (shouldGiveMoney)
                     {

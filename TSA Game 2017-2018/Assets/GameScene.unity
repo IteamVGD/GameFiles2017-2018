@@ -26471,7 +26471,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967295
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &490428334
 Transform:
   m_ObjectHideFlags: 0
@@ -26504,7 +26504,7 @@ MonoBehaviour:
   teleportDoor: 0
   inOutInt: 0
   buildingType: 0
-  playerObj: {fileID: 599015826}
+  playerObj: {fileID: 0}
   maxAccessRange: 3
   gameControllerObj: {fileID: 1087025722}
   isBeingAccessed: 0
@@ -26515,7 +26515,7 @@ MonoBehaviour:
   musicToRevertTo: {fileID: 0}
   linkedSpawnpoint: {fileID: 0}
   tpHereYOffset: 0
-  interactInputString: 
+  interactInputString: dInteract
   shouldGiveMoney: 1
   moneyAmount: 10
   shouldDisplayMessageOnFadein: 1
