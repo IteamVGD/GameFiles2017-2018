@@ -862,7 +862,11 @@ public class PlayerController : MonoBehaviour
             {
                 koTimer = 0;
                 timesKOd = 0;
-                gameControllerScript.levelMusicObjs[gameControllerScript.levelID].GetComponent<AudioSource>().Pause();
+                if (gameControllerScript.levelMusicObjs[gameControllerScript.levelID] != null)
+                {
+                    gameControllerScript.levelMusicObjs[gameControllerScript.levelID].GetComponent<AudioSource>().Pause();
+                }
+                    
                 audioSource.PlayOneShot(deathJingle);
                 IEnumerator deathJingleIEnum = DeathJingleTimer();
                 StartCoroutine(deathJingleIEnum);
