@@ -35,7 +35,7 @@ public class NPCController : MonoBehaviour {
     public IEnumerator waitForAcceptanceCoroutine;
     public bool isWaitingForAcceptance;
 
-    public int upgradeToGive; //Which upgrade this npc offers; 0 = damage, 1 = health, 2 = block
+    public int upgradeToGive; //Which upgrade this npc offers; 0 = damage, 1 = health, 2 = block; 999 opens the market UI
 
     public float xDistance;
     public float yDistance;
@@ -89,48 +89,13 @@ public class NPCController : MonoBehaviour {
             }
         }
 
-        //Code for talking to npc
-        if ((Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown(interactInputString)) && Vector3.Distance(gameObject.transform.position, playerObj.transform.position) < talkRange && canTalk && dialogueCount < dialogue.Count && !isWaitingForAcceptance)
-        {
-            if(!hasGivenPrompt)
-            {
-                if (!isBeingTalkedTo)
-                {
-                    isWaitingForAcceptance = false;
-                    fadeInCoroutine = FadeTextBoxIn();
-                    StartCoroutine(fadeInCoroutine);
-                    isBeingTalkedTo = true;
-                    if(enableAI) //Stops the npc from moving while being talked to if he has AI enabled
-                    {
-                        timer = Random.Range(timerMin, timerMax);
-                        GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0); //Stops npc
-                    }
-                    playerObj.transform.GetComponent<PlayerController>().isTalkingToNPC = true;
-                    StopCoroutine(typeTextCouroutine);
-                    dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().message = dialogue[dialogueCount];
-                    dialogueObj.transform.GetChild(1).GetComponent<Text>().text = "";
-                    typeTextCouroutine = dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().TypeText();
-                    StartCoroutine(typeTextCouroutine);
-                    dialogueObj.transform.GetChild(2).GetComponent<Text>().text = npcName;
-                }
-                else
-                {
-                    dialogueCount++;
-                    StopCoroutine(typeTextCouroutine);
-                    dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().message = dialogue[dialogueCount];
-                    dialogueObj.transform.GetChild(1).GetComponent<Text>().text = "";
-                    typeTextCouroutine = dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().TypeText();
-                    StartCoroutine(typeTextCouroutine);
-                }
-            }
-            TalkToNPC();
-            playerObj.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
-        }
+        if(!canTalk && upgradeToGive == 999 && !playerObj.transform.GetComponent<PlayerController>().isTalkingToNPC) //If the market UI has closed, let the AI talk again (prevents UI glitching with multiple fades going on)
+            canTalk = true;
 
         //Code for when npc is on last slide of dialogue and player presses button
-        if ((Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown(interactInputString)) && isBeingTalkedTo && canTalk && dialogueCount == dialogue.Count && !hasGivenPrompt)
+        if ((Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown(interactInputString)) && isBeingTalkedTo && canTalk && dialogueCount == dialogue.Count - 1 && !hasGivenPrompt)
         {
-            if(playerObj.transform.GetComponent<PlayerController>().money >= promptPrice)
+            if (playerObj.transform.GetComponent<PlayerController>().money >= promptPrice)
             {
                 StopCoroutine(typeTextCouroutine);
                 dialogueObj.transform.GetChild(1).GetComponent<Text>().text = "";
@@ -157,6 +122,10 @@ public class NPCController : MonoBehaviour {
                         case 2:
                             UpgradeBlock();
                             break;
+                        case 999:
+                            StartCoroutine(playerObj.GetComponent<PlayerController>().gameControllerScript.MaterialFader(0.04f, 0.04f, playerObj.GetComponent<PlayerController>().gameControllerScript.marketUIMaterial)); //Opens the market UI
+                            canTalk = false; //Stops the player from talking to this npc until the market ui is closed
+                            break;
                     }
                 }
             }
@@ -178,6 +147,44 @@ public class NPCController : MonoBehaviour {
             }
         }
 
+        //Code for talking to npc
+        if ((Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown(interactInputString)) && Vector3.Distance(gameObject.transform.position, playerObj.transform.position) < talkRange && canTalk && dialogueCount < dialogue.Count && !isWaitingForAcceptance)
+        {
+            if (!hasGivenPrompt)
+            {
+                if (!isBeingTalkedTo)
+                {
+                    isWaitingForAcceptance = false;
+                    fadeInCoroutine = FadeTextBoxIn();
+                    StartCoroutine(fadeInCoroutine);
+                    isBeingTalkedTo = true;
+                    if (enableAI) //Stops the npc from moving while being talked to if he has AI enabled
+                    {
+                        timer = Random.Range(timerMin, timerMax);
+                        GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0); //Stops npc
+                    }
+                    playerObj.transform.GetComponent<PlayerController>().isTalkingToNPC = true;
+                    StopCoroutine(typeTextCouroutine);
+                    dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().message = dialogue[dialogueCount];
+                    dialogueObj.transform.GetChild(1).GetComponent<Text>().text = "";
+                    typeTextCouroutine = dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().TypeText();
+                    StartCoroutine(typeTextCouroutine);
+                    dialogueObj.transform.GetChild(2).GetComponent<Text>().text = npcName;
+                }
+                else
+                {
+                    dialogueCount++;
+                    StopCoroutine(typeTextCouroutine);
+                    dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().message = dialogue[dialogueCount];
+                    dialogueObj.transform.GetChild(1).GetComponent<Text>().text = "";
+                    typeTextCouroutine = dialogueObj.transform.GetChild(1).GetComponent<TextTyper>().TypeText();
+                    StartCoroutine(typeTextCouroutine);
+                }
+            }
+            TalkToNPC();
+            playerObj.transform.GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
+        }
+
         //Code to stop talking to NPC
         if ((Input.GetKeyDown(KeyCode.Q) || Input.GetButtonDown(cancelInteractInputString)) && isBeingTalkedTo && canTalk) 
         {
@@ -190,6 +197,21 @@ public class NPCController : MonoBehaviour {
             fadeOutCoroutine = FadeTextBoxOut();
             StartCoroutine(fadeOutCoroutine);
             dialogueCount = 0;
+        }
+
+        //If the player is in the market UI and he wants to leave it
+        if ((Input.GetKeyDown(KeyCode.Q) || Input.GetButtonDown(cancelInteractInputString)) && !canTalk && upgradeToGive == 999)
+        {
+            playerObj.transform.GetComponent<PlayerController>().isTalkingToNPC = false;
+            StopCoroutine(typeTextCouroutine);
+            isBeingTalkedTo = false;
+            StopAllCoroutines();
+            dialogueObj.transform.GetChild(1).GetComponent<Text>().text = "";
+            dialogueObj.transform.GetChild(2).GetComponent<Text>().text = "";
+            fadeOutCoroutine = FadeTextBoxOut();
+            StartCoroutine(fadeOutCoroutine);
+            dialogueCount = 0;
+            StartCoroutine(playerObj.transform.GetComponent<PlayerController>().gameControllerScript.MaterialFadeOut(0.04f, 0.04f, playerObj.transform.GetComponent<PlayerController>().gameControllerScript.marketUIMaterial)); //Fades out the market UI
         }
     }
 
@@ -230,13 +252,13 @@ public class NPCController : MonoBehaviour {
 
     IEnumerator FadeTextBoxOut()
     {
-        if(enableAI)
-            hasGivenPrompt = false;
+        hasGivenPrompt = false;
         dialogueObj.transform.GetChild(1).GetComponent<Text>().text = "";
         dialogueObj.transform.GetChild(2).GetComponent<Text>().text = "";
         Color tempColor = dialogueObj.transform.GetChild(0).GetComponent<Image>().color;
         isBeingTalkedTo = false;
-        playerObj.transform.GetComponent<PlayerController>().isTalkingToNPC = false;
+        if(upgradeToGive != 999)
+            playerObj.transform.GetComponent<PlayerController>().isTalkingToNPC = false; //Wont let the player walk away if the market ui is open
         dialogueCount = 0;
         isWaitingForAcceptance = false;
         StopCoroutine(typeTextCouroutine);

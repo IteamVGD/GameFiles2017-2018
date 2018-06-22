@@ -31,6 +31,7 @@ public class GameController : MonoBehaviour { //18
     public GameObject topDownUIObj;
     public GameObject miscUIObj;
     public GameObject creditUIObj;
+    public GameObject dialogueObj; //This is the object that displays NPC dialogue
 
     //Health UI
     public GameObject healthSlider; //The top left slider that shows the player's health
@@ -58,6 +59,28 @@ public class GameController : MonoBehaviour { //18
     public float messageDisplayerFloat3;
     public string messageDisplayerString;
     public Material messageDisplayerMaterial;
+
+    //Market UI
+    public bool marketUIOpen; //If true, the market ui is open
+    public Material marketUIMaterial; //This is used to fade the entire UI in and out simultaneously
+    public GameObject[,] itemBoxArray = new GameObject[3, 3]; //This is a 2d array that holds the gameobjects for the 3x3 grid
+    public GameObject itemBoxHighligher; //The white box that shows which item box is selected
+    public Vector2 selectedItemCoords = new Vector2(1, 1); //The coords in the array of the currently selected item (starts at 1,1 = middle of grid)
+    public GameObject selectedItemObj; //The actual object that is selected
+    public GameObject itemNameObj; //The object with the text component that shows the name of the selected object
+    public GameObject itemPriceObj; //Same as above but for price
+    public GameObject itemDescriptionObj; //Same as above for for description
+    public GameObject largeItemObj; //The larger version of the sprite, displayed on the right side of the UI (under price)
+    public GameObject confirmPurchaseObj; //Text that appears when you press to buy something confirming you want to buy it
+    public string confirmPurchaseObjInitialText; //Holds the initial text for the obj above so it can be reset if the player buys multiple items
+    public int timesPressedToBuy; //Used in conjunction with the obj above; Counts that the player has to press twice to buy something so they dont do so accidentally
+    public List<GameObject> marketUITexts; //These are faded in differently so they dont have a shader and as such you can change the text's color
+    public Sprite transparentEmptyItemSprite; //Used in 'largeItemObj' when an empty box is selected
+
+    public bool leftStickBlock; //These variables are here because when using a stick to navigate the ui you would previously go through entire rows at a time
+    public bool rightStickBlock;
+    public bool upStickBlock;
+    public bool downStickBlock; //^^^
 
     //Chunk and world loading variables
     public List<GameObject> backgroundObjs; //A list of the parent objects of each background tile, used for "chunk managing"
@@ -140,6 +163,10 @@ public class GameController : MonoBehaviour { //18
     void Start () {
         currentView = 0;
         playerObjStatic = playerObj;
+        Color temp = marketUIMaterial.color;
+        temp.a = 0;
+        marketUIMaterial.color = temp;
+        confirmPurchaseObjInitialText = confirmPurchaseObj.GetComponent<Text>().text;
         foreach (GameObject redBoxObj in GameObject.FindGameObjectsWithTag("RedBox"))
         {
             redBoxes.Add(redBoxObj);
@@ -171,6 +198,16 @@ public class GameController : MonoBehaviour { //18
         }
 
         playerObj.SetActive(false);
+
+        int tempvar = 0;
+        for (int k = 0; k < 3; k++) //These loops poluate itemBoxArray with the objects from in the market ui
+        {
+            for(int j = 0; j < 3; j++)
+            {
+                itemBoxArray[j, k] = topDownUIObj.transform.GetChild(2).GetChild(0).GetChild(tempvar).gameObject;
+                tempvar++;
+            }
+        }
     }
 
     // Update is called once per frame
@@ -286,6 +323,78 @@ public class GameController : MonoBehaviour { //18
                     {
                         bag.SetActive(true); //Activate bag
                         bag.transform.GetComponent<RollingBagController>().StartRoll();
+                    }
+                }
+            }
+        }
+
+        //Market UI Stuff
+        if(marketUIOpen)
+        {
+            if (rightStickBlock && playerObj.transform.GetChild(0).GetComponent<PlayerController>().xAxisFloat <= 0.3f)
+                rightStickBlock = false;
+            if (leftStickBlock && playerObj.transform.GetChild(0).GetComponent<PlayerController>().xAxisFloat >= -0.3f)
+                leftStickBlock = false;
+            if (upStickBlock && playerObj.transform.GetChild(0).GetComponent<PlayerController>().yAxisFloat >= -0.3f)
+                upStickBlock = false;
+            if (downStickBlock && playerObj.transform.GetChild(0).GetComponent<PlayerController>().yAxisFloat <= 0.3f)
+                downStickBlock = false;
+
+            if (Input.GetKeyDown(KeyCode.D) || (playerObj.transform.GetChild(0).GetComponent<PlayerController>().rightPressed == true && playerObj.transform.GetChild(0).GetComponent<PlayerController>().xAxisFloat > 0.69)) //Select right
+            {
+                if(selectedItemCoords.x < 2 && !rightStickBlock)
+                {
+                    selectedItemCoords.x++;
+                    UpdateMarketUI();
+                    rightStickBlock = true;
+                }
+            }
+            if (Input.GetKeyDown(KeyCode.A) || (playerObj.transform.GetChild(0).GetComponent<PlayerController>().leftPressed == true && playerObj.transform.GetChild(0).GetComponent<PlayerController>().xAxisFloat < -0.69)) //Select left
+            {
+                if (selectedItemCoords.x > 0 && !leftStickBlock)
+                {
+                    selectedItemCoords.x--;
+                    UpdateMarketUI();
+                    leftStickBlock = true;
+                }
+            }
+            if (Input.GetKeyDown(KeyCode.S) || (playerObj.transform.GetChild(0).GetComponent<PlayerController>().downPressed == true && playerObj.transform.GetChild(0).GetComponent<PlayerController>().yAxisFloat < -0.69)) //Select up
+            {
+                if (selectedItemCoords.y < 2 && !upStickBlock)
+                {
+                    selectedItemCoords.y++;
+                    UpdateMarketUI();
+                    upStickBlock = true;
+                }
+            }
+            if (Input.GetKeyDown(KeyCode.W) || (playerObj.transform.GetChild(0).GetComponent<PlayerController>().upPressed == true && playerObj.transform.GetChild(0).GetComponent<PlayerController>().yAxisFloat > 0.69)) //Select down
+            {
+                if (selectedItemCoords.y > 0 && !downStickBlock)
+                {
+                    selectedItemCoords.y--;
+                    UpdateMarketUI();
+                    downStickBlock = true;
+                }
+            }
+
+            if (Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown(playerObj.transform.GetChild(0).GetComponent<PlayerController>().interactInput)) //Select down
+            {
+                if (selectedItemObj.transform.childCount != 0 && playerObj.transform.GetChild(0).GetComponent<PlayerController>().money >= selectedItemObj.transform.GetChild(0).GetComponent<MarketItemController>().itemCost)
+                {
+                    if (confirmPurchaseObj.activeInHierarchy == false)
+                    {
+                        confirmPurchaseObj.GetComponent<Text>().text = confirmPurchaseObjInitialText;
+                        confirmPurchaseObj.SetActive(true);
+                        timesPressedToBuy = 0;
+                    }
+                    timesPressedToBuy++;
+                    if(timesPressedToBuy == 2)
+                    {
+                        confirmPurchaseObj.GetComponent<Text>().text = "<size=50>Purchase Successfull!</size>";
+                        StartCoroutine(DisableConfirmedPurchaseTxt());
+                        playerObj.transform.GetChild(0).GetComponent<PlayerController>().money -= selectedItemObj.transform.GetChild(0).GetComponent<MarketItemController>().itemCost;
+                        UpdateMoneyTxtObj();
+                        selectedItemObj.transform.GetChild(0).GetComponent<MarketItemController>().OnPurchase(); //Applies the item's effects
                     }
                 }
             }
@@ -824,10 +933,10 @@ public class GameController : MonoBehaviour { //18
     public IEnumerator MessageDisplayerWait(float fadeWaitTime, float fadeAddAmount, float timeToWaitBetweenFades)
     {
         yield return new WaitForSeconds(timeToWaitBetweenFades);
-        StartCoroutine(MessageDisplayerFadeIn(fadeWaitTime, fadeAddAmount));
+        StartCoroutine(MessageDisplayerFadeOut(fadeWaitTime, fadeAddAmount));
     }
 
-    public IEnumerator MessageDisplayerFadeIn(float fadeWaitTime, float fadeAddAmount)
+    public IEnumerator MessageDisplayerFadeOut(float fadeWaitTime, float fadeAddAmount)
     {
         yield return new WaitForSeconds(fadeWaitTime);
         if (messageDisplayerMaterial.color.a > 0)
@@ -835,7 +944,117 @@ public class GameController : MonoBehaviour { //18
             Color tempColor = messageDisplayerMaterial.color;
             tempColor.a -= fadeAddAmount;
             messageDisplayerMaterial.color = tempColor;
-            StartCoroutine(MessageDisplayerFadeIn(fadeWaitTime, fadeAddAmount));
+            StartCoroutine(MessageDisplayerFadeOut(fadeWaitTime, fadeAddAmount));
         }
+    }
+
+    public IEnumerator ItemHighligherEnlarger() //One of the 2 methods that animate the item box highligher getting bigger and smaller
+    {
+        yield return new WaitForSeconds(0.5f);
+        itemBoxHighligher.transform.localScale = new Vector3(1.7f, 1.7f, 1.5f); //Enlarges the box
+        StartCoroutine(ItemHighligherShrinker());
+        StopCoroutine(ItemHighligherEnlarger());
+    }
+
+    public IEnumerator ItemHighligherShrinker() //Like the method above but shrinks the box instead of enlarging it
+    {
+        yield return new WaitForSeconds(0.5f);
+        itemBoxHighligher.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f); //Shrinks the box
+        StartCoroutine(ItemHighligherEnlarger());
+        StopCoroutine(ItemHighligherShrinker());
+    }
+
+    public IEnumerator MaterialFader(float fadeWaitTime, float fadeAddAmount, Material matToFade) //Fade wait time = how long it will wait between each up in fade, fade add amount is how much it will add to the fade each time it runs, timetowaitbetweenfades how long between fading out -> fading in, componentWhosColorToFade = the component that will fade in / out
+    {
+        yield return new WaitForSeconds(fadeWaitTime);
+        if (matToFade.color.a < 1) //Note: Adjusts the material.color instead of .color so we can use Rich Text to have parts of the text have their own colors, and as such their own opacities. Material.color applies to all of it
+        {
+            Color tempColor = matToFade.color;
+            tempColor.a += fadeAddAmount;
+            matToFade.color = tempColor;
+            if(matToFade == marketUIMaterial)
+            {
+                foreach (GameObject textObj in marketUITexts) //The texts in the market ui are faded in differently because they dont use the material because the mat would override their colors
+                {
+                    textObj.GetComponent<Text>().color = tempColor;
+                }
+            }
+            StartCoroutine(MaterialFader(fadeWaitTime, fadeAddAmount, matToFade));
+        }
+        else
+        {
+            StartCoroutine(ItemHighligherEnlarger());
+            marketUIOpen = true;
+            Color tempColor = new Color(dialogueObj.transform.GetChild(0).GetComponent<Image>().color.r, dialogueObj.transform.GetChild(0).GetComponent<Image>().color.g, dialogueObj.transform.GetChild(0).GetComponent<Image>().color.b, 0);
+            dialogueObj.transform.GetChild(0).GetComponent<Image>().color = tempColor; //This fades out the dialogue text box, just in case it didnt on its own
+            StopCoroutine(MaterialFader(0, 0, matToFade));
+        }
+    }
+
+    public IEnumerator MaterialFadeOut(float fadeWaitTime, float fadeAddAmount, Material matToFade)
+    {
+        yield return new WaitForSeconds(fadeWaitTime);
+        if (matToFade.color.a > 0)
+        {
+            Color tempColor = matToFade.color;
+            tempColor.a -= fadeAddAmount;
+            matToFade.color = tempColor;
+            if (matToFade == marketUIMaterial)
+            {
+                foreach (GameObject textObj in marketUITexts) //The texts are faded in differently because they dont use the material because the mat would override their colors
+                {
+                    textObj.GetComponent<Text>().color = tempColor;
+                }
+            }
+            StartCoroutine(MaterialFadeOut(fadeWaitTime, fadeAddAmount, matToFade));
+        }
+        else
+        {
+            StopCoroutine(ItemHighligherEnlarger());
+            StopCoroutine(ItemHighligherShrinker());
+            marketUIOpen = false;
+            StopCoroutine(MaterialFadeOut(0, 0, matToFade));
+        }
+    }
+
+    void UpdateMarketUI()
+    {
+        selectedItemObj = itemBoxArray[(int)selectedItemCoords.x, (int)selectedItemCoords.y];
+        itemBoxHighligher.transform.position = selectedItemObj.transform.position;
+        if(selectedItemObj.transform.childCount == 0) //If theres no item in this box, set all texts to an empty string
+        {
+            itemNameObj.GetComponent<Text>().text = "";
+            itemDescriptionObj.GetComponent<Text>().text = "";
+            itemPriceObj.GetComponent<Text>().text = "";
+            largeItemObj.GetComponent<Image>().sprite = transparentEmptyItemSprite;
+        }
+        else //If there is an item in this box, set all texts to equal that item's name, description, and price
+        {
+            itemNameObj.GetComponent<Text>().text = selectedItemObj.transform.GetChild(0).GetComponent<MarketItemController>().itemName;
+            itemDescriptionObj.GetComponent<Text>().text = selectedItemObj.transform.GetChild(0).GetComponent<MarketItemController>().itemDescription;
+            itemPriceObj.GetComponent<Text>().text = "Price: " + selectedItemObj.transform.GetChild(0).GetComponent<MarketItemController>().itemCost.ToString();
+            largeItemObj.GetComponent<Image>().sprite = selectedItemObj.transform.GetChild(0).GetComponent<Image>().sprite;
+        }
+    }
+
+    IEnumerator DisableConfirmedPurchaseTxt() //Used to take away the 'Purchase Successful!' text in the market ui after a few seconds
+    {
+        yield return new WaitForSeconds(1);
+        StartCoroutine(FadeOutConfirmedPurchaseTxt());
+    }
+
+    IEnumerator FadeOutConfirmedPurchaseTxt() //Like the above but this actually does the fading out
+    {
+        Color initialColor = confirmPurchaseObj.GetComponent<Text>().color;
+        Color tempColor = confirmPurchaseObj.GetComponent<Text>().color;
+        while (tempColor.a > 0)
+        {
+            tempColor.a -= 0.04f;
+            confirmPurchaseObj.GetComponent<Text>().color = tempColor;
+            yield return new WaitForSeconds(0.02f);
+            tempColor = confirmPurchaseObj.GetComponent<Text>().color;
+        }
+        confirmPurchaseObj.SetActive(false);
+        confirmPurchaseObj.GetComponent<Text>().color = initialColor;
     }
 }
