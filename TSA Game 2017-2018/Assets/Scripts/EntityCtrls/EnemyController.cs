@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class EnemyController : MonoBehaviour {
-
+    public int aiLevel; //0 = full AI, 1 = attack + block but cant move, 2 = attack, no block or move
     public int enemyType; //0 = blonde enemy, 1 = white haired enemy, 2 = boss
     public GameObject playerObj; //The player
 
@@ -65,8 +65,6 @@ public class EnemyController : MonoBehaviour {
     public bool canPlayHurtSound = true;
     public bool canPlayAttackSound = true;
 
-    public int test;
-
     public GameObject musicToPauseOnDeath; //Will disable this obj on death if not null
 
     //Use this for initialization
@@ -122,7 +120,18 @@ public class EnemyController : MonoBehaviour {
                 StopCoroutine(ChasePlayerTimer(0));
                 StopCoroutine(FallBackTimer(0f));
                 closeEnoughToPunch = false; //Resets bool so if the randomiser picks 1
-                agressiveRandomiser = Random.Range(1, 3); //If 1, charge player, 2 fall back; 1-3 b/c max is exclusive
+                switch(aiLevel) //If the enemy has a lower aiLevel (ex. can attack but not block or move = aiLevel 2, standard = 0)
+                {
+                    case 0:
+                        agressiveRandomiser = Random.Range(1, 3); //If 1, charge player, 2 fall back; 1-3 b/c max is exclusive
+                        break;
+                    case 2:
+                        agressiveRandomiser = Random.Range(1, 2); //Only tries to attack
+                        break;
+                    case 3:
+                        agressiveRandomiser = Random.Range(1, 2); //Only tries to attack
+                        break;
+                }
                 if (agressiveRandomiser == 1) //If it picked 1
                 {
                     runAgressiveTimer = false; //Stops timer from running until activity is done
@@ -152,7 +161,7 @@ public class EnemyController : MonoBehaviour {
                 agressiveTimer--; //Runs agressive timer
             }
 
-            if(playerObj.transform.GetComponent<PlayerController>().isPunching == true && Vector3.Distance(gameObject.transform.position, playerObj.transform.position) < 4 && isBeingPunched == false && triedBlocking == false) //If the player is about to punch this enemy
+            if(playerObj.transform.GetComponent<PlayerController>().isPunching == true && Vector3.Distance(gameObject.transform.position, playerObj.transform.position) < 4 && isBeingPunched == false && triedBlocking == false && aiLevel < 2) //If the player is about to punch this enemy
             {
                 randomBlockChance = Random.Range(0, 101); //Actually goes to 100, max is exclusive
                 if (randomBlockChance <= blockChance) //If roll is lower than the number needed to successfuly block
@@ -212,12 +221,12 @@ public class EnemyController : MonoBehaviour {
                 if (playerObj.transform.position.x - gameObject.transform.position.x >= 0) //If player is to the left of enemy
                 {
                     body.velocity = new Vector2(horizontalMovementSpeed, body.velocity.y); //Move left
-                    anim.SetInteger("sideMoving", 1); //Sets SideMoving in in animator to 1 (left)
+                    anim.SetInteger("sideMoving", 1); //Sets SideMoving in in animator to 1 (right)
                 }
                 else //If player is to the right of enemy
                 {
                     body.velocity = new Vector2(-horizontalMovementSpeed, body.velocity.y); //Move right
-                    anim.SetInteger("sideMoving", -1); //Sets SideMoving in in animator to -1 (right)
+                    anim.SetInteger("sideMoving", -1); //Sets SideMoving in in animator to -1 (left)
                 }
             }
 
@@ -270,7 +279,6 @@ public class EnemyController : MonoBehaviour {
                 canPlayHurtSound = false;
                 StartCoroutine(ResetCanPlayHurtSound());
                 audioSource.PlayOneShot(gotPunched);
-                test++;
             }
         }
     }

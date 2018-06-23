@@ -611,6 +611,7 @@ public class GameController : MonoBehaviour { //18
         levels[levelID].SetActive(true); //Enables next level
         levels[levelID].transform.GetChild(4).gameObject.SetActive(true);
         topDownUIObj.SetActive(false);
+        levelMusicObjs[levelID].SetActive(true);
         playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().gravityScale = 2.5f; //Makes player react to gravity
         playerObj.transform.GetChild(0).GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0); //Stops player
         playerObj.transform.GetChild(0).GetComponent<TDObjSortLayerCtrl>().enabled = false; //Disables the sorting layer controller for topdown

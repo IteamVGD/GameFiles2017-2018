@@ -5,17 +5,17 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{8C612F6C-EEF3-AAC0-8C7B-F0ABEE297B37}</ProjectGuid>
+    <ProjectGuid>{F4624148-B5AA-D2C9-017D-4F59524C98DB}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AssemblyName>Assembly-CSharp</AssemblyName>
+    <AssemblyName>Assembly-CSharp-Editor</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
+    <TargetFrameworkProfile>Unity Full v3.5</TargetFrameworkProfile>
     <CompilerResponseFile>
     </CompilerResponseFile>
-    <UnityProjectType>Game:1</UnityProjectType>
+    <UnityProjectType>Editor:5</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows64:19</UnityBuildTarget>
     <UnityVersion>2018.1.6f1</UnityVersion>
     <RootNamespace>
@@ -234,32 +234,77 @@
     <Reference Include="UnityEngine.UI">
       <HintPath>Library\UnityAssemblies\UnityEngine.UI.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEditor.UI">
+      <HintPath>Library\UnityAssemblies\UnityEditor.UI.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.Networking">
       <HintPath>Library\UnityAssemblies\UnityEngine.Networking.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.Networking">
+      <HintPath>Library\UnityAssemblies\UnityEditor.Networking.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.Timeline">
       <HintPath>Library\UnityAssemblies\UnityEngine.Timeline.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEditor.Timeline">
+      <HintPath>Library\UnityAssemblies\UnityEditor.Timeline.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.TreeEditor">
+      <HintPath>Library\UnityAssemblies\UnityEditor.TreeEditor.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.UIAutomation">
       <HintPath>Library\UnityAssemblies\UnityEngine.UIAutomation.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.UIAutomation">
+      <HintPath>Library\UnityAssemblies\UnityEditor.UIAutomation.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.GoogleAudioSpatializer">
+      <HintPath>Library\UnityAssemblies\UnityEditor.GoogleAudioSpatializer.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.GoogleAudioSpatializer">
       <HintPath>Library\UnityAssemblies\UnityEngine.GoogleAudioSpatializer.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEditor.HoloLens">
+      <HintPath>Library\UnityAssemblies\UnityEditor.HoloLens.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.HoloLens">
       <HintPath>Library\UnityAssemblies\UnityEngine.HoloLens.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.SpatialTracking">
+      <HintPath>Library\UnityAssemblies\UnityEditor.SpatialTracking.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.SpatialTracking">
       <HintPath>Library\UnityAssemblies\UnityEngine.SpatialTracking.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEditor.VR">
+      <HintPath>Library\UnityAssemblies\UnityEditor.VR.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.Graphs">
+      <HintPath>Library\UnityAssemblies\UnityEditor.Graphs.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.WindowsStandalone.Extensions">
+      <HintPath>Library\UnityAssemblies\UnityEditor.WindowsStandalone.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.Advertisements">
+      <HintPath>Library\UnityAssemblies\UnityEditor.Advertisements.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.Analytics">
       <HintPath>Library\UnityAssemblies\UnityEngine.Analytics.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.Analytics">
+      <HintPath>Library\UnityAssemblies\UnityEditor.Analytics.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.Purchasing">
       <HintPath>Library\UnityAssemblies\UnityEngine.Purchasing.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEditor.Purchasing">
+      <HintPath>Library\UnityAssemblies\UnityEditor.Purchasing.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.StandardEvents">
       <HintPath>Library\UnityAssemblies\UnityEngine.StandardEvents.dll</HintPath>
+    </Reference>
+    <Reference Include="SyntaxTree.VisualStudio.Unity.Bridge">
+      <HintPath>Library\UnityAssemblies\SyntaxTree.VisualStudio.Unity.Bridge.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib">
       <HintPath>Library\UnityAssemblies\mscorlib.dll</HintPath>
@@ -288,41 +333,15 @@
     <Reference Include="Boo.Lang">
       <HintPath>Library\UnityAssemblies\Boo.Lang.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.PackageManagerUI.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.PackageManagerUI.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.StandardEvents">
-      <HintPath>Library\ScriptAssemblies\UnityEditor.StandardEvents.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\CoreCtrls\CameraController.cs" />
-    <Compile Include="Assets\Scripts\CoreCtrls\FPSCounter.cs" />
-    <Compile Include="Assets\Scripts\CoreCtrls\GameController.cs" />
-    <Compile Include="Assets\Scripts\EntityCtrls\EnemyController.cs" />
-    <Compile Include="Assets\Scripts\EntityCtrls\EnemyDamageThrough.cs" />
-    <Compile Include="Assets\Scripts\EntityCtrls\EnemyJumpScript.cs" />
-    <Compile Include="Assets\Scripts\EntityCtrls\EnemyPunchCollider.cs" />
-    <Compile Include="Assets\Scripts\EntityCtrls\NPCController.cs" />
-    <Compile Include="Assets\Scripts\EntityCtrls\PlayerController.cs" />
-    <Compile Include="Assets\Scripts\EntityCtrls\PlayerDownPunchCollider.cs" />
-    <Compile Include="Assets\Scripts\EntityCtrls\PunchCollideController.cs" />
-    <Compile Include="Assets\Scripts\EntityCtrls\ValerioController.cs" />
-    <Compile Include="Assets\Scripts\ObjectCtrls\BackgroundController.cs" />
-    <Compile Include="Assets\Scripts\ObjectCtrls\BlockadeCtrl.cs" />
-    <Compile Include="Assets\Scripts\ObjectCtrls\DeathPitController.cs" />
-    <Compile Include="Assets\Scripts\ObjectCtrls\DoorController.cs" />
-    <Compile Include="Assets\Scripts\ObjectCtrls\ObjectCollisionController.cs" />
-    <Compile Include="Assets\Scripts\ObjectCtrls\RollingBagController.cs" />
-    <Compile Include="Assets\Scripts\ObjectCtrls\SwitchController.cs" />
-    <Compile Include="Assets\Scripts\ObjectCtrls\TDObjSortLayerCtrl.cs" />
-    <Compile Include="Assets\Scripts\UICtrls\CreditsCtrl.cs" />
-    <Compile Include="Assets\Scripts\UICtrls\GCodeEnable.cs" />
-    <Compile Include="Assets\Scripts\UICtrls\ItemBoxController.cs" />
-    <Compile Include="Assets\Scripts\UICtrls\MarketItemController.cs" />
-    <Compile Include="Assets\Scripts\UICtrls\SidescrollUIController.cs" />
-    <Compile Include="Assets\Scripts\UICtrls\TextTyper.cs" />
-    <Compile Include="Assets\Scripts\UICtrls\TopdownUIController.cs" />
+    <ProjectReference Include="TSA Game 2017-2018.csproj">
+      <Project>{8C612F6C-EEF3-AAC0-8C7B-F0ABEE297B37}</Project>
+      <Name>TSA Game 2017-2018</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="C:\Users\gabriel.tubiomoncau\AppData\Local\Unity\cache\packages\packages.unity.com\com.unity.standardevents@1.0.13\Editor\Importer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="C:\Users\gabriel.tubiomoncau\AppData\Local\Unity\cache\packages\packages.unity.com\com.unity.package-manager-ui@1.8.8\Editor\Resources\Styles\Main_Dark.uss" />
